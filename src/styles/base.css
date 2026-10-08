@@ -112,3 +112,10 @@ button {
     transition-duration: 0.001ms !important;
   }
 }
+
+/* Full-viewport canvas pages (the 3D map): nothing scrolls, the canvas is the page. */
+body.immersive {
+  overflow: hidden;
+  overscroll-behavior: none;
+  block-size: 100svh;
+}

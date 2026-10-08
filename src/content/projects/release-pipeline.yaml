@@ -7,8 +7,9 @@ end: present
 weight: { mobile: 2, cloud: 2, all: 3 }
 featured: false
 confidential: false
-code: O01
+code: P01
 role: { en: "Release engineer", de: "Release-Engineer", ar: "مهندس إصدارات" }
+short: { en: "Release CI/CD", de: "Release-CI/CD", ar: "خط الإصدار" }   # ≤14 chars, used on the map
 title:
   en: "Mobile release pipeline"
   de: "Mobile Release-Pipeline"

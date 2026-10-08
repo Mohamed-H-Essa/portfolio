@@ -19,6 +19,8 @@ interface Props {
   ogImage?: string;
   /** Hide the chrome (used by the CV print page). */
   bare?: boolean;
+  /** Full-viewport canvas page: floating transparent header, no footer, no page scroll. */
+  immersive?: boolean;
 }
 
 const {
@@ -29,6 +31,7 @@ const {
   pathParts = [],
   ogImage,
   bare = false,
+  immersive = false,
 } = Astro.props;
 
 const meta = LOCALE_META[locale];
@@ -76,12 +79,12 @@ const buildDate = new Date().toISOString().slice(0, 10);
     <meta name="generator" content={Astro.generator} />
     <slot name="head" />
   </head>
-  <body data-track={track}>
+  <body data-track={track} class:list={{ immersive }}>
     <a class="skip-link" href="#main">{t(locale, 'skip')}</a>
-    {!bare && <Header locale={locale} track={track} pathParts={pathParts} buildSha={buildSha} />}
+    {!bare && <Header locale={locale} track={track} pathParts={pathParts} buildSha={buildSha} floating={immersive} />}
     <main id="main">
       <slot />
     </main>
-    {!bare && <Footer locale={locale} buildSha={buildSha} buildDate={buildDate} />}
+    {!bare && !immersive && <Footer locale={locale} buildSha={buildSha} buildDate={buildDate} />}
   </body>
 </html>

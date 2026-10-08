@@ -1,0 +1,603 @@
+---
+// The layered 3D map — the whole track page is this canvas.
+// SSR renders the full scene with CSS 3D at the default camera, so it shows
+// (and every card is a working link) without JavaScript. scene-camera.ts adds
+// drag / orbit / zoom / fly-to / selection on top.
+import { layoutScene, PLANE_DEPTH, CARD_LIFT, type SceneInput, type Layer } from '../lib/scene';
+import { loc, t, url, dir as dirOf, type Locale, type Track } from '../i18n';
+import { hasAssets, assetUrl } from '../lib/assets';
+import type { Project } from '../lib/content';
+
+interface Props {
+  projects: Project[];
+  featured?: Project;
+  locale: Locale;
+  track: Track;
+}
+const { projects, featured, locale, track } = Astro.props;
+const dir = dirOf(locale);
+const rtl = dir === 'rtl';
+
+const input: SceneInput[] = projects.map((p) => ({
+  slug: p.data.slug,
+  code: p.data.code,
+  start: p.data.start,
+  worlds: p.data.worlds as Layer[],
+  weight: p.data.weight,
+  connects: p.data.connects,
+  stack: p.data.stack,
+}));
+const L = layoutScene(input, track, { dir, featured: featured?.data.slug });
+const bySlug = new Map(projects.map((p) => [p.data.slug, p]));
+
+const layerName = (l: Layer) => t(locale, `map.lane.${l}`);
+const short = (slug: string) => {
+  const p = bySlug.get(slug)!;
+  return p.data.short ? loc(p.data.short, locale, slug) : loc(p.data.title, locale, slug);
+};
+
+// Everything the panel needs, per project, for the client script.
+const panelData = Object.fromEntries(
+  projects.map((p) => {
+    const d = p.data;
+    const has = hasAssets(d.slug);
+    return [
+      d.slug,
+      {
+        code: d.code,
+        title: loc(d.title, locale, d.slug),
+        impact: d.impact?.line ? loc(d.impact.line, locale, d.slug) : '',
+        role: d.role ? loc(d.role, locale, d.slug) : '',
+        years: `${d.start.slice(0, 4)}${d.end === 'present' ? '–' : d.end.slice(0, 4) !== d.start.slice(0, 4) ? '–' + d.end.slice(0, 4) : ''}`,
+        stack: d.stack,
+        layer: d.worlds[0],
+        cover: has ? assetUrl(d.slug, rtl ? 'cover-rtl' : 'cover') : '',
+        href: url(locale, track, 'p', d.slug),
+        appStore: d.links?.appStore ?? '',
+        playStore: d.links?.playStore ?? '',
+        live: d.links?.live ?? '',
+      },
+    ];
+  })
+);
+const phaseOf = (y: number) => (y <= 2021 ? 's1' : y <= 2023 ? 's2' : y <= 2025 ? 's3' : 's4');
+const strings = {
+  open: t(locale, 'map.open'),
+  appStore: t(locale, 'dossier.appStore'),
+  playStore: t(locale, 'dossier.playStore'),
+  visit: t(locale, 'dossier.visit'),
+  phases: Object.fromEntries(L.years.map((y) => [y.year, t(locale, `phase.${phaseOf(y.year)}`)])),
+};
+const startSlug = L.cards.find((c) => c.featured)?.slug ?? L.cards.find((c) => !c.dimmed)?.slug ?? L.cards[0]?.slug;
+const camera = { x: L.start.x, z: 0, yaw: rtl ? 14 : -14, xRange: L.xRange, rtl };
+---
+
+<section
+  class="stage"
+  data-scene
+  data-start={startSlug}
+  style={`--fx:${camera.x};--fy:0;--fz:0;--yaw:${camera.yaw}deg;--pitch:54deg;--zoom:var(--fit-zoom);`}
+>
+  <canvas class="dust" aria-hidden="true"></canvas>
+
+  <div class="viewport" tabindex="0" aria-label={t(locale, 'map.layers')} aria-roledescription="3D map">
+    <div class="world">
+      {/* planes: flat glass with grid, year lines, engraved layer name and skills */}
+      {
+        L.planes.map((pl) => (
+          <div
+            class="plane"
+            data-layer={pl.layer}
+            style={`width:${pl.width}px;height:${pl.depth}px;transform:translate3d(${pl.x0}px,${pl.y0}px,${pl.z}px)`}
+          >
+            <span class="plane__title" style={`${rtl ? 'right' : 'left'}:${rtl ? pl.width - pl.titleX : pl.titleX}px`}>
+              {layerName(pl.layer)}
+            </span>
+            {L.years.map((y) => (
+              <span class="plane__year" style={`left:${y.x - pl.x0}px`} />
+            ))}
+            {pl.layer === 'cloud' &&
+              L.years.map((y) => (
+                <span class="plane__yearlabel" style={`left:${y.x - pl.x0}px`}>{y.year}</span>
+              ))}
+            {L.skills
+              .filter((s) => s.layer === pl.layer)
+              .map((s) => (
+                <span
+                  class="skill"
+                  data-for={s.slugs.join(' ')}
+                  style={`left:${s.x - pl.x0}px;top:${s.y - pl.y0}px`}
+                >
+                  {s.name}
+                </span>
+              ))}
+          </div>
+        ))
+      }
+
+      {/* beams between connected projects (world space, can cross layers) */}
+      {
+        L.beams.map((b) => (
+          <span
+            class="beam"
+            data-for={`${b.from} ${b.to}`}
+            style={`width:${b.length}px;transform:translate3d(${b.a.x}px,${b.a.y}px,${b.a.z}px) rotateZ(${b.rotZ}deg) rotateY(${b.rotY}deg)`}
+          />
+        ))
+      }
+
+      {/* pins + base dots + billboard cards */}
+      {
+        L.cards.map((c) => (
+          <>
+            <span
+              class:list={['dot', `dot--${c.layer}`, { 'is-dimmed': c.dimmed }]}
+              data-for={c.slug}
+              style={`transform:translate3d(${c.x}px,${c.y}px,${c.z}px) translate(-50%,-50%)`}
+            />
+            <span
+              class:list={['pin', { 'is-dimmed': c.dimmed }]}
+              style={`height:${CARD_LIFT}px;transform:translate3d(${c.x}px,${c.y}px,${c.z}px) rotateX(90deg)`}
+            />
+            <a
+              class:list={['card', `card--${c.layer}`, { 'is-dimmed': c.dimmed, 'is-featured': c.featured }]}
+              href={url(locale, track, 'p', c.slug)}
+              data-slug={c.slug}
+              data-x={c.x}
+              data-z={c.z}
+              style={`transform:translate3d(${c.x}px,${c.y}px,${c.z + CARD_LIFT}px) rotateZ(calc(var(--yaw) * -1)) rotateX(calc(var(--pitch) * -1)) scale(calc(var(--card-k) / var(--zoom))) translate(-50%,-100%)`}
+            >
+              <span class="card__img">
+                {hasAssets(c.slug) ? (
+                  <img src={assetUrl(c.slug, 'thumb')} alt="" loading="lazy" decoding="async" draggable="false" />
+                ) : (
+                  <span class="card__mono">{c.code.slice(0, 1)}</span>
+                )}
+              </span>
+              <span class="card__code">{c.code} · {c.year}</span>
+              <span class="card__name">{short(c.slug)}</span>
+            </a>
+          </>
+        ))
+      }
+    </div>
+  </div>
+
+  {/* ---- floating chrome ---------------------------------------------- */}
+  <div class="credit">
+    <p class="label credit__world">{t(locale, `world.${track}.name`)}</p>
+    <h1 class="credit__title">{t(locale, `track.${track}.hero`)}</h1>
+    <p class="credit__sub">{t(locale, `track.${track}.sub`)}</p>
+  </div>
+
+  <p class="hint label" data-hint>
+    <span class="hint--fine">{t(locale, 'map.hint')}</span>
+    <span class="hint--touch">{t(locale, 'map.hintTouch')}</span>
+  </p>
+
+  <nav class="rail" aria-label="Years">
+    {
+      L.years.map((y) => (
+        <button class="rail__year" data-x={y.x} data-year={y.year}>
+          <span class="rail__n">{y.year}</span>
+          <span class="rail__phase">{strings.phases[y.year]}</span>
+        </button>
+      ))
+    }
+  </nav>
+
+  <div class="controls">
+    <button class="ctl" data-zoom="out" aria-label="Zoom out">−</button>
+    <button class="ctl" data-zoom="in" aria-label="Zoom in">+</button>
+    <button class="ctl" data-reset aria-label="Reset view">⟲</button>
+    <button class="ctl ctl--wide" data-index-open aria-expanded="false" aria-controls="scene-index">{t(locale, 'map.index')}</button>
+  </div>
+
+  <aside class="panel" data-panel aria-live="polite">
+    <div class="panel__art"><img data-p="cover" alt="" /></div>
+    <div class="panel__body">
+      <p class="label panel__meta"><span data-p="code"></span> · <span data-p="years"></span></p>
+      <h2 class="panel__title" data-p="title"></h2>
+      <p class="panel__impact" data-p="impact"></p>
+      <ul class="panel__stack" data-p="stack"></ul>
+      <div class="panel__actions">
+        <a class="btn btn--primary" data-p="href">{strings.open} →</a>
+        <a class="btn" data-p="appStore" target="_blank" rel="noopener">{strings.appStore}</a>
+        <a class="btn" data-p="playStore" target="_blank" rel="noopener">{strings.playStore}</a>
+        <a class="btn" data-p="live" target="_blank" rel="noopener">{strings.visit}</a>
+      </div>
+    </div>
+  </aside>
+
+  {/* Index: every project as a plain list (keyboard, screen readers, no-JS via :target) */}
+  <div class="index" id="scene-index" data-index>
+    <div class="index__inner">
+      <p class="label">{t(locale, 'map.index')}</p>
+      <ol>
+        {projects.map((p) => (
+          <li class:list={{ 'is-dimmed': p.data.weight[track] === 0 }}>
+            <a href={url(locale, track, 'p', p.data.slug)}>
+              <span class="index__code">{p.data.code}</span>
+              <span class="index__title">{loc(p.data.title, locale, p.data.slug)}</span>
+              <span class="index__layer">{layerName(p.data.worlds[0] as Layer)}</span>
+              <span class="index__year">{p.data.start.slice(0, 4)}</span>
+            </a>
+          </li>
+        ))}
+      </ol>
+      <button class="index__close ctl" data-index-close aria-label="Close">×</button>
+    </div>
+  </div>
+
+  <script type="application/json" data-scene-json set:html={JSON.stringify({ panel: panelData, strings, camera })} />
+</section>
+
+<style>
+  /* ======== stage: the whole viewport ======== */
+  .stage {
+    --card-k: 1;
+    --fit-zoom: 0.78;
+    --ox: -150px; /* focus sits left of centre so the panel has room */
+    --oy: 10px;
+    position: relative;
+    block-size: 100svh;
+    overflow: hidden;
+    background: radial-gradient(90% 70% at 50% 45%, #0f1012 0%, var(--bg) 70%);
+    color: var(--ink);
+    touch-action: pan-y; /* phones: vertical swipes still reach the page; JS handles horizontal */
+  }
+  .dust { position: absolute; inset: 0; inline-size: 100%; block-size: 100%; pointer-events: none; }
+
+  .viewport {
+    position: absolute;
+    inset: 0;
+    perspective: 1900px;
+    perspective-origin: 50% 45%;
+    cursor: grab;
+    touch-action: none; /* we own every gesture on the map */
+    outline: none;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  .viewport.is-grabbing { cursor: grabbing; }
+  .world {
+    position: absolute;
+    inset-inline-start: 50%;
+    inset-block-start: 50%;
+    inline-size: 0;
+    block-size: 0;
+    transform-style: preserve-3d;
+    transform: translate(var(--ox), var(--oy)) scale3d(var(--zoom), var(--zoom), var(--zoom))
+      rotateX(var(--pitch)) rotateZ(var(--yaw))
+      translate3d(calc(var(--fx) * -1px), calc(var(--fy) * -1px), calc(var(--fz) * -1px));
+    will-change: transform;
+  }
+  /* RTL must not flip the 3D world; layout already mirrored time on x. */
+  .world, .world * { direction: ltr; }
+  .world > * { position: absolute; inset-inline-start: 0; inset-block-start: 0; }
+
+  /* ======== planes ======== */
+  .plane {
+    --c: var(--origin);
+    border-radius: 22px;
+    background:
+      repeating-linear-gradient(90deg, rgba(255,255,255,.028) 0 1px, transparent 1px 120px),
+      repeating-linear-gradient(0deg, rgba(255,255,255,.028) 0 1px, transparent 1px 120px),
+      linear-gradient(180deg, color-mix(in srgb, var(--c) 7%, transparent), color-mix(in srgb, var(--c) 3%, transparent));
+    border: 1px solid color-mix(in srgb, var(--c) 20%, transparent);
+    box-shadow: 0 0 120px color-mix(in srgb, var(--c) 6%, transparent) inset;
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
+    mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
+    transition: opacity var(--dur-slow) var(--ease);
+  }
+  .plane[data-layer='mobile'] { --c: var(--mobile); }
+  .plane[data-layer='cloud'] { --c: var(--cloud); }
+  .plane__title {
+    position: absolute;
+    inset-block-start: 50%;
+    transform: translateY(-50%);
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 150px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--c);
+    opacity: 0.09;
+    white-space: nowrap;
+    pointer-events: none;
+  }
+  :root[dir='rtl'] .plane__title { font-family: var(--font-ar); letter-spacing: 0; text-transform: none; }
+  .plane__year {
+    position: absolute;
+    inset-block: 6%;
+    inline-size: 1px;
+    background: linear-gradient(180deg, transparent, rgba(255,255,255,.08) 20%, rgba(255,255,255,.08) 80%, transparent);
+  }
+  .plane__yearlabel {
+    position: absolute;
+    inset-block-end: 22px;
+    transform: translateX(-50%);
+    font-family: var(--font-mono);
+    font-size: 26px;
+    letter-spacing: 0.2em;
+    color: rgba(255,255,255,.22);
+  }
+  .skill {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    font-family: var(--font-mono);
+    font-size: 20px;
+    letter-spacing: 0.08em;
+    white-space: nowrap;
+    color: var(--ink);
+    opacity: 0.16;
+    transition: opacity var(--dur) var(--ease), color var(--dur) var(--ease), text-shadow var(--dur) var(--ease);
+  }
+  .skill.is-lit { opacity: 0.95; color: var(--c); text-shadow: 0 0 18px color-mix(in srgb, var(--c) 60%, transparent); }
+  .stage.has-focus .skill:not(.is-lit) { opacity: 0.06; }
+
+  /* ======== beams, pins, dots ======== */
+  .beam {
+    block-size: 1.5px;
+    margin-block-start: -0.75px;
+    transform-origin: 0 50%;
+    background: repeating-linear-gradient(90deg, rgba(237,230,214,.55) 0 10px, transparent 10px 20px);
+    background-size: 20px 100%;
+    opacity: 0.45;
+    animation: beam-flow 1.6s linear infinite;
+    transition: opacity var(--dur) var(--ease);
+  }
+  .beam.is-lit { opacity: 1; background-image: repeating-linear-gradient(90deg, var(--accent) 0 10px, transparent 10px 20px); }
+  .stage.has-focus .beam:not(.is-lit) { opacity: 0.12; }
+  @keyframes beam-flow { to { background-position: 20px 0; } }
+
+  .pin {
+    inline-size: 1px;
+    transform-origin: 50% 0;
+    background: linear-gradient(180deg, rgba(255,255,255,.35), rgba(255,255,255,.05));
+  }
+  .dot {
+    inline-size: 14px;
+    block-size: 14px;
+    border-radius: 50%;
+    background: var(--origin);
+    box-shadow: 0 0 0 6px color-mix(in srgb, var(--origin) 14%, transparent), 0 0 24px var(--origin);
+  }
+  .dot--mobile { background: var(--mobile); box-shadow: 0 0 0 6px color-mix(in srgb, var(--mobile) 14%, transparent), 0 0 24px var(--mobile); }
+  .dot--cloud { background: var(--cloud); box-shadow: 0 0 0 6px color-mix(in srgb, var(--cloud) 14%, transparent), 0 0 24px var(--cloud); }
+  .pin.is-dimmed, .dot.is-dimmed { opacity: 0.25; }
+
+  /* ======== cards: "portraits" that always face the camera ======== */
+  .card {
+    --c: var(--origin);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    inline-size: 128px;
+    transform-origin: 50% 100%;
+    color: var(--ink);
+    text-align: center;
+    -webkit-user-drag: none;
+  }
+  .card--mobile { --c: var(--mobile); }
+  .card--cloud { --c: var(--cloud); }
+  .card__img {
+    position: relative;
+    display: grid;
+    place-items: center;
+    inline-size: 104px;
+    block-size: 128px;
+    overflow: hidden;
+    border-radius: 6px;
+    background: #121316;
+    outline: 1px solid rgba(255,255,255,.1);
+    box-shadow: 0 18px 40px rgba(0,0,0,.6);
+    transition: outline-color var(--dur-fast) var(--ease), box-shadow var(--dur) var(--ease), transform var(--dur) var(--ease);
+  }
+  .card__img img { inline-size: 100%; block-size: 100%; object-fit: cover; object-position: top; pointer-events: none; }
+  .card__mono {
+    font-family: var(--font-mono);
+    font-size: 40px;
+    color: var(--c);
+    opacity: 0.8;
+  }
+  .card__code {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    color: var(--ink-3);
+  }
+  .card__name {
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    line-height: 1.3;
+    color: var(--ink);
+  }
+  :root[dir='rtl'] .card__name { font-family: var(--font-ar); letter-spacing: 0; font-size: 15px; text-transform: none; }
+  .card:hover .card__img,
+  .card:focus-visible .card__img,
+  .card.is-selected .card__img {
+    outline: 1.5px solid var(--c);
+    box-shadow: 0 18px 40px rgba(0,0,0,.6), 0 0 40px color-mix(in srgb, var(--c) 45%, transparent);
+    transform: translateY(-4px);
+  }
+  .card.is-selected .card__name { color: var(--c); }
+  .card:focus-visible { outline: none; }
+  /* off-track: the Dark "unknown character" — a dark, quiet placeholder */
+  .card.is-dimmed .card__img img { filter: grayscale(1) brightness(0.32); }
+  .card.is-dimmed .card__name,
+  .card.is-dimmed .card__code { opacity: 0.4; }
+  .stage.has-focus .card:not(.is-lit):not(:hover):not(.is-selected) { opacity: 0.45; }
+
+  /* ======== floating chrome ======== */
+  .credit {
+    position: absolute;
+    inset-inline-start: var(--gutter);
+    inset-block-end: 88px;
+    max-inline-size: min(34ch, 40vw);
+    pointer-events: none;
+  }
+  .credit__world { color: var(--accent); }
+  .credit__title { font-size: clamp(1.5rem, 1.1rem + 1.6vw, 2.6rem); margin-block: 0.3rem 0.4rem; }
+  .credit__sub { color: var(--ink-2); font-size: 0.95rem; }
+
+  .hint {
+    position: absolute;
+    inset-block-start: 76px;
+    inset-inline: 0;
+    text-align: center;
+    color: var(--ink-3);
+    pointer-events: none;
+    transition: opacity 800ms var(--ease);
+  }
+  .hint.is-gone { opacity: 0; }
+  .hint--touch { display: none; }
+  @media (hover: none) { .hint--fine { display: none; } .hint--touch { display: inline; } }
+
+  .rail {
+    position: absolute;
+    inset-block-end: 22px;
+    inset-inline-start: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 4px;
+    padding: 4px;
+    border: 1px solid var(--line-2);
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--bg) 70%, transparent);
+    backdrop-filter: blur(10px);
+  }
+  .rail__year {
+    display: grid;
+    padding: 6px 14px;
+    border-radius: 999px;
+    color: var(--ink-3);
+    transition: color var(--dur-fast) var(--ease), background var(--dur-fast) var(--ease);
+  }
+  .rail__n { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.12em; }
+  .rail__phase { font-size: 10px; max-block-size: 0; overflow: hidden; opacity: 0; transition: opacity var(--dur) var(--ease); }
+  .rail__year:hover { color: var(--ink); }
+  .rail__year.is-active { color: var(--accent-ink); background: var(--accent); }
+  .rail__year.is-active .rail__phase { max-block-size: 2em; opacity: 0.8; }
+
+  .controls {
+    position: absolute;
+    inset-inline-end: var(--gutter);
+    inset-block-end: 22px;
+    display: flex;
+    gap: 6px;
+  }
+  .ctl {
+    min-inline-size: 38px;
+    block-size: 38px;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    background: color-mix(in srgb, var(--bg) 70%, transparent);
+    backdrop-filter: blur(10px);
+    color: var(--ink);
+    font-family: var(--font-mono);
+    font-size: 15px;
+    transition: border-color var(--dur-fast) var(--ease);
+  }
+  .ctl--wide { padding-inline: 14px; font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; }
+  .ctl:hover { border-color: var(--accent); }
+
+  /* ======== panel ======== */
+  .panel {
+    position: absolute;
+    inset-inline-end: var(--gutter);
+    inset-block-start: 84px;
+    inline-size: 320px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    background: color-mix(in srgb, var(--bg-2) 82%, transparent);
+    backdrop-filter: blur(16px);
+    overflow: hidden;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity var(--dur) var(--ease), transform var(--dur) var(--ease);
+    pointer-events: none;
+  }
+  .panel.is-open { opacity: 1; transform: none; pointer-events: auto; }
+  .panel__art img { display: block; inline-size: 100%; aspect-ratio: 16 / 9; object-fit: cover; background: var(--bg-3); }
+  .panel__art img:not([src]), .panel__art img[src=''] { display: none; }
+  .panel__body { padding: 1rem 1.1rem 1.15rem; display: grid; gap: 0.45rem; }
+  .panel__meta { color: var(--ink-3); }
+  .panel__title { font-size: 1.35rem; line-height: 1.15; }
+  .panel__impact { color: var(--ink-2); font-size: 0.92rem; }
+  .panel__stack { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 5px; margin-block: 0.2rem; }
+  .panel__stack :global(li) { font-family: var(--font-mono); font-size: 11px; padding: 3px 8px; border: 1px solid var(--line); border-radius: 999px; color: var(--ink-2); }
+  .panel__actions { display: flex; flex-wrap: wrap; gap: 6px; margin-block-start: 0.3rem; }
+  .btn { font-family: var(--font-mono); font-size: 11.5px; letter-spacing: 0.06em; padding: 7px 12px; border: 1px solid var(--line); border-radius: 999px; color: var(--ink); }
+  .btn:hover { border-color: var(--accent); }
+  .btn--primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+  .btn[hidden] { display: none; }
+
+  /* ======== index overlay ======== */
+  .index {
+    position: absolute;
+    inset: 0;
+    z-index: 40;
+    display: grid;
+    place-items: center;
+    background: color-mix(in srgb, var(--bg) 88%, transparent);
+    backdrop-filter: blur(12px);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity var(--dur) var(--ease), visibility var(--dur);
+  }
+  .index.is-open, .index:target { opacity: 1; visibility: visible; }
+  .index__inner { position: relative; inline-size: min(640px, 92vw); max-block-size: 80svh; overflow: auto; padding: 1.5rem; }
+  .index ol { list-style: none; padding: 0; margin-block-start: 1rem; }
+  .index li a {
+    display: grid;
+    grid-template-columns: 3.2rem 1fr auto 3rem;
+    gap: 1rem;
+    align-items: baseline;
+    padding: 0.85rem 0;
+    border-block-end: 1px solid var(--line-2);
+  }
+  .index li a:hover .index__title { color: var(--accent); }
+  .index li.is-dimmed { opacity: 0.4; }
+  .index__code, .index__year, .index__layer { font-family: var(--font-mono); font-size: 12px; color: var(--ink-3); letter-spacing: 0.1em; }
+  .index__title { font-size: 1.05rem; }
+  .index__close { position: absolute; inset-block-start: 1rem; inset-inline-end: 1rem; }
+
+  /* ======== phones ======== */
+  @media (max-width: 760px) {
+    .stage { --fit-zoom: 0.5; --card-k: 0.84; --ox: 0px; --oy: -40px; }
+    .credit { inset-block-start: 70px; inset-block-end: auto; max-inline-size: 80vw; }
+    .credit__sub { display: none; }
+    .hint { display: none; }
+    .panel {
+      inset-inline: 10px;
+      inset-block: auto 72px;
+      inline-size: auto;
+      display: grid;
+      grid-template-columns: 96px 1fr;
+    }
+    .panel__art img { aspect-ratio: auto; block-size: 100%; }
+    .panel__stack { display: none; }
+    .panel__body { padding: 0.75rem 0.85rem; gap: 0.3rem; }
+    .panel__title { font-size: 1.05rem; }
+    .panel__impact { font-size: 0.82rem; }
+    .rail { inset-block-end: 14px; inset-inline-start: 10px; transform: none; max-inline-size: calc(100vw - 150px); overflow-x: auto; }
+    .rail__phase { display: none; }
+    .controls { inset-block-end: 14px; inset-inline-end: 10px; }
+    .controls [data-zoom] { display: none; }
+    .index li a { grid-template-columns: 2.8rem 1fr 2.6rem; }
+    .index__layer { display: none; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .beam { animation: none; }
+  }
+</style>
+
+<script>
+  import { initScene } from '../scripts/scene-camera';
+  document.querySelectorAll<HTMLElement>('[data-scene]').forEach(initScene);
+</script>

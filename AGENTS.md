@@ -4,6 +4,7 @@ You are implementing a portfolio site whose design was planned by a stronger mod
 **Your job is execution, not redesign.**
 
 ## Read order
+0. **`docs/HANDOFF.md` — latest state + the owner's newest direction (overrides older docs where they disagree)**
 1. `docs/spec.md` — what we're building and why (decisions D1–D9 are final)
 2. `docs/plan.md` — ordered phases with checkboxes. Find the first unchecked box and continue from there.
 3. `docs/assets.md` — screenshot → visuals pipeline (Phase 3)

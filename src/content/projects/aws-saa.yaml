@@ -8,6 +8,7 @@ weight: { mobile: 0, cloud: 3, all: 2 }
 featured: false
 confidential: false
 code: C01
+short: { en: "AWS SAA", de: "AWS SAA", ar: "AWS SAA" }   # ≤14 chars, used on the map
 title:
   en: "AWS Certified Solutions Architect – Associate (SAA-C03)"
   de: "AWS Certified Solutions Architect – Associate (SAA-C03)"

@@ -27,8 +27,9 @@ const projects = defineCollection({
     }),
     featured: z.boolean().default(false),
     confidential: z.boolean().default(false),
-    code: z.string().regex(/^[MCO]\d{2}$/), // e.g. M03
+    code: z.string().regex(/^[MCP]\d{2}$/), // M mobile · P platform · C cloud, e.g. M03
     role: localizedOpt.optional(),
+    short: localizedOpt.optional(), // ≤14 chars, the name on the 3D map
     title: localized,
     impact: z
       .object({

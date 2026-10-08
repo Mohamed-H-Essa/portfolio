@@ -2,15 +2,16 @@
 # Localized fields: `en` is required; `de`/`ar` fall back to en with a build warning.
 slug: example-app
 kind: project                 # project | role | cert
-worlds: [mobile]              # any of: mobile, cloud, origin  (first one = primary lane on the map)
-era: s3                       # s1 origins 2019-21 | s2 freelance 2022-24 | s3 intrazero 2024- | s4 cloud 2026-
+worlds: [mobile]              # any of: mobile, cloud, origin (origin = the "Platform" layer)  (first = primary layer)
+era: s3                       # career phase (internal): s1 university 2019-21 | s2 freelance 2022-23 | s3 intrazero 2024-25 | s4 cloud 2026-
 start: 2025-01                # YYYY-MM, positions the node on the timeline
 end: 2025-06                  # or "present"
 weight: { mobile: 3, cloud: 0, all: 2 }   # 0 = dimmed on that track, 3 = featured candidate
 featured: false               # at most one featured per track
 confidential: false
-code: M-03                    # Dark-style case code: M/C/O + 2 digits, unique
+code: M03                     # case code: M (mobile) / P (platform) / C (cloud) + 2 digits, unique
 role: { en: "Lead Flutter developer" }
+short: { en: "Example" }   # ≤14 chars — the name shown on the 3D map (cards are small)
 title: { en: "Example App", de: "Example App", ar: "تطبيق مثال" }
 impact:
   line: { en: "Cut release cycles from days to same-day" }

@@ -9,6 +9,7 @@ featured: true
 confidential: false
 code: M01
 role: { en: "Flutter developer", de: "Flutter-Entwickler", ar: "مطوّر Flutter" }
+short: { en: "Qanony", de: "Qanony", ar: "قانوني" }   # ≤14 chars, used on the map
 title: { en: "Qanony", de: "Qanony", ar: "قانوني" }
 impact:
   line:

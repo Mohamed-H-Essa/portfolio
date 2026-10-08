@@ -1,33 +1,14 @@
 ---
-// Track home. Phase 1: hero + a plain project list (no-JS baseline for the map).
-// Phase 4/5 add the hero flourishes, the interactive timeline, skills dock.
+// Track home: the page IS the layered 3D map (Scene). No hero block, no list
+// below — the role title floats as a credit, projects live on the map, and the
+// Index overlay gives a plain list for keyboard / screen readers / scanners.
 import Base from '../../../layouts/Base.astro';
-import {
-  LOCALES,
-  TRACKS,
-  isLocale,
-  isTrack,
-  t,
-  loc,
-  url,
-  type Locale,
-  type Track,
-} from '../../../i18n';
-import { projectsForTrack, featuredForTrack, skillsForTrack, isDimmed } from '../../../lib/content';
-import { hasAssets, assetUrl } from '../../../lib/assets';
-import FeaturedCard from '../../../components/FeaturedCard.astro';
-import SkillsDock from '../../../components/SkillsDock.astro';
-import Timeline from '../../../components/Timeline.astro';
-import { dir as dirOf } from '../../../i18n';
+import Scene from '../../../components/Scene.astro';
+import { LOCALES, TRACKS, isLocale, isTrack, type Locale, type Track } from '../../../i18n';
+import { loadProjects, featuredForTrack } from '../../../lib/content';
 
-export async function getStaticPaths() {
-  const paths = [];
-  for (const lang of LOCALES) {
-    for (const track of TRACKS) {
-      paths.push({ params: { lang, track } });
-    }
-  }
-  return paths;
+export function getStaticPaths() {
+  return LOCALES.flatMap((lang) => TRACKS.map((track) => ({ params: { lang, track } })));
 }
 
 const { lang, track } = Astro.params;
@@ -36,120 +17,10 @@ if (!track || !isTrack(track)) throw new Error(`bad track param: ${track}`);
 const locale: Locale = lang;
 const tr: Track = track;
 
-const projects = await projectsForTrack(tr);
+const projects = await loadProjects();
 const featured = await featuredForTrack(tr);
-const skills = await skillsForTrack(tr);
-// Don't repeat the featured project in the list below.
-const listed = projects.filter((p) => p.data.slug !== featured?.data.slug);
 ---
 
-<Base locale={locale} track={tr} pathParts={[tr]}>
-  <section class="shell hero">
-    <p class="label">{t(locale, `world.${tr}.name`)}</p>
-    <h1>{t(locale, `track.${tr}.hero`)}</h1>
-    <p class="hero__sub">{t(locale, `track.${tr}.sub`)}</p>
-  </section>
-
-  {featured && (
-    <section class="shell featured-section">
-      <FeaturedCard project={featured} locale={locale} track={tr} />
-    </section>
-  )}
-
-  <section class="shell">
-    <SkillsDock skills={skills} locale={locale} />
-  </section>
-
-  <!-- Desktop: interactive timeline map (SSR SVG + pan/zoom island). -->
-  <Timeline projects={projects} locale={locale} track={tr} dir={dirOf(locale)} />
-
-  <!-- Phones / no-JS / screen readers: the vertical project list. -->
-  <section class="shell timeline-fallback" aria-label="Projects">
-    <p class="label section-label">{t(locale, 'map.lane.' + (tr === 'cloud' ? 'cloud' : 'mobile'))} · {projects.length}</p>
-    <ol class="nodes">
-      {
-        listed.map((p) => (
-          <li class:list={['node', { 'is-dimmed': isDimmed(p, tr) }]} data-era={p.data.era}>
-            <a href={url(locale, tr, 'p', p.data.slug)}>
-              {hasAssets(p.data.slug) && (
-                <img class="node__thumb" src={assetUrl(p.data.slug, 'thumb')} alt="" loading="lazy" width="80" height="100" />
-              )}
-              <span class="node__body">
-                <span class="node__code label">{p.data.code}</span>
-                <span class="node__title">{loc(p.data.title, locale, p.data.slug)}</span>
-                {p.data.impact?.line && (
-                  <span class="node__impact">{loc(p.data.impact.line, locale, p.data.slug)}</span>
-                )}
-              </span>
-            </a>
-          </li>
-        ))
-      }
-    </ol>
-  </section>
+<Base locale={locale} track={tr} pathParts={[tr]} immersive>
+  <Scene projects={projects} featured={featured} locale={locale} track={tr} />
 </Base>
-
-<style>
-  .hero {
-    padding-block: clamp(2.5rem, 7vh, 6rem) 2rem;
-  }
-  .hero__sub {
-    color: var(--ink-2);
-    max-inline-size: 52ch;
-    font-size: var(--fs-lead);
-    margin-block-start: 1rem;
-  }
-  .featured-section { margin-block-start: 2rem; }
-  .section-label { color: var(--ink-3); margin-block: 2.5rem 1rem; }
-  /* The map covers desktop; the list is the phone view. The SSR SVG map also
-     works without JS on desktop, so hiding the list ≥768px is safe. */
-  @media (min-width: 768px) {
-    .timeline-fallback { display: none; }
-  }
-  .nodes {
-    list-style: none;
-    padding: 0;
-    display: grid;
-    gap: 0.75rem;
-    grid-template-columns: 1fr;
-  }
-  .node a {
-    display: flex;
-    align-items: center;
-    gap: 0.9rem;
-    padding: 0.85rem 1rem;
-    border: 1px solid var(--line-2);
-    border-inline-start: 3px solid var(--accent);
-    border-radius: var(--radius);
-    background: var(--bg-2);
-    transition: border-color var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease);
-  }
-  .node__thumb {
-    inline-size: 56px;
-    block-size: 70px;
-    object-fit: cover;
-    border-radius: 6px;
-    flex-shrink: 0;
-  }
-  .node__body {
-    display: grid;
-    gap: 0.2rem;
-    min-inline-size: 0;
-  }
-  .node[data-era='s4'] a { border-inline-start-color: var(--cloud); }
-  .node a:hover {
-    transform: translateY(-1px);
-    border-color: var(--line);
-  }
-  .node.is-dimmed a {
-    opacity: 0.4;
-    filter: grayscale(0.6);
-  }
-  .node__code { color: var(--ink-3); }
-  .node__title { font-family: var(--font-display); font-size: 1.1rem; color: var(--ink); }
-  .node__impact { color: var(--ink-2); font-size: 0.9rem; }
-
-  @media (min-width: 720px) {
-    .nodes { grid-template-columns: repeat(2, 1fr); }
-  }
-</style>

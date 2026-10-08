@@ -12,6 +12,7 @@ role:
   en: "Design, build & deploy"
   de: "Konzept, Umsetzung & Deployment"
   ar: "تصميم وبناء ونشر"
+short: { en: "German Sync", de: "German Sync", ar: "German Sync" }   # ≤14 chars, used on the map
 title:
   en: "German study app + cross-device sync"
   de: "Deutsch-Lern-App mit Geräte-Sync"

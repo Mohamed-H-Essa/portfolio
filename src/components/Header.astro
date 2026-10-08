@@ -7,8 +7,10 @@ interface Props {
   track: Track;
   pathParts: (string | number)[];
   buildSha: string;
+  /** Float transparently over a full-viewport canvas. */
+  floating?: boolean;
 }
-const { locale, track, pathParts } = Astro.props;
+const { locale, track, pathParts, floating = false } = Astro.props;
 
 // Language links keep the SAME page (pathParts) in the other locale.
 const langLinks = LOCALES.map((l) => ({
@@ -33,7 +35,7 @@ const cvHref = url(locale, 'cv', track);
 const homeHref = url(locale, track);
 ---
 
-<header class="site-header">
+<header class:list={['site-header', { 'site-header--floating': floating }]}>
   <div class="shell site-header__inner">
     <a class="brand" href={homeHref} aria-label="Mohamed Essa — home">
       <Sigil size={30} />
@@ -112,6 +114,14 @@ const homeHref = url(locale, track);
     backdrop-filter: blur(12px);
     border-block-end: 1px solid var(--line-2);
   }
+  .site-header--floating {
+    position: fixed;
+    inset-inline: 0;
+    background: linear-gradient(180deg, rgba(8, 8, 8, 0.78), rgba(8, 8, 8, 0));
+    backdrop-filter: none;
+    border-block-end: none;
+  }
+  .site-header--floating .site-header__inner { max-inline-size: none; }
   .site-header__inner {
     display: flex;
     align-items: center;

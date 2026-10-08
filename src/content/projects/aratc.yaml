@@ -9,6 +9,7 @@ featured: false
 confidential: false
 code: M02
 role: { en: "Flutter developer", de: "Flutter-Entwickler", ar: "مطوّر Flutter" }
+short: { en: "ARATC", de: "ARATC", ar: "ARATC" }   # ≤14 chars, used on the map
 title: { en: "ARATC", de: "ARATC", ar: "ARATC" }
 impact:
   line:

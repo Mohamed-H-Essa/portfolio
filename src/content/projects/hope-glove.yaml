@@ -12,6 +12,7 @@ role:
   en: "Full-stack & cloud (app, backend, firmware)"
   de: "Full-Stack & Cloud (App, Backend, Firmware)"
   ar: "مطوّر متكامل وسحابة (تطبيق، خلفية، عتاد)"
+short: { en: "HOPE glove", de: "HOPE-Handschuh", ar: "قفاز HOPE" }   # ≤14 chars, used on the map
 title:
   en: "HOPE — hand-rehab glove"
   de: "HOPE — Reha-Handschuh"

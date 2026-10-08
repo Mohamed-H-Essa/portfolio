@@ -7,8 +7,9 @@ end: present
 weight: { mobile: 2, cloud: 1, all: 3 }
 featured: false
 confidential: false
-code: O02
+code: P02
 role: { en: "Mobile security", de: "Mobile Security", ar: "أمن التطبيقات" }
+short: { en: "App security", de: "App-Sicherheit", ar: "أمن التطبيقات" }   # ≤14 chars, used on the map
 title:
   en: "Mobile security hardening"
   de: "Mobile Security Hardening"
