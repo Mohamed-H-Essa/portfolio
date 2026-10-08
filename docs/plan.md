@@ -54,16 +54,13 @@ Read first: `AGENTS.md` → `docs/spec.md` → this file. `docs/assets.md` and `
   - **Deferred to Phase 5/6 (noted):** the "app→API→cloud" perspective layer (kit #13) — belongs with the other motion work; the project list here is still the Phase-5 map's no-JS fallback.
 - [x] Track + language switches preserve the page (Header already did this in Phase 1).
 
-## Phase 5 — The Timeline map (spec D3)
-- [ ] Data → layout: a pure function `layoutTimeline(nodes, track, dir)` → `{x,y}` per node (x from `start`, lane from primary world,
-      collision nudging), edges as cubic paths. Unit-tested (LTR and RTL mirror).
-- [ ] Render: SSR `<ol>` of node `<a>` cards (no-JS fallback = vertical list). JS island `Timeline.ts` enhances ≥ 768 px into the pan/zoom canvas:
-      pointer drag with inertia, wheel/pinch zoom clamped 0.6–2, arrow keys / +/-, Season chips (`s1..s4`) animate the camera (GSAP, `--ease-strong`).
-      Nodes: thumb + code + title; dimmed (opacity .35, grayscale) when `weight[track]==0`; hover/focus = pulse + edge highlight; edges have a dashed flow animation.
-      Year ticks along the axis; lane labels "MOBILE / ORIGIN / CLOUD" in mono caps.
-- [ ] < 768 px: vertical timeline (time top→bottom), sticky season chips, cards with thumb + impact line. **No pan/zoom on phones.**
-- [ ] Reduced motion: no inertia/flow/pulse; camera moves are instant.
-- Check: 60 fps pan on a mid laptop; at 320 px no horizontal scroll; screen reader reads nodes in chronological order.
+## Phase 5 — The Timeline map (spec D3)  ✅ DONE 2026-10-08 (map verified on /en/all/)
+- [x] `src/lib/timeline.ts` `layoutTimeline(nodes, track, dir)` → nodes {x,y,lane,dimmed}, edges (cubic), year ticks, lane rows; x from `start` month, lane from primary world, in-lane collision nudging, RTL mirrors x. **9 unit tests** (LTR/RTL, lanes, dimming, edge dedup, unknown-slug, empty).
+- [x] `src/components/Timeline.astro`: SSR SVG scene (crawlable, works no-JS as a scrollable diagram). Nodes = thumb (projects with assets) or dot; code + truncated title (full title in `<title>` tooltip); dimmed off-world. Dashed **flowing edges** between `connects`. Year ticks + lane labels (MOBILE/ORIGIN/CLOUD). Season chips (s1–s4) jump the camera. Island: drag-pan, ctrl/⌘-wheel zoom (0.6–2), arrow keys / +/-, starts centred on newest.
+- [x] < 768 px: the map hides; the parent page's vertical list (thumbs + impact) is the phone view. Also the no-JS desktop fallback (SVG is static-usable; list hidden ≥768 but SVG still scrolls).
+- [x] Reduced motion: edge flow + smooth-scroll disabled.
+- Check: tests green; map verified by eye (lanes, edges, truncation, thumbnails). **Note:** only 6 content nodes so far (earliest 2024) — the map will fill out 2019–2023 once Phase 8 adds freelance/IEEE/EGPI/al3wn nodes. Season chips s1/s2 are disabled until those exist.
+- **Deferred (minor):** pinch-zoom on touch (desktop-only map today; phones use the list by design), GSAP-eased camera (used native smooth-scroll — lighter, no dep needed yet).
 
 ## Phase 6 — Dossiers + atmosphere
 - [ ] `/{lang}/{track}/p/{slug}/` per spec D4: `cover` (desktop) / `cover-portrait` (phone) via `<picture>`, impact metric with

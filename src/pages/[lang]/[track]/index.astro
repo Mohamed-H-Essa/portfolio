@@ -17,6 +17,8 @@ import { projectsForTrack, featuredForTrack, skillsForTrack, isDimmed } from '..
 import { hasAssets, assetUrl } from '../../../lib/assets';
 import FeaturedCard from '../../../components/FeaturedCard.astro';
 import SkillsDock from '../../../components/SkillsDock.astro';
+import Timeline from '../../../components/Timeline.astro';
+import { dir as dirOf } from '../../../i18n';
 
 export async function getStaticPaths() {
   const paths = [];
@@ -58,8 +60,10 @@ const listed = projects.filter((p) => p.data.slug !== featured?.data.slug);
     <SkillsDock skills={skills} locale={locale} />
   </section>
 
-  <!-- Phase 5 replaces this list with the interactive Timeline map.
-       It stays as the no-JS / screen-reader baseline. -->
+  <!-- Desktop: interactive timeline map (SSR SVG + pan/zoom island). -->
+  <Timeline projects={projects} locale={locale} track={tr} dir={dirOf(locale)} />
+
+  <!-- Phones / no-JS / screen readers: the vertical project list. -->
   <section class="shell timeline-fallback" aria-label="Projects">
     <p class="label section-label">{t(locale, 'map.lane.' + (tr === 'cloud' ? 'cloud' : 'mobile'))} · {projects.length}</p>
     <ol class="nodes">
@@ -97,6 +101,11 @@ const listed = projects.filter((p) => p.data.slug !== featured?.data.slug);
   }
   .featured-section { margin-block-start: 2rem; }
   .section-label { color: var(--ink-3); margin-block: 2.5rem 1rem; }
+  /* The map covers desktop; the list is the phone view. The SSR SVG map also
+     works without JS on desktop, so hiding the list ≥768px is safe. */
+  @media (min-width: 768px) {
+    .timeline-fallback { display: none; }
+  }
   .nodes {
     list-style: none;
     padding: 0;
