@@ -29,12 +29,15 @@ export function hasScreens(slug: string): boolean {
 // Generated asset paths under public/projects/<slug>/. `npm run assets` writes
 // these; they're committed. A node without generated assets falls back to null
 // so components can show a placeholder.
-export type AssetKind = 'cover' | 'cover-rtl' | 'cover-portrait' | 'thumb' | 'sigil';
+export type AssetKind = 'cover' | 'cover-rtl' | 'cover-portrait' | 'cover-2x' | 'cover-rtl-2x' | 'cover-portrait-2x' | 'thumb' | 'sigil';
 
 const EXT: Record<AssetKind, string> = {
   cover: 'cover.webp',
   'cover-rtl': 'cover-rtl.webp',
   'cover-portrait': 'cover-portrait.webp',
+  'cover-2x': 'cover-2x.webp',
+  'cover-rtl-2x': 'cover-rtl-2x.webp',
+  'cover-portrait-2x': 'cover-portrait-2x.webp',
   thumb: 'thumb.webp',
   sigil: 'sigil.svg',
 };

@@ -6,12 +6,12 @@
 import { initSwipeBack } from './swipe-back';
 
 // Input is never locked: a new move retargets the frames mid-transition (CSS
-// transitions run from wherever they are), so you can always intercept. What
-// stops a trackpad flick's inertia from skipping frames is the gesture rule:
-// one move per gesture, and a gesture is new after a pause, a fresh flick
-// (deltas growing again), a change of direction, or a discrete wheel notch.
-const QUIET_MS = 180;
-const GAP_MS = 140; // minimum time between two moves
+// transitions run from wherever they are), so you can always intercept. The
+// rule that stops skipping: ONE step per gesture, however hard. A gesture ends
+// only after a short silence or a change of direction, so a hard flick (and
+// its long inertia tail, or a fast-spun wheel) is still exactly one step.
+const QUIET_MS = 220;
+const GAP_MS = 120; // minimum time between two moves
 const WHEEL_STEP = 40; // accumulated delta that counts as "go"
 const SWIPE = 56; // px
 const LIGHT: [number, number][] = [[82, 18], [18, 30], [70, 80], [30, 70], [85, 55]];
@@ -86,7 +86,6 @@ export function initEngine(root: HTMLElement) {
   // ---- wheel / trackpad ----------------------------------------------------
   let acc = 0;
   let lastWheel = 0;
-  let lastMag = 0;
   let lastDir = 0;
   let armed = true;
   addEventListener(
@@ -98,10 +97,8 @@ export function initEngine(root: HTMLElement) {
       const now = performance.now();
       const mag = Math.abs(e.deltaY) * (e.deltaMode === 1 ? 32 : 1);
       const gap = now - lastWheel;
-      const notch = e.deltaMode === 1 || (mag >= 50 && gap > 50 && Number.isInteger(e.deltaY));
-      if (gap > QUIET_MS || dir !== lastDir || notch || (mag > lastMag * 1.6 && mag > 6)) { armed = true; acc = 0; }
+      if (gap > QUIET_MS || dir !== lastDir) { armed = true; acc = 0; } // a new gesture
       lastWheel = now;
-      lastMag = mag;
       lastDir = dir;
       if (canScroll(frames[idx], dir)) return; // the frame scrolls itself first
       e.preventDefault();
@@ -123,6 +120,7 @@ export function initEngine(root: HTMLElement) {
     const f = frames[idx];
     const step = (dir: number, page: boolean) => {
       e.preventDefault();
+      if (e.repeat && !(!page && canScroll(f, dir))) return; // a held key doesn't run through frames
       if (!page && canScroll(f, dir)) f.scrollBy({ top: dir * f.clientHeight * 0.6, behavior: reduce ? 'auto' : 'smooth' });
       else go(idx + dir);
     };

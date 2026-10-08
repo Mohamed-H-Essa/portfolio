@@ -29,7 +29,11 @@ export function prefetch(t: HandoffTarget) {
   if (img) new Image().src = img;
 }
 
-const heroImage = (t: HandoffTarget) => (innerWidth <= 760 ? t.coverPortrait : t.cover);
+// the same 1×/2× pick the hero's srcset makes, so the landed image is already loaded
+const heroImage = (t: HandoffTarget) => {
+  const url = innerWidth <= 760 ? t.coverPortrait : t.cover;
+  return url && devicePixelRatio > 1.25 ? url.replace(/\.webp$/, '-2x.webp') : url;
+};
 
 export function handoff(t: HandoffTarget, from: HTMLElement, stage: HTMLElement) {
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;

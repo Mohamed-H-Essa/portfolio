@@ -30,8 +30,23 @@ const links = [
     {
       art ? (
         <picture>
-          <source media="(max-width: 760px)" srcset={assetUrl(d.slug, 'cover-portrait')} width="1080" height="1350" />
-          <img src={assetUrl(d.slug, rtl ? 'cover-rtl' : 'cover')} alt="" width="1600" height="900" fetchpriority="high" />
+          {/* 1× and 2× renders: the hero fills the screen height, so retina needs the 2× */}
+          <source
+            media="(max-width: 760px)"
+            srcset={`${assetUrl(d.slug, 'cover-portrait')} 1080w, ${assetUrl(d.slug, 'cover-portrait-2x')} 2160w`}
+            sizes="100vw"
+            width="1080"
+            height="1350"
+          />
+          <img
+            src={assetUrl(d.slug, rtl ? 'cover-rtl' : 'cover')}
+            srcset={`${assetUrl(d.slug, rtl ? 'cover-rtl' : 'cover')} 1600w, ${assetUrl(d.slug, rtl ? 'cover-rtl-2x' : 'cover-2x')} 3200w`}
+            sizes="(max-width: 760px) 100vw, 120svh"
+            alt=""
+            width="1600"
+            height="900"
+            fetchpriority="high"
+          />
         </picture>
       ) : (
         <Badge slug={d.slug} title={d.short?.en ?? d.title.en} kind={d.kind} />

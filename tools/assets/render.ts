@@ -129,8 +129,11 @@ async function renderScreenshotProject(browser: Browser, slug: string, spec: Sho
   // the empty side. LTR puts the devices right; RTL mirrors them left.
   const cv = coverTemplate(hero, backScreens, { accent, sigilSvg: sigil });
   await writeWebp(await shoot(browser, cv.html, cv.w, cv.h), join(outDir, 'cover.webp'), 80);
+  // 2× for retina heroes (the hero shows the cover at full screen height)
+  await writeWebp(await shoot(browser, cv.html, cv.w, cv.h, 2), join(outDir, 'cover-2x.webp'), 78);
   const cvr = coverTemplate(hero, backScreens, { accent, sigilSvg: sigil, rtl: true });
   await writeWebp(await shoot(browser, cvr.html, cvr.w, cvr.h), join(outDir, 'cover-rtl.webp'), 80);
+  await writeWebp(await shoot(browser, cvr.html, cvr.w, cvr.h, 2), join(outDir, 'cover-rtl-2x.webp'), 78);
 
   // The captioned variant is for link previews (OG), where there is no HTML.
   if (spec.code) {
@@ -140,6 +143,7 @@ async function renderScreenshotProject(browser: Browser, slug: string, spec: Sho
 
   const cp = coverPortraitTemplate(hero, { accent, sigilSvg: sigil });
   await writeWebp(await shoot(browser, cp.html, cp.w, cp.h), join(outDir, 'cover-portrait.webp'), 80);
+  await writeWebp(await shoot(browser, cp.html, cp.w, cp.h, 2), join(outDir, 'cover-portrait-2x.webp'), 78);
 
   const th = thumbTemplate(hero, { accent });
   await writeWebp(await shoot(browser, th.html, th.w, th.h), join(outDir, 'thumb.webp'), 80);
@@ -169,10 +173,14 @@ async function renderCloudProject(browser: Browser, slug: string, spec: DiagramY
   const cc = cloudCoverTemplate(base);
   const buf = await shoot(browser, cc.html, cc.w, cc.h);
   await writeWebp(buf, join(outDir, 'cover.webp'), 80);
+  const buf2 = await shoot(browser, cc.html, cc.w, cc.h, 2);
+  await writeWebp(buf2, join(outDir, 'cover-2x.webp'), 78);
   const ccr = cloudCoverTemplate({ ...base, rtl: true });
   await writeWebp(await shoot(browser, ccr.html, ccr.w, ccr.h), join(outDir, 'cover-rtl.webp'), 80);
+  await writeWebp(await shoot(browser, ccr.html, ccr.w, ccr.h, 2), join(outDir, 'cover-rtl-2x.webp'), 78);
   // portrait = the art column only (terminal + diagram), cropped from the LTR cover
   await sharp(buf).extract({ left: 650, top: 40, width: 920, height: 820 }).resize(1080, 1350, { fit: 'cover' }).webp({ quality: 80 }).toFile(join(outDir, 'cover-portrait.webp'));
+  await sharp(buf2).extract({ left: 1300, top: 80, width: 1840, height: 1640 }).resize(2160, 2700, { fit: 'cover' }).webp({ quality: 78 }).toFile(join(outDir, 'cover-portrait-2x.webp'));
   // thumb = the terminal window, which reads as "code" at small sizes
   await sharp(buf).extract({ left: 690, top: 100, width: 520, height: 470 }).resize(480, 600, { fit: 'cover' }).webp({ quality: 80 }).toFile(join(outDir, 'thumb.webp'));
   writeMeta(outDir, accent);
