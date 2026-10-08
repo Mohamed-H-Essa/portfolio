@@ -1,5 +1,13 @@
 # HANDOFF — read this first (2026-10-08, end of session 3)
 
+## Session 3, later additions
+- Swipe back (`scripts/swipe-back.ts`): project page → map, intro world → language step. Never on the map.
+- Frames are interruptible (no input lock; gesture rule in `dossier-engine.ts`).
+- Gallery hover + full-screen "open book" viewer (`scripts/lightbox.ts`), 2× gallery renders.
+- No custom domain any more: `SITE` defaults to `https://mohamed-h-essa.github.io` (name the repo `mohamed-h-essa.github.io`,
+  or set `SITE_URL` / `BASE_PATH`); email `mhosnytech@gmail.com`. Never use mecodes.live.
+- New projects: EHC Board, Heaven Flowers (store frames → `framed: true`), Bioot (`links.extra`), Yafleet. Questions in owner-todo.
+
 ## Session 3 (latest) — done
 - Intro: one screen (no scroll), name + languages from the start, HUD bar arrives last; Cassini-oval background that develops
   after the ∞ is drawn and bends around the pointer (`scripts/intro-field.ts`). Logo everywhere → `/` with the full intro.
