@@ -11,7 +11,7 @@ Read first: `AGENTS.md` → `docs/spec.md` → this file. `docs/assets.md` and `
 
 ## Phase 0 — Scaffold (done by the planner, 2026-10-08)
 - [x] Docs, content template, git repo.
-- [ ] Astro project scaffolded (see "Init commands" at the end of this file). Check: `npm run dev` serves the default page.
+- [x] Astro project scaffolded 2026-10-08 (minimal template, deps installed). Still to do in Phase 1: `npx playwright install chromium`; the sitemap warning goes away once `site` is set. Check: `npm run dev` serves the default page.
 
 ## Phase 1 — Foundations
 - [ ] **Config.** `astro.config.mjs`: `site: 'https://mecodes.live'`, `trailingSlash: 'always'`, `build.format: 'directory'`,
