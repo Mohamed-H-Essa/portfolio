@@ -1,6 +1,19 @@
-# HANDOFF — read this first (2026-10-08, end of session 2)
+# HANDOFF — read this first (2026-10-08, end of session 3)
 
-## Session 2 (latest) — done
+## Session 3 (latest) — done
+- Intro: one screen (no scroll), name + languages from the start, HUD bar arrives last; Cassini-oval background that develops
+  after the ∞ is drawn and bends around the pointer (`scripts/intro-field.ts`). Logo everywhere → `/` with the full intro.
+- Map: lane names in a coloured front band + year labels on every plane, lanes spaced apart; planes no longer block card
+  hover; selected-project card reacts to the pointer (tilt, sheen, sparkles, cycling screens: `scripts/panel-fx.ts`).
+- Project pages run in **engine mode** (`styles/engine.css`, `scripts/dossier-engine.ts`): full-screen frames, HUD, no page
+  scroll; no-JS = normal page. Map → project **hand-off** (`scripts/handoff.ts`, geometry in `lib/hero-rect.ts`, tested).
+  Per-project colour theme from `public/projects/<slug>/meta.json` (written by `npm run assets`).
+- Selection/drag hardening (base.css + a dragstart guard in Base.astro).
+- SEO/AI/icons: `npm run brand`, canonical = `all` track, JSON-LD, robots, llms.txt. See `docs/seo-and-ai.md`.
+- Docs: `docs/adding-projects.md` (how to add a project + missing list from the CV). Owner questions in `owner-todo.md`.
+- Next: Phase 7 (CV pages + colophon: currently linked but 404), remaining content, owner review of DE/AR.
+
+## Session 2 — done
 - Map polish: featured card centred (cards pivot at their anchor; fly-to uses card x/y/lift/height), RTL panel offset flips,
   compact phone sheet, wider layer gap (±430) so planes don't slice billboards, same-layer MIN_SEP on x, Badge.astro for
   art-less nodes, repeated engraved layer names, `?p=<slug>` opens the map on a card.
