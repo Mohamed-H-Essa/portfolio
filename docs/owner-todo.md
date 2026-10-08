@@ -188,3 +188,8 @@ Created Jan 12, 2024
 ## dossiers (added 2026-10-08, session 2)
 - [ ] release-pipeline: the dossier shows a flow diagram **Push → Build → Sign → Upload → Submit**. The plan also had a **Test** stage, but your content only says build/sign/submit, so I left it out. Do the pipelines run tests (unit/widget/integration)? If yes I'll add the stage.
 - [ ] No project has an impact **metric** (a number) yet. The dossier shows a big number when one exists — any you can state and stand behind (e.g. release time in hours before/after, crash-free %, downloads)?
+
+## CV vs LinkedIn dates (added 2026-10-08, from the CV PDF)
+- [ ] **IntraZero start:** CV says **Aug 2024** (with your note "may not aug"), the intake sheet (LinkedIn) says **May 2024**. Which month?
+- [ ] **Freelance:** CV says **Jun 2022 – Jul 2024**, LinkedIn says **Jan 2022 – Dec 2024**. Which range should the site use?
+- [ ] **Title:** CV "Flutter Developer", LinkedIn "Senior Mobile Engineer (Mobile & Platform)". The site currently says "Senior Mobile Engineer" on the Mobile track; keep?
