@@ -91,5 +91,7 @@
   "dossier.details": "Details",
   "dossier.nextLabel": "Weiter",
   "dossier.hint": "Scrollen, wischen oder ↑ ↓",
-  "nav.map": "Karte"
+  "nav.map": "Karte",
+  "dossier.enlarge": "Screenshot vergrößern",
+  "dossier.close": "Schließen"
 }

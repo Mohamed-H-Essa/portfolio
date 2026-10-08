@@ -44,9 +44,9 @@ export function assetUrl(slug: string, kind: AssetKind): string {
   return url('projects', slug, EXT[kind]).replace(/\/$/, '');
 }
 
-/** Gallery image URL by 1-based index. */
-export function galleryUrl(slug: string, n: number): string {
-  return url('projects', slug, 'gallery', `${String(n).padStart(2, '0')}.webp`).replace(/\/$/, '');
+/** Gallery image URL by 1-based index (`hi` = the 2× render for the full-screen viewer). */
+export function galleryUrl(slug: string, n: number, hi = false): string {
+  return url('projects', slug, 'gallery', `${String(n).padStart(2, '0')}${hi ? '-2x' : ''}.webp`).replace(/\/$/, '');
 }
 
 /** How many gallery images `npm run assets` produced (01.webp, 02.webp, …). */

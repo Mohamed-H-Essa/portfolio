@@ -13,7 +13,7 @@ const rtl = locale === 'ar';
 
 {
   n > 0 && (
-    <section class="gallery" aria-labelledby="gallery-h" data-gallery>
+    <section class="gallery" aria-labelledby="gallery-h" data-gallery data-close={t(locale, 'dossier.close')} data-prev={t(locale, 'dossier.prev')} data-next={t(locale, 'dossier.next')}>
       <div class="gallery__head shell">
         <h2 id="gallery-h" class="label">{t(locale, 'dossier.gallery')}</h2>
         <div class="gallery__nav" hidden data-gallery-nav>
@@ -24,7 +24,10 @@ const rtl = locale === 'ar';
       <ul class="gallery__strip" tabindex="0" aria-label={t(locale, 'dossier.gallery')}>
         {Array.from({ length: n }, (_, i) => (
           <li>
-            <img src={galleryUrl(slug, i + 1)} alt={`${title} — ${i + 1}/${n}`} width="720" height="1091" loading="lazy" decoding="async" />
+            {/* a link to the sharp 2× image: works without JS; lightbox.ts opens the full-screen viewer */}
+            <a class="gallery__shot" href={galleryUrl(slug, i + 1, true)} data-n={i} aria-label={`${t(locale, 'dossier.enlarge')} ${i + 1}/${n}`}>
+              <img src={galleryUrl(slug, i + 1)} alt={`${title} — ${i + 1}/${n}`} width="720" height="1091" loading="lazy" decoding="async" />
+            </a>
           </li>
         ))}
       </ul>
@@ -48,7 +51,7 @@ const rtl = locale === 'ar';
   .gallery__strip {
     list-style: none;
     margin: 0;
-    padding-block: 0.25rem 1rem;
+    padding-block: 1.25rem 2rem; /* room for the hover lift + shadow (overflow-x clips y too) */
     padding-inline: max(var(--gutter), (100vw - var(--maxw)) / 2);
     display: flex;
     gap: clamp(0.75rem, 2vw, 1.5rem);
@@ -59,6 +62,37 @@ const rtl = locale === 'ar';
     outline-offset: -2px;
   }
   .gallery__strip li { flex: none; scroll-snap-align: start; }
+  .gallery__shot { --push: 18px; position: relative; display: block; border-radius: 14px; transition: translate 600ms var(--ease-strong); }
+  :root[dir='rtl'] .gallery__shot { --push: -18px; }
+  .gallery__shot img { transition: transform 600ms var(--ease-strong), box-shadow 600ms var(--ease), border-color var(--dur) var(--ease); }
+  /* an enlarge mark that arrives with the hover */
+  .gallery__shot::after {
+    content: '';
+    position: absolute;
+    inset-block-start: 14px;
+    inset-inline-end: 14px;
+    inline-size: 34px;
+    block-size: 34px;
+    border-radius: 50%;
+    background: rgba(8, 8, 8, 0.6) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ededed' stroke-width='1.8' stroke-linecap='round'%3E%3Cpath d='M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7'/%3E%3C/svg%3E") center / 16px no-repeat;
+    backdrop-filter: blur(6px);
+    opacity: 0;
+    scale: 0.8;
+    transition: opacity var(--dur) var(--ease), scale var(--dur) var(--ease-strong);
+  }
+  /* hover: the shot comes forward a little, its neighbours make room */
+  @media (hover: hover) and (prefers-reduced-motion: no-preference) {
+    .gallery__shot { cursor: zoom-in; }
+    .gallery__strip li:hover .gallery__shot img {
+      transform: translateY(-6px) scale(1.045);
+      border-color: color-mix(in srgb, var(--p, var(--origin)) 55%, transparent);
+      box-shadow: 0 30px 70px rgba(0, 0, 0, 0.55), 0 0 50px color-mix(in srgb, var(--p, var(--origin)) 18%, transparent);
+    }
+    .gallery__strip li:hover .gallery__shot::after { opacity: 1; scale: 1; }
+    .gallery__strip li:hover ~ li .gallery__shot { translate: var(--push) 0; }
+    .gallery__strip li:has(~ li:hover) .gallery__shot { translate: calc(var(--push) * -1) 0; }
+  }
+  .gallery__shot:focus-visible { outline: 2px solid var(--p, var(--origin)); outline-offset: 4px; }
   .gallery__strip img {
     block-size: clamp(340px, 62svh, 600px);
     inline-size: auto;
@@ -71,6 +105,8 @@ const rtl = locale === 'ar';
 </style>
 
 <script>
+  import { initLightbox } from '../scripts/lightbox';
+  document.querySelectorAll<HTMLElement>('[data-gallery]').forEach(initLightbox);
   document.querySelectorAll<HTMLElement>('[data-gallery]').forEach((g) => {
     const strip = g.querySelector<HTMLElement>('.gallery__strip')!;
     const nav = g.querySelector<HTMLElement>('[data-gallery-nav]')!;

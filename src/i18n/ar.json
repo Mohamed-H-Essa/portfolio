@@ -91,5 +91,7 @@
   "dossier.details": "التفاصيل",
   "dossier.nextLabel": "التالي",
   "dossier.hint": "مرّر أو اسحب أو استخدم ↑ ↓",
-  "nav.map": "الخريطة"
+  "nav.map": "الخريطة",
+  "dossier.enlarge": "تكبير لقطة الشاشة",
+  "dossier.close": "إغلاق"
 }

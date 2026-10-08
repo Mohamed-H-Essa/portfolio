@@ -61,8 +61,8 @@ async function toScreen(buf: Buffer): Promise<Screen> {
   return { dataUri: `data:image/png;base64,${buf.toString('base64')}`, w: meta.width!, h: meta.height! };
 }
 
-async function shoot(browser: Browser, html: string, w: number, h: number): Promise<Buffer> {
-  const page = await browser.newPage({ viewport: { width: w, height: h }, deviceScaleFactor: 1 });
+async function shoot(browser: Browser, html: string, w: number, h: number, scale = 1): Promise<Buffer> {
+  const page = await browser.newPage({ viewport: { width: w, height: h }, deviceScaleFactor: scale });
   await page.setContent(html, { waitUntil: 'networkidle' });
   const el = await page.$('.stage');
   const buf = await (el ?? page).screenshot({ type: 'png' });
@@ -85,10 +85,13 @@ async function renderFramedProject(slug: string, spec: ShotsYaml) {
   if (!accent) accent = WORLD_ACCENT[spec.world ?? 'mobile'];
   let i = 1;
   for (const sh of spec.shots) {
-    await sharp(readFileSync(join(raw, sh.file)))
-      .resize(720, 1091, { fit: 'contain', background: '#0b0c0e' })
-      .webp({ quality: 80 })
-      .toFile(join(galDir, `${String(i++).padStart(2, '0')}.webp`));
+    const n = String(i++).padStart(2, '0');
+    for (const [k, suffix] of [[1, ''], [2, '-2x']] as const) {
+      await sharp(readFileSync(join(raw, sh.file)))
+        .resize(720 * k, 1091 * k, { fit: 'contain', background: '#0b0c0e' })
+        .webp({ quality: 80 })
+        .toFile(join(galDir, `${n}${suffix}.webp`));
+    }
   }
   writeMeta(outDir, accent);
   console.log(`  ✓ ${slug} (store frames, gallery only) accent=${accent} galleries=${i - 1}`);
@@ -146,6 +149,8 @@ async function renderScreenshotProject(browser: Browser, slug: string, spec: Sho
     const sc = await toScreen(await cleanOf(gs));
     const gl = galleryTemplate(sc, { accent });
     await writeWebp(await shoot(browser, gl.html, gl.w, gl.h), join(galDir, `${String(i).padStart(2, '0')}.webp`), 78);
+    // 2× for the full-screen viewer (loaded only there)
+    await writeWebp(await shoot(browser, gl.html, gl.w, gl.h, 2), join(galDir, `${String(i).padStart(2, '0')}-2x.webp`), 80);
     i++;
   }
 

@@ -115,7 +115,7 @@ export function initSwipeBack(o: SwipeBackOptions) {
   // returning to this page from history (bfcache): show it whole again
   addEventListener('pageshow', (e) => { if (e.persisted) reset(); });
 
-  const on = () => !done && (o.enabled?.() ?? true);
+  const on = () => !done && !document.documentElement.classList.contains('is-lightbox') && (o.enabled?.() ?? true);
   const ignored = (el: EventTarget | null, dx: number) => {
     const s = o.ignore && (el as Element | null)?.closest?.(o.ignore);
     if (!(s instanceof HTMLElement)) return false;

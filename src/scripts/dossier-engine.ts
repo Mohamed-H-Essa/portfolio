@@ -5,8 +5,13 @@
 // Runs only when the inline head script has set html.is-engine.
 import { initSwipeBack } from './swipe-back';
 
-const LOCK_MS = 950; // one transition; input is ignored meanwhile
-const QUIET_MS = 200; // a trackpad flick's inertia must stop before the next move
+// Input is never locked: a new move retargets the frames mid-transition (CSS
+// transitions run from wherever they are), so you can always intercept. What
+// stops a trackpad flick's inertia from skipping frames is the gesture rule:
+// one move per gesture, and a gesture is new after a pause, a fresh flick
+// (deltas growing again), a change of direction, or a discrete wheel notch.
+const QUIET_MS = 180;
+const GAP_MS = 140; // minimum time between two moves
 const WHEEL_STEP = 40; // accumulated delta that counts as "go"
 const SWIPE = 56; // px
 const LIGHT: [number, number][] = [[82, 18], [18, 30], [70, 80], [30, 70], [85, 55]];
@@ -36,7 +41,8 @@ export function initEngine(root: HTMLElement) {
   }
 
   let idx = Math.max(0, frames.findIndex((f) => `#${f.id}` === location.hash));
-  let lockUntil = 0;
+  let lastMove = 0;
+  const busy = () => html.classList.contains('is-lightbox'); // the screenshot viewer owns input
 
   const apply = (from: number) => {
     frames.forEach((f, j) => {
@@ -69,7 +75,7 @@ export function initEngine(root: HTMLElement) {
     const from = idx;
     const hadFocus = frames[from].contains(document.activeElement);
     idx = i;
-    lockUntil = performance.now() + (reduce ? 200 : LOCK_MS);
+    lastMove = performance.now();
     apply(from);
     if (hadFocus) frames[idx].focus({ preventScroll: true });
   };
@@ -80,24 +86,30 @@ export function initEngine(root: HTMLElement) {
   // ---- wheel / trackpad ----------------------------------------------------
   let acc = 0;
   let lastWheel = 0;
-  let needQuiet = false;
+  let lastMag = 0;
+  let lastDir = 0;
+  let armed = true;
   addEventListener(
     'wheel',
     (e) => {
-      if (e.ctrlKey || Math.abs(e.deltaX) > Math.abs(e.deltaY)) return; // zoom / horizontal (gallery)
+      if (busy() || e.ctrlKey || Math.abs(e.deltaX) > Math.abs(e.deltaY)) return; // zoom / horizontal (gallery)
       const dir = Math.sign(e.deltaY);
       if (!dir) return;
       const now = performance.now();
-      const quiet = now - lastWheel > QUIET_MS;
+      const mag = Math.abs(e.deltaY) * (e.deltaMode === 1 ? 32 : 1);
+      const gap = now - lastWheel;
+      const notch = e.deltaMode === 1 || (mag >= 50 && gap > 50 && Number.isInteger(e.deltaY));
+      if (gap > QUIET_MS || dir !== lastDir || notch || (mag > lastMag * 1.6 && mag > 6)) { armed = true; acc = 0; }
       lastWheel = now;
-      if (quiet) { needQuiet = false; acc = 0; }
-      if (canScroll(frames[idx], dir) && now >= lockUntil) return; // let the frame scroll itself
+      lastMag = mag;
+      lastDir = dir;
+      if (canScroll(frames[idx], dir)) return; // the frame scrolls itself first
       e.preventDefault();
-      if (now < lockUntil || needQuiet) return;
-      acc += e.deltaY * (e.deltaMode === 1 ? 32 : 1);
-      if (Math.abs(acc) >= WHEEL_STEP) {
+      if (!armed) return; // the tail of a gesture that already moved
+      acc += dir * mag;
+      if (Math.abs(acc) >= WHEEL_STEP && now - lastMove >= GAP_MS) {
         acc = 0;
-        needQuiet = true;
+        armed = false;
         go(idx + dir);
       }
     },
@@ -107,12 +119,12 @@ export function initEngine(root: HTMLElement) {
   // ---- keys -----------------------------------------------------------------
   addEventListener('keydown', (e) => {
     const t = e.target as HTMLElement;
-    if (e.metaKey || e.ctrlKey || e.altKey || t.closest('input, textarea, select, [contenteditable]')) return;
+    if (busy() || e.metaKey || e.ctrlKey || e.altKey || t.closest('input, textarea, select, [contenteditable]')) return;
     const f = frames[idx];
     const step = (dir: number, page: boolean) => {
       e.preventDefault();
       if (!page && canScroll(f, dir)) f.scrollBy({ top: dir * f.clientHeight * 0.6, behavior: reduce ? 'auto' : 'smooth' });
-      else if (performance.now() >= lockUntil) go(idx + dir);
+      else go(idx + dir);
     };
     if (e.key === 'ArrowDown') step(1, false);
     else if (e.key === 'ArrowUp') step(-1, false);
@@ -133,7 +145,7 @@ export function initEngine(root: HTMLElement) {
   addEventListener('touchend', (e) => {
     const p = e.changedTouches[0];
     const dy = y0 - p.clientY, dx = x0 - p.clientX;
-    if (Math.abs(dy) < SWIPE || Math.abs(dy) < Math.abs(dx) * 1.2 || performance.now() < lockUntil) return;
+    if (busy() || Math.abs(dy) < SWIPE || Math.abs(dy) < Math.abs(dx) * 1.2) return;
     if (dy > 0 && edgeDown) go(idx + 1);
     else if (dy < 0 && edgeUp) go(idx - 1);
   }, { passive: true });
