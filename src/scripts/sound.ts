@@ -187,13 +187,18 @@ const RECIPES: Record<Name, (t: number, o: Opts) => void> = {
     s.connect(bp).connect(g);
     send(g, 0.5);
   },
-  // the first impression, timed to the ∞ drawing itself (≈2.3 s): a low swell
-  // rising underneath, a breath of air tracing the pen, two soft bells as the
-  // loop closes
+  // the first impression, timed to the ∞ drawing itself (≈2.3 s): a low hum
+  // rising underneath (with harmonics, so laptop/phone speakers carry it), a
+  // breath of air tracing the pen, and, as the loop closes, a bloom: a soft
+  // pitch-dropping boom under a swell of air that opens into the room. No
+  // notes: a landing, not a "ta-da".
   intro(t, o) {
     const k = o.level ?? 1;
-    tone(55, t, 0.1 * k, 1.4, 3.2, 'sine', 1.1);
-    tone(82.4, t + 0.1, 0.055 * k, 1.5, 3, 'sine', 1.1);
+    // the hum: 55 Hz + 110 + 165 (what small speakers actually play)
+    tone(55, t, 0.16 * k, 1.3, 3.2, 'sine', 1.1);
+    tone(110, t + 0.05, 0.075 * k, 1.3, 3, 'sine', 1);
+    tone(165, t + 0.1, 0.03 * k, 1.4, 2.6, 'sine', 1);
+    // the pen: air through a band that follows the drawing
     const draw = 2.2;
     const s = noiseSrc(t + 0.15, draw);
     const bp = ctx!.createBiquadFilter();
@@ -204,14 +209,37 @@ const RECIPES: Record<Name, (t: number, o: Opts) => void> = {
     bp.frequency.exponentialRampToValueAtTime(700, t + 0.15 + draw);
     const g = ctx!.createGain();
     g.gain.setValueAtTime(0.0001, t + 0.15);
-    g.gain.exponentialRampToValueAtTime(0.05 * k, t + 0.15 + draw * 0.5);
+    g.gain.exponentialRampToValueAtTime(0.06 * k, t + 0.15 + draw * 0.5);
     g.gain.exponentialRampToValueAtTime(0.0001, t + 0.15 + draw);
     s.connect(bp).connect(g);
     send(g, 1);
-    const close = t + 2.3;
-    tone(659.3, close, 0.03 * k, 0.01, 2.6, 'triangle', 1.6);
-    tone(987.8, close + 0.09, 0.018 * k, 0.01, 2.4, 'triangle', 1.6);
-    tone(1318.5, close + 0.09, 0.006 * k, 0.01, 1.8, 'sine', 1.8);
+    // the bloom, as the loop closes
+    const close = t + 2.25;
+    for (const [f0, f1, lvl] of [[120, 46, 0.2], [240, 92, 0.06], [360, 138, 0.02]] as const) {
+      const ob = ctx!.createOscillator();
+      ob.type = 'sine';
+      ob.frequency.setValueAtTime(f0, close);
+      ob.frequency.exponentialRampToValueAtTime(f1, close + 0.7);
+      const gb = ctx!.createGain();
+      env(gb, close, lvl * k, 0.012, 1.4);
+      ob.connect(gb);
+      send(gb, 0.9);
+      ob.start(close);
+      ob.stop(close + 1.5);
+    }
+    const air = noiseSrc(close - 0.05, 2.2);
+    const lp = ctx!.createBiquadFilter();
+    lp.type = 'lowpass';
+    lp.Q.value = 0.7;
+    lp.frequency.setValueAtTime(300, close - 0.05);
+    lp.frequency.exponentialRampToValueAtTime(1400, close + 0.3);
+    lp.frequency.exponentialRampToValueAtTime(400, close + 2);
+    const ga = ctx!.createGain();
+    ga.gain.setValueAtTime(0.0001, close - 0.05);
+    ga.gain.exponentialRampToValueAtTime(0.07 * k, close + 0.25);
+    ga.gain.exponentialRampToValueAtTime(0.0001, close + 2.1);
+    air.connect(lp).connect(ga);
+    send(ga, 1.6);
   },
   // the low, distant tone of something arriving (the ∞ closing, a world opening)
   swell(t, o) {
