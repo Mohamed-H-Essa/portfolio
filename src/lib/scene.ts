@@ -37,8 +37,9 @@ export interface ScenePlane {
   width: number;
   y0: number; // back edge
   depth: number;
-  /** x where the engraved layer name sits (start of time: left in LTR, right in RTL) */
-  titleX: number;
+  /** x positions of the engraved layer name: from the start of time (left in
+   *  LTR, right in RTL), repeated along the plane so one is always on screen */
+  titleXs: number[];
 }
 export interface SceneBeam {
   from: string;
@@ -76,11 +77,17 @@ export const CARD_LIFT = 86; // how high a card floats above its plane
 const MONTH_W = 30;
 const PAD_START = 520; // room before the first card for the engraved title
 const PAD_END = 360;
-const ROWS = [0, -120, 120]; // card rows across a plane's depth, in preference order
+const ROWS = [0, -150, 150]; // card rows across a plane's depth, in preference order
 const MIN_DX = 250; // cards in the same row closer than this get a different row
+/** Same-layer cards are nudged forward in time to at least this far apart on x,
+ *  so billboards in different rows never stack fully on screen. Cards still
+ *  print their real year; the nudge is at most a few months per crowded node. */
+export const MIN_SEP = 130;
 const SKILL_BANDS = [-232, 232]; // back / front strips where skills are engraved
 const SKILL_CHAR_W = 12.5; // approx. advance per char of the engraved skill font
 const SKILL_GAP = 34;
+export const TITLE_EVERY = 1150; // repeat the engraved layer name this often on x
+const TITLE_W = 700; // approx. width of an engraved name; never start one that would run off
 
 function monthIndex(ym: string): number {
   const [y, m] = ym.split('-').map(Number);
@@ -96,6 +103,12 @@ export function beamGeometry(a: Vec3, b: Vec3): { length: number; rotZ: number; 
   // CSS rotateY(θ) maps +x to (cosθ, 0, -sinθ); we want the z component = dz/L
   const rotY = (-Math.atan2(dz, h) * 180) / Math.PI;
   return { length, rotZ, rotY };
+}
+
+function titleStarts(width: number): number[] {
+  const xs: number[] = [];
+  for (let x = 70; x === 70 || x + TITLE_W <= width; x += TITLE_EVERY) xs.push(x);
+  return xs;
 }
 
 export function layoutScene(
@@ -114,9 +127,8 @@ export function layoutScene(
   // Start the timeline at January of the first year so year lines line up.
   const mStart = Math.floor(m0 / 12) * 12;
   const xOfMonth = (m: number) => PAD_START + (m - mStart) * MONTH_W;
-  const xEnd = xOfMonth(m1) + PAD_END;
-  const totalW = xEnd; // plane spans [0, xEnd]
-  const mirror = (x: number) => (dir === 'rtl' ? totalW - x : x);
+  let xEnd = xOfMonth(m1) + PAD_END; // plane spans [0, xEnd]; grows if nudges pass it
+  const mirror = (x: number) => (dir === 'rtl' ? xEnd - x : x);
 
   // ---- cards: true time on x, rows on y to avoid overlaps -----------------
   const cards: SceneCard[] = [];
@@ -125,8 +137,10 @@ export function layoutScene(
       .filter((n) => (n.worlds[0] ?? 'origin') === layer)
       .sort((a, b) => monthIndex(a.start) - monthIndex(b.start));
     const rowLast: Record<number, number> = {};
+    let prevX = -Infinity;
     for (const n of inLayer) {
-      const x = xOfMonth(monthIndex(n.start));
+      const x = Math.max(xOfMonth(monthIndex(n.start)), prevX + MIN_SEP);
+      prevX = x;
       let row = ROWS.find((r) => rowLast[r] === undefined || x - rowLast[r] >= MIN_DX);
       if (row === undefined) {
         // every row is crowded: take the one whose last card is furthest away
@@ -146,6 +160,8 @@ export function layoutScene(
       });
     }
   }
+  xEnd = Math.max(xEnd, ...cards.map((c) => c.x + PAD_END));
+  const totalW = xEnd;
   for (const c of cards) c.x = mirror(c.x);
   const bySlug = new Map(cards.map((c) => [c.slug, c]));
 
@@ -209,7 +225,7 @@ export function layoutScene(
     width: totalW,
     y0: -PLANE_DEPTH / 2,
     depth: PLANE_DEPTH,
-    titleX: mirror(70),
+    titleXs: titleStarts(totalW).map(mirror),
   }));
   const years: SceneYear[] = [];
   for (let y = Math.floor(m0 / 12); y <= Math.floor(m1 / 12) + 1; y++) {

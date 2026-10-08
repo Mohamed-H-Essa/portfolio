@@ -1,0 +1,74 @@
+---
+// A designed stand-in for nodes without screenshots (platform work, certs,
+// cloud projects): the project's sigil in its world colour over a soft glow
+// and faint orbit rings. Pure SVG, inherits `color` for the accent.
+import { hash, initials } from '../lib/sigil';
+
+interface Props {
+  slug: string;
+  title: string; // English title → initials (Latin, like the codes)
+  kind?: 'project' | 'role' | 'cert';
+  class?: string;
+}
+const { slug, title, kind = 'project', class: cls } = Astro.props;
+const rot = hash(slug) % 360;
+const text = initials(title);
+const id = `b-${slug}`;
+// a hexagon (cert seal) of radius r around the centre
+const hex = (r: number) =>
+  Array.from({ length: 6 }, (_, i) => {
+    const a = ((60 * i - 90 + rot) * Math.PI) / 180;
+    return `${(60 + r * Math.cos(a)).toFixed(1)},${(64 + r * Math.sin(a)).toFixed(1)}`;
+  }).join(' ');
+---
+
+<svg class:list={['badge', cls]} viewBox="0 0 120 128" aria-hidden="true" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <radialGradient id={`${id}-g`} cx="50%" cy="48%" r="60%">
+      <stop offset="0" stop-color="currentColor" stop-opacity="0.28" />
+      <stop offset="1" stop-color="currentColor" stop-opacity="0" />
+    </radialGradient>
+    <filter id={`${id}-f`} x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="3" result="b" />
+      <feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge>
+    </filter>
+  </defs>
+  <rect width="120" height="128" fill="#0e0f12" />
+  <rect width="120" height="128" fill={`url(#${id}-g)`} />
+  <g stroke="currentColor" fill="none" opacity="0.14">
+    <circle cx="60" cy="64" r="34" />
+    <circle cx="60" cy="64" r="50" stroke-dasharray="2 5" />
+    <circle cx="60" cy="64" r="68" />
+  </g>
+  <g stroke="currentColor" stroke-width="2" fill="none" filter={`url(#${id}-f)`}>
+    {
+      kind === 'cert' ? (
+        <>
+          <polygon points={hex(34)} />
+          <polygon points={hex(26)} opacity="0.5" />
+        </>
+      ) : (
+        <g transform={`rotate(${rot} 60 64)`} opacity="0.95">
+          <circle cx="60" cy="48" r="22" />
+          <circle cx="41" cy="78" r="22" />
+          <circle cx="79" cy="78" r="22" />
+        </g>
+      )
+    }
+  </g>
+  <circle cx="60" cy="64" r="17" fill="#0e0f12" opacity="0.88" />
+  <text
+    x="60"
+    y="71"
+    text-anchor="middle"
+    fill="currentColor"
+    font-family="JetBrains Mono, ui-monospace, monospace"
+    font-size="19"
+    font-weight="500"
+    letter-spacing="1">{text}</text
+  >
+</svg>
+
+<style>
+  .badge { display: block; inline-size: 100%; block-size: 100%; }
+</style>

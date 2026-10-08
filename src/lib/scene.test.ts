@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { layoutScene, beamGeometry, LAYER_Z, type SceneInput } from './scene';
+import { layoutScene, beamGeometry, LAYER_Z, MIN_SEP, type SceneInput } from './scene';
 
 const W = { mobile: 3, cloud: 0, all: 2 };
 const input: SceneInput[] = [
@@ -55,6 +55,19 @@ describe('layoutScene', () => {
     expect(a.y).not.toBe(b.y);
   });
 
+  it('keeps same-layer cards at least MIN_SEP apart on x, in time order (LTR and RTL)', () => {
+    const crowd: SceneInput[] = ['2026-04', '2026-05', '2026-06', '2026-07'].map((start, i) => ({
+      slug: `c${i}`, code: `C0${i}`, start, worlds: ['cloud'], weight: W, connects: [], stack: [],
+    }));
+    for (const dir of ['ltr', 'rtl'] as const) {
+      const xs = layoutScene(crowd, 'all', { dir }).cards.map((c) => c.x);
+      const sorted = dir === 'ltr' ? xs : [...xs].reverse();
+      for (let i = 1; i < sorted.length; i++) {
+        expect(sorted[i] - sorted[i - 1]).toBeGreaterThanOrEqual(MIN_SEP - 1e-6);
+      }
+    }
+  });
+
   it('dims off-track cards and flags the featured one', () => {
     expect(l.cards.find((c) => c.slug === 'lambda')!.dimmed).toBe(true);
     expect(l.cards.find((c) => c.slug === 'app')!.featured).toBe(true);
@@ -89,6 +102,17 @@ describe('layoutScene', () => {
   it('starts the camera on the featured card and emits year lines', () => {
     expect(l.start.x).toBe(l.cards.find((c) => c.slug === 'app')!.x);
     expect(l.years.map((y) => y.year)).toEqual(expect.arrayContaining([2024, 2025, 2026]));
+  });
+
+  it('repeats the engraved layer name along the plane, inside it', () => {
+    const wide = layoutScene(
+      [...input, { slug: 'late', code: 'C09', start: '2029-01', worlds: ['cloud'], weight: W, connects: [], stack: [] }],
+      'all'
+    );
+    for (const pl of wide.planes) {
+      expect(pl.titleXs.length).toBeGreaterThan(1);
+      for (const x of pl.titleXs) expect(x).toBeGreaterThanOrEqual(0), expect(x).toBeLessThanOrEqual(pl.width);
+    }
   });
 
   it('handles empty input', () => {

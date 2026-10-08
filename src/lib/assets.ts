@@ -15,6 +15,17 @@ export function hasAssets(slug: string): boolean {
   }
 }
 
+/** Was this project rendered from real app screenshots (vs. a code/cloud
+ *  diagram)? Only screenshot thumbs read well at map-card size; the rest get a
+ *  designed Badge there. */
+export function hasScreens(slug: string): boolean {
+  try {
+    return existsSync(join(process.cwd(), 'assets-src', slug, 'shots.yaml'));
+  } catch {
+    return false;
+  }
+}
+
 // Generated asset paths under public/projects/<slug>/. `npm run assets` writes
 // these; they're committed. A node without generated assets falls back to null
 // so components can show a placeholder.

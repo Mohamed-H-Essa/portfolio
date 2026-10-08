@@ -30,14 +30,15 @@ export function initScene(stage: HTMLElement) {
 
   // ---- camera state ---------------------------------------------------------
   const cam0 = json.camera;
-  const home = { fx: cam0.x, fz: 0, yaw: cam0.yaw, pitch: 54, zoomUser: 1 };
+  const home = { fx: cam0.x, fy: 0, fz: 0, yaw: cam0.yaw, pitch: 54, zoomUser: 1 };
   const cur = { ...home };
   const tgt = { ...home };
   let fit = 0.78;
   let vx = 0; // inertia (world px / frame) on x
   let vz = 0;
   const [xMin, xMax] = cam0.xRange;
-  const zMin = -360, zMax = 360;
+  // z reaches past the top layer so a lifted card on Mobile can be centred
+  const zMin = -420, zMax = 620;
 
   const computeFit = () => {
     const base = parseFloat(getComputedStyle(stage).getPropertyValue('--fit-zoom')) || 0.78;
@@ -48,6 +49,7 @@ export function initScene(stage: HTMLElement) {
   const write = () => {
     const s = stage.style;
     s.setProperty('--fx', cur.fx.toFixed(2));
+    s.setProperty('--fy', cur.fy.toFixed(2));
     s.setProperty('--fz', cur.fz.toFixed(2));
     s.setProperty('--yaw', `${cur.yaw.toFixed(3)}deg`);
     s.setProperty('--pitch', `${cur.pitch.toFixed(3)}deg`);
@@ -214,9 +216,17 @@ export function initScene(stage: HTMLElement) {
     panel.classList.add('is-open');
   };
 
+  // Centre the whole card (not its foot) at the screen focus. The card is a
+  // billboard standing on its anchor (x, y, z + lift) and rising cardH screen
+  // px; world z maps to screen y by zoom·sin(pitch), so lift the focus by half
+  // the card's on-screen height expressed in world units.
   const flyTo = (card: HTMLElement) => {
+    const k = parseFloat(getComputedStyle(stage).getPropertyValue('--card-k')) || 1;
+    const zoom = fit * tgt.zoomUser;
+    const halfH = (card.offsetHeight * k) / 2;
     tgt.fx = clamp(Number(card.dataset.x), xMin, xMax);
-    tgt.fz = Number(card.dataset.z) * 0.55;
+    tgt.fy = Number(card.dataset.y);
+    tgt.fz = clamp(Number(card.dataset.z) + halfH / (zoom * Math.sin(tgt.pitch * RAD)), zMin, zMax);
     vx = vz = 0;
   };
 
@@ -274,7 +284,7 @@ export function initScene(stage: HTMLElement) {
   stage.querySelector('[data-reset]')?.addEventListener('click', () => {
     Object.assign(tgt, home);
     vx = vz = 0;
-    if (json.panel[stage.dataset.start || '']) select(stage.dataset.start!, false);
+    if (json.panel[stage.dataset.start || '']) select(stage.dataset.start!);
   });
   const toggleIndex = (open: boolean) => {
     index.classList.toggle('is-open', open);
@@ -332,6 +342,7 @@ export function initScene(stage: HTMLElement) {
     const k = reduce ? 1 : dragging ? 1 : 0.1;
     cur.fx += (tgt.fx - cur.fx) * k;
     cur.fz += (tgt.fz - cur.fz) * k;
+    cur.fy += (tgt.fy - cur.fy) * k;
     cur.zoomUser += (tgt.zoomUser - cur.zoomUser) * (reduce ? 1 : 0.14);
     if (!dragging) {
       // gentle idle sway once the visitor has been still for a moment
@@ -356,6 +367,7 @@ export function initScene(stage: HTMLElement) {
   if (stage.dataset.start) {
     select(stage.dataset.start, true);
     cur.fx = tgt.fx;
+    cur.fy = tgt.fy;
     cur.fz = tgt.fz;
   }
   write();

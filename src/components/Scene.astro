@@ -5,7 +5,8 @@
 // drag / orbit / zoom / fly-to / selection on top.
 import { layoutScene, PLANE_DEPTH, CARD_LIFT, type SceneInput, type Layer } from '../lib/scene';
 import { loc, t, url, dir as dirOf, type Locale, type Track } from '../i18n';
-import { hasAssets, assetUrl } from '../lib/assets';
+import { hasAssets, hasScreens, assetUrl } from '../lib/assets';
+import Badge from './Badge.astro';
 import type { Project } from '../lib/content';
 
 interface Props {
@@ -69,14 +70,17 @@ const strings = {
   phases: Object.fromEntries(L.years.map((y) => [y.year, t(locale, `phase.${phaseOf(y.year)}`)])),
 };
 const startSlug = L.cards.find((c) => c.featured)?.slug ?? L.cards.find((c) => !c.dimmed)?.slug ?? L.cards[0]?.slug;
+const startCard = L.cards.find((c) => c.slug === startSlug);
 const camera = { x: L.start.x, z: 0, yaw: rtl ? 14 : -14, xRange: L.xRange, rtl };
+// No-JS framing: aim at the start card, raised ~half a card so it sits centred.
+const ssrFocus = startCard ? { y: startCard.y, z: startCard.z + CARD_LIFT + 110 } : { y: 0, z: 0 };
 ---
 
 <section
   class="stage"
   data-scene
   data-start={startSlug}
-  style={`--fx:${camera.x};--fy:0;--fz:0;--yaw:${camera.yaw}deg;--pitch:54deg;--zoom:var(--fit-zoom);`}
+  style={`--fx:${camera.x};--fy:${ssrFocus.y};--fz:${ssrFocus.z};--yaw:${camera.yaw}deg;--pitch:54deg;--zoom:var(--fit-zoom);`}
 >
   <canvas class="dust" aria-hidden="true"></canvas>
 
@@ -90,9 +94,11 @@ const camera = { x: L.start.x, z: 0, yaw: rtl ? 14 : -14, xRange: L.xRange, rtl 
             data-layer={pl.layer}
             style={`width:${pl.width}px;height:${pl.depth}px;transform:translate3d(${pl.x0}px,${pl.y0}px,${pl.z}px)`}
           >
-            <span class="plane__title" style={`${rtl ? 'right' : 'left'}:${rtl ? pl.width - pl.titleX : pl.titleX}px`}>
-              {layerName(pl.layer)}
-            </span>
+            {pl.titleXs.map((tx) => (
+              <span class="plane__title" style={`${rtl ? 'right' : 'left'}:${rtl ? pl.width - tx : tx}px`}>
+                {layerName(pl.layer)}
+              </span>
+            ))}
             {L.years.map((y) => (
               <span class="plane__year" style={`left:${y.x - pl.x0}px`} />
             ))}
@@ -144,14 +150,15 @@ const camera = { x: L.start.x, z: 0, yaw: rtl ? 14 : -14, xRange: L.xRange, rtl 
               href={url(locale, track, 'p', c.slug)}
               data-slug={c.slug}
               data-x={c.x}
-              data-z={c.z}
+              data-y={c.y}
+              data-z={c.z + CARD_LIFT}
               style={`transform:translate3d(${c.x}px,${c.y}px,${c.z + CARD_LIFT}px) rotateZ(calc(var(--yaw) * -1)) rotateX(calc(var(--pitch) * -1)) scale(calc(var(--card-k) / var(--zoom))) translate(-50%,-100%)`}
             >
               <span class="card__img">
-                {hasAssets(c.slug) ? (
+                {hasScreens(c.slug) && hasAssets(c.slug) ? (
                   <img src={assetUrl(c.slug, 'thumb')} alt="" loading="lazy" decoding="async" draggable="false" />
                 ) : (
-                  <span class="card__mono">{c.code.slice(0, 1)}</span>
+                  <Badge slug={c.slug} title={bySlug.get(c.slug)!.data.short?.en ?? bySlug.get(c.slug)!.data.title.en} kind={bySlug.get(c.slug)!.data.kind} />
                 )}
               </span>
               <span class="card__code">{c.code} · {c.year}</span>
@@ -237,8 +244,9 @@ const camera = { x: L.start.x, z: 0, yaw: rtl ? 14 : -14, xRange: L.xRange, rtl 
   .stage {
     --card-k: 1;
     --fit-zoom: 0.78;
-    --ox: -150px; /* focus sits left of centre so the panel has room */
+    --ox: -170px; /* focus sits beside the panel (half its width + gutter) */
     --oy: 10px;
+    --flip: 1; /* RTL puts the panel on the left, so the offset flips */
     position: relative;
     block-size: 100svh;
     overflow: hidden;
@@ -267,11 +275,12 @@ const camera = { x: L.start.x, z: 0, yaw: rtl ? 14 : -14, xRange: L.xRange, rtl 
     inline-size: 0;
     block-size: 0;
     transform-style: preserve-3d;
-    transform: translate(var(--ox), var(--oy)) scale3d(var(--zoom), var(--zoom), var(--zoom))
+    transform: translate(calc(var(--ox) * var(--flip)), var(--oy)) scale3d(var(--zoom), var(--zoom), var(--zoom))
       rotateX(var(--pitch)) rotateZ(var(--yaw))
       translate3d(calc(var(--fx) * -1px), calc(var(--fy) * -1px), calc(var(--fz) * -1px));
     will-change: transform;
   }
+  :root[dir='rtl'] .stage { --flip: -1; }
   /* RTL must not flip the 3D world; layout already mirrored time on x. */
   .world, .world * { direction: ltr; }
   .world > * { position: absolute; inset-inline-start: 0; inset-block-start: 0; }
@@ -298,8 +307,8 @@ const camera = { x: L.start.x, z: 0, yaw: rtl ? 14 : -14, xRange: L.xRange, rtl 
     transform: translateY(-50%);
     font-family: var(--font-display);
     font-weight: 700;
-    font-size: 150px;
-    letter-spacing: 0.18em;
+    font-size: 112px;
+    letter-spacing: 0.16em;
     text-transform: uppercase;
     color: var(--c);
     opacity: 0.09;
@@ -375,7 +384,9 @@ const camera = { x: L.start.x, z: 0, yaw: rtl ? 14 : -14, xRange: L.xRange, rtl 
     align-items: center;
     gap: 6px;
     inline-size: 128px;
-    transform-origin: 50% 100%;
+    /* pivot at the element origin: with translate(-50%,-100%) last in the chain,
+       the card's bottom-centre lands exactly on its anchor (the pin top) */
+    transform-origin: 0 0;
     color: var(--ink);
     text-align: center;
     -webkit-user-drag: none;
@@ -391,17 +402,12 @@ const camera = { x: L.start.x, z: 0, yaw: rtl ? 14 : -14, xRange: L.xRange, rtl 
     overflow: hidden;
     border-radius: 6px;
     background: #121316;
+    color: var(--c); /* Badge accent */
     outline: 1px solid rgba(255,255,255,.1);
     box-shadow: 0 18px 40px rgba(0,0,0,.6);
     transition: outline-color var(--dur-fast) var(--ease), box-shadow var(--dur) var(--ease), transform var(--dur) var(--ease);
   }
   .card__img img { inline-size: 100%; block-size: 100%; object-fit: cover; object-position: top; pointer-events: none; }
-  .card__mono {
-    font-family: var(--font-mono);
-    font-size: 40px;
-    color: var(--c);
-    opacity: 0.8;
-  }
   .card__code {
     font-family: var(--font-mono);
     font-size: 10px;
@@ -427,7 +433,7 @@ const camera = { x: L.start.x, z: 0, yaw: rtl ? 14 : -14, xRange: L.xRange, rtl 
   .card.is-selected .card__name { color: var(--c); }
   .card:focus-visible { outline: none; }
   /* off-track: the Dark "unknown character" — a dark, quiet placeholder */
-  .card.is-dimmed .card__img img { filter: grayscale(1) brightness(0.32); }
+  .card.is-dimmed .card__img :is(img, svg) { filter: grayscale(1) brightness(0.32); }
   .card.is-dimmed .card__name,
   .card.is-dimmed .card__code { opacity: 0.4; }
   .stage.has-focus .card:not(.is-lit):not(:hover):not(.is-selected) { opacity: 0.45; }
@@ -568,7 +574,8 @@ const camera = { x: L.start.x, z: 0, yaw: rtl ? 14 : -14, xRange: L.xRange, rtl 
 
   /* ======== phones ======== */
   @media (max-width: 760px) {
-    .stage { --fit-zoom: 0.5; --card-k: 0.84; --ox: 0px; --oy: -40px; }
+    /* cards keep constant screen size, so zooming the world in spreads them apart */
+    .stage { --fit-zoom: 0.64; --card-k: 0.72; --ox: 0px; --oy: -30px; }
     .credit { inset-block-start: 70px; inset-block-end: auto; max-inline-size: 80vw; }
     .credit__sub { display: none; }
     .hint { display: none; }
@@ -581,6 +588,8 @@ const camera = { x: L.start.x, z: 0, yaw: rtl ? 14 : -14, xRange: L.xRange, rtl 
     }
     .panel__art img { aspect-ratio: auto; block-size: 100%; }
     .panel__stack { display: none; }
+    /* one compact row: store links live on the dossier */
+    .panel__actions .btn:not(.btn--primary) { display: none; }
     .panel__body { padding: 0.75rem 0.85rem; gap: 0.3rem; }
     .panel__title { font-size: 1.05rem; }
     .panel__impact { font-size: 0.82rem; }
@@ -590,6 +599,10 @@ const camera = { x: L.start.x, z: 0, yaw: rtl ? 14 : -14, xRange: L.xRange, rtl 
     .controls [data-zoom] { display: none; }
     .index li a { grid-template-columns: 2.8rem 1fr 2.6rem; }
     .index__layer { display: none; }
+  }
+
+  @media (max-width: 760px) and (max-height: 700px) {
+    .stage { --card-k: 0.64; --oy: -20px; }
   }
 
   @media (prefers-reduced-motion: reduce) {
