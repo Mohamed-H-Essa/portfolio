@@ -1,4 +1,5 @@
 ---
+import { FEATURES } from '../lib/features';
 import { t, url, type Locale } from '../i18n';
 interface Props {
   locale: Locale;
@@ -16,7 +17,7 @@ const { locale, buildSha, buildDate } = Astro.props;
       <button class="copy-email" data-email="mhosnytech@gmail.com" data-copied={t(locale, 'nav.copied')}>{t(locale, 'nav.copyEmail')}</button>
     </div>
     <div class="site-footer__meta label">
-      <a href={url(locale, 'colophon')}>{t(locale, 'colophon.title')}</a>
+      {FEATURES.colophon && <a href={url(locale, 'colophon')}>{t(locale, 'colophon.title')}</a>}
       <span>{t(locale, 'footer.build')} {buildSha} · {buildDate}</span>
     </div>
   </div>

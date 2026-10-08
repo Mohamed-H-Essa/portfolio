@@ -9,6 +9,7 @@ import '../styles/intro.css';
 import Sigil from './Sigil.astro';
 import { LOCALES, LOCALE_META, TRACKS, t, url, type Locale } from '../i18n';
 import { pathD } from '../lib/lemniscate';
+import { FEATURES } from '../lib/features';
 
 interface Props { locale: Locale; step: 'lang' | 'world' }
 const { locale, step } = Astro.props;
@@ -26,7 +27,7 @@ const tx = (k: string) => t(locale, k);
   <canvas class="intro__field" data-field aria-hidden="true"></canvas>
   <div class="intro__bar">
     <a class="intro__me" href={url()}><Sigil size={26} /><span>Mohamed Essa</span></a>
-    <a class="intro__cv" href={url(locale, 'cv', 'all')} data-href="cv" data-t="nav.cv">{tx('nav.cv')}</a>
+    {FEATURES.cv && <a class="intro__cv" href={url(locale, 'cv', 'all')} data-href="cv" data-t="nav.cv">{tx('nav.cv')}</a>}
   </div>
 
   <div class="intro__fig" data-fig>

@@ -21,14 +21,19 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
       - run: npm ci
       - name: Validate content + types + unit tests
         run: npm run check
       - name: Build
         # GITHUB_SHA is injected automatically; the footer prints it.
+        # Served as a project site: https://mohamed-h-essa.github.io/portfolio/
+        # (repo variables SITE_URL / BASE_PATH override, e.g. for a custom domain → BASE_PATH=/).
         run: npm run build
+        env:
+          SITE_URL: ${{ vars.SITE_URL || 'https://mohamed-h-essa.github.io' }}
+          BASE_PATH: ${{ vars.BASE_PATH || '/portfolio/' }}
       # Phase 7 adds: PDF generation, link check, Lighthouse CI budgets here.
       - uses: actions/upload-pages-artifact@v3
         with:

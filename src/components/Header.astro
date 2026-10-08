@@ -1,4 +1,5 @@
 ---
+import { FEATURES } from '../lib/features';
 import Sigil from './Sigil.astro';
 import { t, url, LOCALES, LOCALE_META, TRACKS, type Locale, type Track } from '../i18n';
 
@@ -70,12 +71,14 @@ const homeHref = url();
         }
       </div>
 
-      <a class="cv-btn" href={cvHref} download>
-        <span>{t(locale, 'nav.cv')}</span>
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-          <path d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </a>
+      {FEATURES.cv && (
+        <a class="cv-btn" href={cvHref} download>
+          <span>{t(locale, 'nav.cv')}</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </a>
+      )}
 
       <noscript>
         <!-- Without JS the hamburger can't open; expose language links inline. -->

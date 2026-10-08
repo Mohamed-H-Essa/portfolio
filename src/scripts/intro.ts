@@ -65,7 +65,8 @@ export function initIntro(root: HTMLElement) {
     const skip = document.querySelector<HTMLElement>('.skip-link');
     if (skip) skip.textContent = str(l, 'skip');
     lobes.forEach((a) => (a.href = href(l, a.dataset.track!)));
-    root.querySelector<HTMLAnchorElement>('[data-href="cv"]')!.href = href(l, 'cv', 'all');
+    const cv = root.querySelector<HTMLAnchorElement>('[data-href="cv"]');
+    if (cv) cv.href = href(l, 'cv', 'all');
     root.querySelector('[data-langname]')!.textContent = json.labels[l];
     langLinks.forEach((a) => a.classList.toggle('is-current', a.dataset.lang === l));
   };
