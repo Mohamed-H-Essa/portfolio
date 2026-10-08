@@ -45,7 +45,7 @@ const {
 } = Astro.props;
 
 const meta = LOCALE_META[locale];
-const pageTitle = title ? `${title} — Mohamed Essa` : t(locale, 'site.title');
+const pageTitle = title ? `${title} — ${t(locale, 'site.name')}` : t(locale, 'site.title');
 const desc = description ?? t(locale, 'site.tagline');
 const canonicalPath = canonicalParts ?? pathParts;
 const canonical = new URL(url(locale, ...canonicalPath), Astro.site).href;
