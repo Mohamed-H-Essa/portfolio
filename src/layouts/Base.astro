@@ -21,6 +21,13 @@ interface Props {
   bare?: boolean;
   /** Full-viewport canvas page: floating transparent header, no footer, no page scroll. */
   immersive?: boolean;
+  /** Canonical path (after the locale) when this page duplicates another, e.g. a
+   *  project page under each track → the 'all' one. Defaults to pathParts. */
+  canonicalParts?: (string | number)[];
+  /** schema.org objects to embed as JSON-LD */
+  jsonLd?: object[];
+  /** keep out of search results (404) */
+  noindex?: boolean;
 }
 
 const {
@@ -32,15 +39,18 @@ const {
   ogImage,
   bare = false,
   immersive = false,
+  canonicalParts,
+  jsonLd = [],
+  noindex = false,
 } = Astro.props;
 
 const meta = LOCALE_META[locale];
 const pageTitle = title ? `${title} — Mohamed Essa` : t(locale, 'site.title');
 const desc = description ?? t(locale, 'site.tagline');
-const canonical = new URL(url(locale, ...pathParts), Astro.site).href;
-const og = ogImage
-  ? new URL(url(ogImage), Astro.site).href
-  : new URL(url(`og/${locale}-${track}.png`), Astro.site).href;
+const canonicalPath = canonicalParts ?? pathParts;
+const canonical = new URL(url(locale, ...canonicalPath), Astro.site).href;
+const og = new URL(url(ogImage ?? `og/${locale}-${track}.jpg`).replace(/\/$/, ''), Astro.site).href;
+const asset = (p: string) => url(p).replace(/\/$/, '');
 
 const buildSha = (process.env.GITHUB_SHA ?? 'dev').slice(0, 7);
 const buildDate = new Date().toISOString().slice(0, 10);
@@ -54,7 +64,14 @@ const buildDate = new Date().toISOString().slice(0, 10);
     <title>{pageTitle}</title>
     <meta name="description" content={desc} />
     <link rel="canonical" href={canonical} />
-    <link rel="icon" type="image/svg+xml" href={url('favicon.svg').replace(/\/$/, '')} />
+    {noindex && <meta name="robots" content="noindex" />}
+    <meta name="author" content="Mohamed H. Essa" />
+    <meta name="theme-color" content="#080808" />
+    <meta name="color-scheme" content="dark" />
+    <link rel="icon" href={asset('favicon.ico')} sizes="48x48" />
+    <link rel="icon" type="image/svg+xml" href={asset('favicon.svg')} />
+    <link rel="apple-touch-icon" href={asset('apple-touch-icon.png')} />
+    <link rel="manifest" href={asset('site.webmanifest')} />
 
     {/* hreflang alternates for the same page in every locale */}
     {
@@ -62,19 +79,29 @@ const buildDate = new Date().toISOString().slice(0, 10);
         <link
           rel="alternate"
           hreflang={LOCALE_META[l].htmlLang}
-          href={new URL(url(l, ...pathParts), Astro.site).href}
+          href={new URL(url(l, ...canonicalPath), Astro.site).href}
         />
       ))
     }
-    <link rel="alternate" hreflang="x-default" href={new URL(url('en', ...pathParts), Astro.site).href} />
+    <link rel="alternate" hreflang="x-default" href={new URL(url('en', ...canonicalPath), Astro.site).href} />
+    <link rel="alternate" type="text/markdown" title="llms.txt" href={asset('llms.txt')} />
 
     {/* Open Graph / Twitter */}
     <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Mohamed Essa" />
+    <meta property="og:locale" content={meta.htmlLang === 'ar' ? 'ar_EG' : meta.htmlLang === 'de' ? 'de_DE' : 'en_US'} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={pageTitle} />
     <meta property="og:title" content={pageTitle} />
     <meta property="og:description" content={desc} />
     <meta property="og:image" content={og} />
     <meta property="og:url" content={canonical} />
     <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={pageTitle} />
+    <meta name="twitter:description" content={desc} />
+    <meta name="twitter:image" content={og} />
+    {jsonLd.map((o) => <script type="application/ld+json" set:html={JSON.stringify(o)} />)}
 
     <meta name="generator" content={Astro.generator} />
     <slot name="head" />

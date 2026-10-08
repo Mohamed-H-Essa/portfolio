@@ -4,8 +4,11 @@
 // language names are plain links to /{lang}/ (the world step).
 import Base from '../layouts/Base.astro';
 import Intro from '../components/Intro.astro';
+import { personLd, websiteLd } from '../lib/schema';
+import { skillsForTrack } from '../lib/content';
+const skills = await skillsForTrack('all', 20);
 ---
 
-<Base locale="en" pathParts={[]} bare>
+<Base locale="en" pathParts={[]} bare jsonLd={[personLd('en', skills), websiteLd('en')]}>
   <Intro locale="en" step="lang" />
 </Base>

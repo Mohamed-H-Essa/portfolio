@@ -12,7 +12,8 @@
     "astro": "astro",
     "check": "astro check && vitest run --passWithNoTests",
     "assets": "tsx tools/assets/render.ts",
-    "pdf": "tsx tools/pdf.ts"
+    "pdf": "tsx tools/pdf.ts",
+    "brand": "tsx tools/brand.ts"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.4",

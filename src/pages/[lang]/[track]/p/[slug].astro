@@ -10,7 +10,9 @@ import NodeLink from '../../../../components/NodeLink.astro';
 import { LOCALES, TRACKS, loc, t, type Locale, type Track } from '../../../../i18n';
 import { loadProjects, type Project } from '../../../../lib/content';
 import { worldSequence, prevNext } from '../../../../lib/dossier';
-import { ogPath, galleryCount, projectAccent } from '../../../../lib/assets';
+import { ogPath, galleryCount, projectAccent, hasAssets, assetUrl } from '../../../../lib/assets';
+import { projectLd, breadcrumbLd } from '../../../../lib/schema';
+import { url } from '../../../../i18n';
 import '../../../../styles/engine.css';
 
 export async function getStaticPaths() {
@@ -43,6 +45,17 @@ const blocks = (['problem', 'built', 'result'] as const)
   .map((k) => ({ k, text: d[k] ? loc(d[k], lang, `${slug}.${k}`) : '' }))
   .filter((b) => b.text);
 const shots = galleryCount(slug);
+// one canonical URL per project (the 'Both' track); the other tracks are views of it
+const abs = (p: string) => new URL(p, Astro.site).href;
+const canonical = abs(url(lang, 'all', 'p', slug));
+const jsonLd = [
+  projectLd(project, lang, canonical, hasAssets(slug) ? abs(assetUrl(slug, 'cover')) : undefined),
+  breadcrumbLd([
+    { name: 'Mohamed Essa', url: abs(url(lang)) },
+    { name: t(lang, `world.${track}.name`), url: abs(url(lang, track)) },
+    { name: title, url: canonical },
+  ]),
+];
 // the project's own colour: a subtle ambient theme (falls back to its world colour)
 const accent = projectAccent(slug) ?? `var(--${d.worlds[0]})`;
 
@@ -62,6 +75,8 @@ const frames = [
   title={title}
   description={d.impact?.line ? loc(d.impact.line, lang, slug) : undefined}
   pathParts={[track, 'p', slug]}
+  canonicalParts={['all', 'p', slug]}
+  jsonLd={jsonLd}
   ogImage={ogPath(slug)}
 >
   <script is:inline slot="head" define:vars={{ slug }}>

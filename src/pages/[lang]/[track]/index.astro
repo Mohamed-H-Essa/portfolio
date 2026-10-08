@@ -5,7 +5,8 @@
 import Base from '../../../layouts/Base.astro';
 import Scene from '../../../components/Scene.astro';
 import { LOCALES, TRACKS, isLocale, isTrack, type Locale, type Track } from '../../../i18n';
-import { loadProjects, featuredForTrack } from '../../../lib/content';
+import { loadProjects, featuredForTrack, skillsForTrack } from '../../../lib/content';
+import { personLd } from '../../../lib/schema';
 
 export function getStaticPaths() {
   return LOCALES.flatMap((lang) => TRACKS.map((track) => ({ params: { lang, track } })));
@@ -19,8 +20,9 @@ const tr: Track = track;
 
 const projects = await loadProjects();
 const featured = await featuredForTrack(tr);
+const skills = await skillsForTrack(tr, 20);
 ---
 
-<Base locale={locale} track={tr} pathParts={[tr]} immersive>
+<Base locale={locale} track={tr} pathParts={[tr]} immersive jsonLd={[personLd(locale, skills)]}>
   <Scene projects={projects} featured={featured} locale={locale} track={tr} />
 </Base>

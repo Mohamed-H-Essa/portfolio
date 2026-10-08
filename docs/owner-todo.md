@@ -193,3 +193,4 @@ Created Jan 12, 2024
 - [ ] **IntraZero start:** CV says **Aug 2024** (with your note "may not aug"), the intake sheet (LinkedIn) says **May 2024**. Which month?
 - [ ] **Freelance:** CV says **Jun 2022 – Jul 2024**, LinkedIn says **Jan 2022 – Dec 2024**. Which range should the site use?
 - [ ] **Title:** CV "Flutter Developer", LinkedIn "Senior Mobile Engineer (Mobile & Platform)". The site currently says "Senior Mobile Engineer" on the Mobile track; keep?
+- [ ] **Years of experience:** the site's Mobile subtitle says "Five years shipping production Flutter apps"; the CV says "3+ years (2 freelance, 2 in-house)". Which should the site say? (It also feeds llms.txt and link previews.)

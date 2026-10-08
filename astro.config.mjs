@@ -22,5 +22,10 @@ export default defineConfig({
       redirectToDefaultLocale: false,
     },
   },
-  integrations: [sitemap()],
+  integrations: [
+    sitemap({
+      // a project page exists under every track; only its canonical ('all') URL is listed
+      filter: (page) => !/\/(mobile|cloud)\/p\//.test(page),
+    }),
+  ],
 });

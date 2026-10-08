@@ -4,6 +4,8 @@
 import Base from '../../layouts/Base.astro';
 import Intro from '../../components/Intro.astro';
 import { LOCALES, isLocale, type Locale } from '../../i18n';
+import { personLd, websiteLd } from '../../lib/schema';
+import { skillsForTrack } from '../../lib/content';
 
 export function getStaticPaths() {
   return LOCALES.map((lang) => ({ params: { lang } }));
@@ -12,8 +14,9 @@ export function getStaticPaths() {
 const { lang } = Astro.params;
 if (!lang || !isLocale(lang)) throw new Error(`bad lang param: ${lang}`);
 const locale: Locale = lang;
+const skills = await skillsForTrack('all', 20);
 ---
 
-<Base locale={locale} track="all" pathParts={[]} bare>
+<Base locale={locale} track="all" pathParts={[]} bare jsonLd={[personLd(locale, skills), websiteLd(locale)]}>
   <Intro locale={locale} step="world" />
 </Base>
