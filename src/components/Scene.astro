@@ -568,7 +568,7 @@ const ssrFocus = startCard ? { y: startCard.y, z: startCard.z + CARD_LIFT + 110 
     transition: opacity var(--dur) var(--ease), transform var(--dur) var(--ease);
     pointer-events: none;
   }
-  .panel.is-open { opacity: 1; transform: none; pointer-events: auto; }
+  .panel.is-open { opacity: 1; transform: none; pointer-events: auto; cursor: pointer; }
   .panel[data-layer='mobile'] { --c: var(--mobile); }
   .panel[data-layer='cloud'] { --c: var(--cloud); }
   /* hover: lift + tilt toward the pointer, a sheen that follows it */

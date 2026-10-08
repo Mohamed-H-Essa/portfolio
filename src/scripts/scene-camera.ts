@@ -252,6 +252,11 @@ export function initScene(stage: HTMLElement) {
   };
   const plainClick = (e: MouseEvent) => !(e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0);
   const panelArt = panel.querySelector<HTMLElement>('.panel__art')!;
+  // the whole card opens the project; only its own links (stores) keep their job
+  panel.addEventListener('click', (e) => {
+    if (!selected || !plainClick(e) || (e.target as Element).closest('a, button')) return;
+    handoff(target(selected), panelArt, stage);
+  });
   panel.querySelectorAll<HTMLAnchorElement>('[data-p="href"]').forEach((a) =>
     a.addEventListener('click', (e) => {
       if (!selected || !plainClick(e)) return;
