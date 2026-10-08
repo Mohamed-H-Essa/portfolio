@@ -32,7 +32,8 @@ const trackLinks = TRACKS.map((tr) => ({
 }));
 
 const cvHref = url(locale, 'cv', track);
-const homeHref = url(locale, track);
+// the logo replays the ∞ intro from the very start (language step)
+const homeHref = url();
 ---
 
 <header class:list={['site-header', { 'site-header--floating': floating }]}>

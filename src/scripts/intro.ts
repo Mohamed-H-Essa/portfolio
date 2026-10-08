@@ -4,6 +4,7 @@
 // languages, language choice relabelled in place (no page load), lobe hover
 // confining the light, and a zoom-into-the-lobe hand-off to the map.
 import { point, confine, type Lobe } from '../lib/lemniscate';
+import { initField } from './intro-field';
 
 type Lang = 'en' | 'de' | 'ar';
 interface IntroJson { strings: Record<Lang, Record<string, string>>; base: string; labels: Record<Lang, string> }
@@ -27,10 +28,8 @@ export function initIntro(root: HTMLElement) {
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   let locale = root.dataset.locale as Lang;
 
-  let seen = false;
-  try { seen = !!sessionStorage.getItem('intro-seen'); sessionStorage.setItem('intro-seen', '1'); } catch { /* ignore */ }
-  if (seen) root.classList.add('is-quick');
-  const k = seen ? 0.25 : 1;
+  // the full entrance every time: the owner wants the logo to replay it
+  const k = 1;
 
   // ---- text ------------------------------------------------------------
   const str = (l: Lang, key: string) => json.strings[l]?.[key] ?? json.strings.en[key] ?? key;
@@ -89,7 +88,11 @@ export function initIntro(root: HTMLElement) {
   };
 
   const startLangStep = () => {
-    const guess = root.dataset.step === 'lang' && location.pathname === json.base ? detect() : locale;
+    // a returning visitor's own choice beats the browser's guess
+    const saved = store.get('lang') as Lang | null;
+    const guess = root.dataset.step === 'lang' && location.pathname === json.base
+      ? (saved && LANGS.includes(saved) ? saved : detect())
+      : locale;
     langLinks.forEach((a) => {
       a.classList.remove('is-dissolving', 'is-suggested');
       a.style.removeProperty('opacity');
@@ -246,6 +249,10 @@ export function initIntro(root: HTMLElement) {
     }
     raf = requestAnimationFrame(frame);
   };
+
+  // ---- background: develops once the loop is whole --------------------------
+  initField(root.querySelector<HTMLCanvasElement>('[data-field]')!, fig, reduce);
+  window.setTimeout(() => root.classList.add('is-drawn'), reduce ? 0 : DRAW_START + DRAW_MS);
 
   // ---- go ------------------------------------------------------------------
   if (root.dataset.step === 'lang') startLangStep();
