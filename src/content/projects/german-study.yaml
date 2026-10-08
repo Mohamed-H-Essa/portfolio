@@ -1,0 +1,40 @@
+slug: german-study
+kind: project
+worlds: [cloud, origin]
+era: s4
+start: 2026-07
+end: present
+weight: { mobile: 0, cloud: 2, all: 2 }
+featured: false
+confidential: false
+code: C03
+role:
+  en: "Design, build & deploy"
+  de: "Konzept, Umsetzung & Deployment"
+  ar: "تصميم وبناء ونشر"
+title:
+  en: "German study app + cross-device sync"
+  de: "Deutsch-Lern-App mit Geräte-Sync"
+  ar: "تطبيق تعلّم الألمانية مع مزامنة بين الأجهزة"
+impact:
+  line:
+    en: "Migrated a personal app from AWS to Cloudflare Workers + Durable Objects"
+    de: "Eine persönliche App von AWS zu Cloudflare Workers + Durable Objects migriert"
+    ar: "ترحيل تطبيق شخصي من AWS إلى Cloudflare Workers وDurable Objects"
+problem:
+  en: "I needed a lightweight, resilient way to study German across my phone and laptop, with progress that syncs between devices without losing data when both go offline and back."
+  de: "Ich brauchte eine leichtgewichtige, belastbare Art, auf Handy und Laptop Deutsch zu lernen, mit Fortschritt, der zwischen Geräten synchronisiert — ohne Datenverlust, wenn beide offline gehen und zurückkommen."
+  ar: "احتجت طريقة خفيفة وصامدة لدراسة الألمانية على هاتفي وحاسوبي، بتقدّم يتزامن بين الأجهزة دون فقدان بيانات عند عودتها من وضع عدم الاتصال."
+built:
+  en: "Static HTML/JS lessons on GitHub Pages with an offline-first sync shim, backed by a Cloudflare Worker and a SQLite Durable Object. Writes get server-assigned sequence numbers; merges are per-key by kind (monotonic for completion, per-card max for flashcards) so concurrent devices never clobber each other. Started on AWS (S3 + Lambda + Terraform), then re-platformed."
+  de: "Statische HTML/JS-Lektionen auf GitHub Pages mit Offline-first-Sync-Schicht, gestützt auf einen Cloudflare Worker und ein SQLite Durable Object. Schreibzugriffe erhalten server-vergebene Sequenznummern; das Merging erfolgt pro Schlüssel nach Art (monoton für Abschluss, pro-Karte-Maximum für Karteikarten), sodass parallele Geräte sich nie überschreiben. Begonnen auf AWS (S3 + Lambda + Terraform), dann re-plattformiert."
+  ar: "دروس HTML/JS ثابتة على GitHub Pages مع طبقة مزامنة تعمل دون اتصال أولاً، مدعومة بـCloudflare Worker وDurable Object من نوع SQLite. تأخذ عمليات الكتابة أرقام تسلسل من الخادم؛ ويتم الدمج لكل مفتاح حسب النوع (تصاعدي للإكمال، وأقصى قيمة لكل بطاقة) بحيث لا تدهس الأجهزة المتزامنة بعضها. بدأ على AWS (S3 + Lambda + Terraform) ثم أُعيد بناؤه."
+result:
+  en: "A reliable, nearly free deployment in daily use across devices, with the conflict-free merge model documented and the old AWS stack cleanly retired."
+  de: "Ein zuverlässiges, nahezu kostenloses Deployment im täglichen Einsatz über Geräte hinweg, mit dokumentiertem konfliktfreiem Merge-Modell und sauber stillgelegtem AWS-Stack."
+  ar: "نشر موثوق وشبه مجاني في الاستخدام اليومي عبر الأجهزة، مع توثيق نموذج دمج خالٍ من التعارض وإيقاف منظومة AWS القديمة بنظافة."
+stack: [Cloudflare Workers, Durable Objects, SQLite, GitHub Pages, "AWS (migrated from)", Terraform]
+links: {}
+connects: [aws-saa]
+assets: auto
+review: { de: true, ar: true }

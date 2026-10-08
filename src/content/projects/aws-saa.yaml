@@ -9,9 +9,9 @@ featured: true
 confidential: false
 code: C01
 title:
-  en: "AWS Certified Solutions Architect – Associate"
-  de: "AWS Certified Solutions Architect – Associate"
-  ar: "AWS Certified Solutions Architect – Associate"
+  en: "AWS Certified Solutions Architect – Associate (SAA-C03)"
+  de: "AWS Certified Solutions Architect – Associate (SAA-C03)"
+  ar: "AWS Certified Solutions Architect – Associate (SAA-C03)"
 impact:
   line:
     en: "The first milestone of the move into cloud"
@@ -29,9 +29,10 @@ result:
   en: "Certified June 2026, and a deliberate shift toward platform and reliability engineering."
   de: "Zertifiziert im Juni 2026 – ein bewusster Schritt Richtung Platform- und Reliability-Engineering."
   ar: "معتمد في يونيو 2026، وتحوّل مقصود نحو هندسة المنصات والموثوقية."
-stack: [AWS, "Well-Architected", "Solutions Architecture"]
+stack: [AWS, SAA-C03, "Well-Architected", "Solutions Architecture"]
 links:
-  live: "https://www.credly.com/users/mohamed-essa"
+  # Verified Credly badge (issued 2026-06-20, expires 2029-06-20)
+  live: "https://www.credly.com/badges/45f25e39-0963-4c17-823b-53c8c5076c58/public_url"
 connects: []
 assets: auto
 review: { de: true, ar: true }

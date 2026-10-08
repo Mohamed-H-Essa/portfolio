@@ -58,6 +58,11 @@ Possible extra repos in `~/work` (**ask the owner which are real, finished and p
 | yafleet | Play `com.intrazero.majdiyafleet` | — (no code) | fleet app |
 | unicef-case-management | — | ask owner for captures | GitLab `unicef cma`; OK to show |
 
+### Added 2026-10-08 (owner-supplied, already written as content nodes)
+- **aws-saa** (C01, cert): SAA-**C03**, issued **2026-06-20**, expires **2029-06-20**. Verified badge: `https://www.credly.com/badges/45f25e39-0963-4c17-823b-53c8c5076c58/public_url`. Surface "Expires Jun 2029" on the cert dossier + CV.
+- **hope-glove** (C02, cloud+origin+mobile): HOPE hand-rehab system. ESP32 glove (flex sensors + MPU6050) → HTTPS → API Gateway → Python Lambdas (batch + score assessment/exercise) → DynamoDB + S3 video; Flutter patient/practitioner app; scripted deploy/teardown, single-region eu-west-3. Repo `~/work/hope_project` (backend/infra = shell scripts, not Terraform; firmware in `firmware/hope_glove`). No public link/screenshots yet → assets use the `cover-cloud` template (architecture diagram: glove→APIGW→Lambda→DynamoDB/S3; add `assets-src/hope-glove/diagram.yaml`). Great Mobile↔Cloud↔IoT edge story.
+- **german-study** (C03, cloud+origin): personal German-learning app, static HTML/JS on **GitHub Pages**, offline-first sync via **Cloudflare Worker + SQLite Durable Object** (server-assigned sequence numbers; per-key merge by kind). **Migrated off AWS** (S3+Lambda+Terraform, torn down 2026-08-11). Repo `/Users/mohamedessa/Documents/study_material_tk1/german/interactive_july` (worker in `worker/`, retired AWS in `infra/`). No screenshots requested; `cover-cloud` template (diagram: Pages ⇄ Worker ⇄ Durable Object). Demonstrates a real re-platforming + conflict-free sync — strong cloud signal.
+
 Other GitLab repos (may map to `~/work` or need cloning; ask before documenting as finished/public): `i_tutor`, `gharemeen`, `waste-management` (medwaste?), `Al Diplomacy`, `homevalley-crm`, `jahzeen-ios/android`, `motary`, `Iassets mobile`, `ITicket IOS`, `HIS`, `intrazeroemployee`, `flutter-packages`.
 Move the Downloads screenshot folders into `assets-src/<slug>/raw/` when processing each project.
 
