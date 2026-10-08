@@ -1,5 +1,6 @@
 ---
 import { FEATURES } from '../lib/features';
+import { pathD } from '../lib/lemniscate';
 import Sigil from './Sigil.astro';
 import { t, url, LOCALES, LOCALE_META, TRACKS, type Locale, type Track } from '../i18n';
 
@@ -38,16 +39,28 @@ const trackLinks = TRACKS.map((tr) => ({
 }));
 
 const cvHref = url(locale, 'cv', track);
+// on a project page: a centred "Map" button back to this world's map, opened on the project
+const mapHref = projectSlug ? `${url(locale, track)}?p=${projectSlug}` : '';
+const inf = pathD(100, 120);
 // the logo replays the ∞ intro from the very start (language step)
 const homeHref = url();
 ---
 
-<header class:list={['site-header', { 'site-header--floating': floating }]}>
+<header class:list={['site-header', { 'site-header--floating': floating, 'has-map': !!mapHref }]}>
   <div class="shell site-header__inner">
     <a class="brand" href={homeHref} aria-label="Mohamed Essa — home">
       <Sigil size={30} />
       <span class="brand__name label">Mohamed Essa</span>
     </a>
+
+    {
+      mapHref && (
+        <a class="to-map" href={mapHref} data-to-map>
+          <svg viewBox="-110 -60 220 120" aria-hidden="true"><path d={inf} /></svg>
+          <span>{t(locale, 'nav.map')}</span>
+        </a>
+      )
+    }
 
     <nav class="site-header__nav" aria-label="Primary">
       <!-- Track switch: inline on wide screens, in the menu on phones -->
@@ -132,12 +145,44 @@ const homeHref = url();
   }
   .site-header--floating .site-header__inner { max-inline-size: none; }
   .site-header__inner {
+    position: relative;
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 1rem;
     block-size: 60px;
   }
+  .to-map {
+    position: absolute;
+    left: 50%;
+    translate: -50% 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    min-block-size: 40px;
+    padding-inline: 0.9rem 1.05rem;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--bg) 60%, transparent);
+    backdrop-filter: blur(10px);
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink);
+    transition: border-color var(--dur-fast) var(--ease);
+  }
+  /* phones: the centred Map pill and the name don't both fit; the mark stays (it still replays the intro) */
+  @media (max-width: 760px) { .has-map .brand__name { display: none; } }
+  :root[dir='rtl'] .to-map { font-family: var(--font-ar); letter-spacing: 0; text-transform: none; font-size: 0.9rem; }
+  .to-map svg { inline-size: 26px; block-size: 14px; overflow: visible; }
+  .to-map path { fill: none; stroke: var(--c, var(--origin)); stroke-width: 13; stroke-linecap: round; transition: stroke-dashoffset 700ms var(--ease-strong); stroke-dasharray: 1000; stroke-dashoffset: 0; }
+  .to-map:hover { border-color: var(--c, var(--origin)); }
+  /* hovering redraws the loop, a small echo of the intro */
+  @media (prefers-reduced-motion: no-preference) {
+    .to-map:hover path { animation: to-map-draw 900ms var(--ease-strong); }
+  }
+  @keyframes to-map-draw { from { stroke-dashoffset: 1000; } }
   .brand {
     display: inline-flex;
     align-items: center;

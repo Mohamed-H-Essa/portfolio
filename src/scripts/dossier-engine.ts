@@ -154,7 +154,7 @@ export function initEngine(root: HTMLElement) {
 
   // swipe back (horizontal) → the map, opened on this project. When we came
   // from that map, step back in history instead, so its camera is where it was.
-  initSwipeBack({
+  const back = initSwipeBack({
     targets: [root],
     fade: [hud],
     label: () => json.map,
@@ -167,6 +167,15 @@ export function initEngine(root: HTMLElement) {
       else location.href = back.href;
     },
   });
+
+  // the header's Map button plays the same recede, then goes back the same way
+  document.querySelectorAll<HTMLAnchorElement>('[data-to-map]').forEach((a) =>
+    a.addEventListener('click', (e) => {
+      if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+      e.preventDefault();
+      back.commit();
+    })
+  );
 
   apply(idx);
   // after the landing, frames transition normally again

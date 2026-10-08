@@ -167,4 +167,6 @@ export function initSwipeBack(o: SwipeBackOptions) {
     if (mode === 'back') (pull >= READY ? commit() : set(0));
     mode = 'idle';
   });
+
+  return { commit };
 }
