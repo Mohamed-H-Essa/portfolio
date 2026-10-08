@@ -86,5 +86,8 @@
   "dossier.enlarge": "Screenshot vergrößern",
   "dossier.close": "Schließen",
   "site.name": "Mohamed Essa",
-  "nav.sound": "Ton"
+  "nav.sound": "Ton",
+  "intro.enter": "Eintreten",
+  "intro.soundNote": "Am besten mit Ton",
+  "intro.silent": "Ohne Ton fortfahren"
 }

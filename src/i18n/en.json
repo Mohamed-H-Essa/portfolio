@@ -86,5 +86,8 @@
   "dossier.enlarge": "Enlarge screenshot",
   "dossier.close": "Close",
   "site.name": "Mohamed Essa",
-  "nav.sound": "Sound"
+  "nav.sound": "Sound",
+  "intro.enter": "Enter",
+  "intro.soundNote": "Best with sound",
+  "intro.silent": "Continue without sound"
 }

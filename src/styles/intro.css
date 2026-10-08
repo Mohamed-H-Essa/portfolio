@@ -229,3 +229,83 @@
 }
 
 .intro__tools { display: inline-flex; align-items: center; gap: 0.5rem; }
+
+/* ---- the entrance gate (intro.ts): the light waits at the crossing ------- */
+.intro.is-gated :is(.inf path, .intro__name, .intro__tag, .intro__hint, .langs, .intro__more, .intro__bar) {
+  animation-play-state: paused !important;
+}
+.intro.is-gated .lobe { opacity: 0 !important; transition: none; }
+.gate { position: absolute; inset: 0; z-index: 5; cursor: pointer; }
+.gate__enter {
+  position: absolute;
+  left: var(--gx, 50%);
+  top: var(--gy, 45%);
+  translate: -50% -50%;
+  inline-size: 132px;
+  block-size: 132px;
+  border-radius: 50%;
+  color: var(--ink);
+}
+/* two thin rings breathing out from the light, like ripples */
+.gate__enter::before,
+.gate__enter::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1px solid rgba(237, 230, 214, 0.32);
+  animation: gate-breathe 3.2s var(--ease) infinite;
+}
+.gate__enter::after { animation-delay: 1.6s; border-color: rgba(237, 230, 214, 0.18); }
+@keyframes gate-breathe {
+  0% { transform: scale(0.82); opacity: 0; }
+  35% { opacity: 1; }
+  100% { transform: scale(1.35); opacity: 0; }
+}
+.gate__enter:focus-visible { outline: none; }
+.gate__enter:focus-visible::before { border-color: var(--origin); }
+.gate__label {
+  position: absolute;
+  inset-block-start: calc(100% + 22px);
+  left: 50%;
+  translate: -50% 0;
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  padding-inline-start: 0.32em; /* optical centre under letter-spacing */
+}
+.gate[dir='rtl'] .gate__label { font-family: var(--font-ar); letter-spacing: 0; text-transform: none; padding: 0; font-size: 1.2rem; }
+.gate__note {
+  position: absolute;
+  left: var(--gx, 50%);
+  top: calc(var(--gy, 45%) + 66px + 62px);
+  translate: -50% 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+  white-space: nowrap;
+  font-size: 0.8rem;
+  color: var(--ink-3);
+}
+.gate__note svg { inline-size: 15px; block-size: 15px; fill: none; stroke: currentColor; stroke-width: 1.6; }
+.gate__silent {
+  position: absolute;
+  inset-block-end: clamp(1.5rem, 6vh, 3rem);
+  left: 50%;
+  translate: -50% 0;
+  min-block-size: 44px;
+  padding-inline: 1rem;
+  font-size: 0.82rem;
+  color: var(--ink-3);
+  white-space: nowrap;
+  transition: color var(--dur-fast) var(--ease);
+}
+.gate__silent:hover, .gate__silent:focus-visible { color: var(--ink); }
+/* leaving: the rings open wide and the words go, as the light starts to draw */
+.gate.is-out { pointer-events: none; }
+.gate.is-out .gate__enter::before { animation: none; transform: scale(5); opacity: 0; transition: transform 900ms var(--ease-strong), opacity 700ms var(--ease); }
+.gate.is-out .gate__enter::after { animation: none; opacity: 0; transition: opacity 300ms; }
+.gate.is-out :is(.gate__label, .gate__note, .gate__silent) { opacity: 0; transition: opacity 280ms var(--ease); }

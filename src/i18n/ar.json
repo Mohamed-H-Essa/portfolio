@@ -86,5 +86,8 @@
   "dossier.enlarge": "تكبير لقطة الشاشة",
   "dossier.close": "إغلاق",
   "site.name": "محمد عيسى",
-  "nav.sound": "الصوت"
+  "nav.sound": "الصوت",
+  "intro.enter": "ادخل",
+  "intro.soundNote": "التجربة أفضل مع الصوت",
+  "intro.silent": "المتابعة دون صوت"
 }

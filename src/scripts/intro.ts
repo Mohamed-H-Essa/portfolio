@@ -6,7 +6,7 @@
 import { point, confine, type Lobe } from '../lib/lemniscate';
 import { initField } from './intro-field';
 import { initSwipeBack } from './swipe-back';
-import { play } from './sound';
+import { play, unlockNow, setSound, soundWanted, canPlayWithoutGesture } from './sound';
 
 type Lang = 'en' | 'de' | 'ar';
 interface IntroJson { strings: Record<Lang, Record<string, string>>; base: string; labels: Record<Lang, string> }
@@ -204,7 +204,8 @@ export function initIntro(root: HTMLElement) {
   const CRUISE = (Math.PI * 2) / 7000; // rad per ms: one loop in 7 s
   const easeInOut = (p: number) => (p < 0.5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2);
   const trail: { x: number; y: number; c: string }[] = [];
-  const t0 = performance.now();
+  let t0 = performance.now();
+  let gated = root.classList.contains('is-gated'); // waiting for the entrance choice
   let t = -Math.PI / 2;
   let speed = 0;
   let burst = 0;
@@ -215,7 +216,10 @@ export function initIntro(root: HTMLElement) {
     const dt = Math.min(48, now - last);
     last = now;
     const el = now - t0 - DRAW_START;
-    if (el < DRAW_MS) {
+    if (gated) {
+      t = -Math.PI / 2; // the light waits at the crossing, breathing
+      trail.length = 0;
+    } else if (el < DRAW_MS) {
       // ride the draw head: same easing as the stroke-dashoffset animation
       t = -Math.PI / 2 + easeInOut(Math.max(0, el) / DRAW_MS) * Math.PI * 2;
     } else {
@@ -244,13 +248,14 @@ export function initIntro(root: HTMLElement) {
         ctx.stroke();
       }
       const head = trail[trail.length - 1];
-      const g = ctx.createRadialGradient(head.x, head.y, 0, head.x, head.y, 26);
+      const R = gated ? 26 * (1.05 + 0.22 * Math.sin(now / 520)) : 26;
+      const g = ctx.createRadialGradient(head.x, head.y, 0, head.x, head.y, R);
       g.addColorStop(0, `rgba(255,255,255,0.95)`);
       g.addColorStop(0.12, `rgba(${head.c},0.85)`);
       g.addColorStop(1, `rgba(${head.c},0)`);
       ctx.fillStyle = g;
       ctx.beginPath();
-      ctx.arc(head.x, head.y, 26, 0, Math.PI * 2);
+      ctx.arc(head.x, head.y, R, 0, Math.PI * 2);
       ctx.fill();
     }
     raf = requestAnimationFrame(frame);
@@ -267,12 +272,59 @@ export function initIntro(root: HTMLElement) {
 
   // ---- background: develops once the loop is whole --------------------------
   initField(root.querySelector<HTMLCanvasElement>('[data-field]')!, fig, reduce);
-  window.setTimeout(() => { root.classList.add('is-drawn'); play('swell', { level: 0.6 }); }, reduce ? 0 : DRAW_START + DRAW_MS);
 
-  // ---- go ------------------------------------------------------------------
-  if (root.dataset.step === 'lang') startLangStep();
-  else window.setTimeout(() => root.classList.add('is-live'), 2200 * k);
+  // ---- go: everything is timed from the moment the entrance is chosen --------
+  const begin = (sound: boolean) => {
+    gated = false;
+    root.classList.remove('is-gated');
+    t0 = performance.now();
+    last = t0;
+    if (sound) play('intro');
+    window.setTimeout(() => root.classList.add('is-drawn'), reduce ? 0 : DRAW_START + DRAW_MS);
+    if (root.dataset.step === 'lang') startLangStep();
+    else window.setTimeout(() => root.classList.add('is-live'), 2200 * k);
+  };
   showAgain();
+
+  // ---- the entrance gate: sound needs one click, so ask once, quietly ------
+  // (skipped when the visitor muted before, or the browser already allows sound)
+  const gateFor = () => {
+    const lang: Lang = root.dataset.step === 'lang' ? ((store.get('lang') as Lang) || detect()) : locale;
+    const gate = document.createElement('div');
+    gate.className = 'gate';
+    gate.setAttribute('role', 'dialog');
+    gate.setAttribute('aria-label', str(lang, 'intro.soundNote'));
+    gate.lang = lang;
+    gate.dir = lang === 'ar' ? 'rtl' : 'ltr';
+    gate.innerHTML = `<button type="button" class="gate__enter" data-sound-own><span class="gate__label">${str(lang, 'intro.enter')}</span></button>
+      <p class="gate__note"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 14v-2a8 8 0 0 1 16 0v2"/><rect x="3" y="14" width="4" height="6" rx="1.5"/><rect x="17" y="14" width="4" height="6" rx="1.5"/></svg>${str(lang, 'intro.soundNote')}</p>
+      <button type="button" class="gate__silent" data-sound-own>${str(lang, 'intro.silent')}</button>`;
+    const r = fig.getBoundingClientRect(), rr = root.getBoundingClientRect();
+    gate.style.setProperty('--gx', `${r.left - rr.left + r.width / 2}px`);
+    gate.style.setProperty('--gy', `${r.top - rr.top + r.height / 2}px`);
+    root.append(gate);
+    const leave = (sound: boolean) => {
+      if (gate.classList.contains('is-out')) return;
+      if (sound) { unlockNow(); setSound(true); } else setSound(false);
+      gate.classList.add('is-out');
+      begin(sound);
+      window.setTimeout(() => gate.remove(), 900);
+      removeEventListener('keydown', onKey, true);
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') { e.preventDefault(); leave(false); }
+      else if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); leave(true); }
+    };
+    addEventListener('keydown', onKey, true);
+    gate.addEventListener('click', (e) => leave(!(e.target as Element).closest('.gate__silent')));
+    gate.querySelector<HTMLElement>('.gate__enter')!.focus({ preventScroll: true });
+  };
+  // ?gate forces it (to preview; headless browsers always allow sound)
+  const force = new URLSearchParams(location.search).has('gate');
+  if (!gated) begin(false);
+  else if (force) gateFor();
+  else if (!soundWanted()) begin(false);
+  else canPlayWithoutGesture().then((ok) => (ok ? (unlockNow(), begin(true)) : gateFor()));
 
   if (!reduce && ctx) {
     size();

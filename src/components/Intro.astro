@@ -16,6 +16,7 @@ const { locale, step } = Astro.props;
 const d = pathD(100);
 const KEYS = [
   'intro.lang', 'intro.world', 'intro.again', 'intro.changeLang', 'site.tagline', 'nav.cv', 'skip',
+  'intro.enter', 'intro.soundNote', 'intro.silent',
   ...TRACKS.flatMap((tr) => [`world.${tr}.name`, `world.${tr}.desc`]),
 ];
 const strings = Object.fromEntries(LOCALES.map((l) => [l, Object.fromEntries(KEYS.map((k) => [k, t(l, k)]))]));
@@ -24,6 +25,9 @@ const tx = (k: string) => t(locale, k);
 ---
 
 <section class="intro" data-intro data-step={step} data-locale={locale}>
+  {/* with JS, hold the entrance until the visitor chooses sound or silence
+      (intro.ts shows the gate, or skips it); without JS nothing waits */}
+  <script is:inline>document.currentScript.parentElement.classList.add('is-gated');</script>
   <canvas class="intro__field" data-field aria-hidden="true"></canvas>
   <div class="intro__bar">
     <a class="intro__me" href={url()}><Sigil size={26} /><span>Mohamed Essa</span></a>

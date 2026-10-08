@@ -5,7 +5,7 @@
 // tiny recipe: filtered noise for air and paper, sines for the glassy and the
 // low, all through one soft room reverb and a master level kept very low.
 
-type Name = 'tick' | 'tap' | 'whoosh' | 'unfold' | 'flip' | 'swell';
+type Name = 'tick' | 'tap' | 'whoosh' | 'unfold' | 'flip' | 'swell' | 'intro';
 interface Opts { dir?: 1 | -1; level?: number }
 
 const KEY = 'sound';
@@ -16,10 +16,41 @@ let wet: GainNode;
 let noise: AudioBuffer;
 let unlocked = false;
 const last: Partial<Record<Name, number>> = {};
-const MIN_GAP: Record<Name, number> = { tick: 70, tap: 60, whoosh: 160, unfold: 300, flip: 70, swell: 900 };
+const MIN_GAP: Record<Name, number> = { tick: 70, tap: 60, whoosh: 160, unfold: 300, flip: 70, swell: 900, intro: 4000 };
 
 const pref = () => { try { return localStorage.getItem(KEY) !== 'off'; } catch { return true; } };
 export const soundOn = () => unlocked && pref();
+/** the visitor hasn't muted (a choice from an earlier visit) */
+export const soundWanted = () => pref();
+export function setSound(on: boolean) {
+  try { localStorage.setItem(KEY, on ? 'on' : 'off'); } catch { /* private mode */ }
+  document.querySelectorAll<HTMLButtonElement>('[data-sound-toggle]').forEach((b) => {
+    b.setAttribute('aria-pressed', String(on));
+    b.classList.toggle('is-off', !on);
+  });
+}
+
+/** Called from inside a click/key handler: audio may start now. */
+export function unlockNow() {
+  unlocked = true;
+  boot();
+  void ctx?.resume();
+}
+/** Without a gesture: does the browser already allow sound here (e.g. the
+ *  visitor clicked through from another page of the site)? */
+export async function canPlayWithoutGesture(): Promise<boolean> {
+  const AC = window.AudioContext || (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+  if (!AC) return false;
+  if (navigator.userActivation?.hasBeenActive) return true;
+  try {
+    const probe = new AC();
+    const ok = probe.state === 'running';
+    void probe.close();
+    return ok;
+  } catch {
+    return false;
+  }
+}
 
 function boot() {
   if (ctx) return;
@@ -156,6 +187,32 @@ const RECIPES: Record<Name, (t: number, o: Opts) => void> = {
     s.connect(bp).connect(g);
     send(g, 0.5);
   },
+  // the first impression, timed to the ∞ drawing itself (≈2.3 s): a low swell
+  // rising underneath, a breath of air tracing the pen, two soft bells as the
+  // loop closes
+  intro(t, o) {
+    const k = o.level ?? 1;
+    tone(55, t, 0.1 * k, 1.4, 3.2, 'sine', 1.1);
+    tone(82.4, t + 0.1, 0.055 * k, 1.5, 3, 'sine', 1.1);
+    const draw = 2.2;
+    const s = noiseSrc(t + 0.15, draw);
+    const bp = ctx!.createBiquadFilter();
+    bp.type = 'bandpass';
+    bp.Q.value = 2.2;
+    bp.frequency.setValueAtTime(320, t + 0.15);
+    bp.frequency.exponentialRampToValueAtTime(1900, t + 0.15 + draw * 0.55);
+    bp.frequency.exponentialRampToValueAtTime(700, t + 0.15 + draw);
+    const g = ctx!.createGain();
+    g.gain.setValueAtTime(0.0001, t + 0.15);
+    g.gain.exponentialRampToValueAtTime(0.05 * k, t + 0.15 + draw * 0.5);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.15 + draw);
+    s.connect(bp).connect(g);
+    send(g, 1);
+    const close = t + 2.3;
+    tone(659.3, close, 0.03 * k, 0.01, 2.6, 'triangle', 1.6);
+    tone(987.8, close + 0.09, 0.018 * k, 0.01, 2.4, 'triangle', 1.6);
+    tone(1318.5, close + 0.09, 0.006 * k, 0.01, 1.8, 'sine', 1.8);
+  },
   // the low, distant tone of something arriving (the ∞ closing, a world opening)
   swell(t, o) {
     const k = o.level ?? 1;
@@ -168,7 +225,8 @@ const RECIPES: Record<Name, (t: number, o: Opts) => void> = {
 export function play(name: Name, o: Opts = {}) {
   if (!soundOn() || !ctx) return;
   const now = performance.now();
-  if (now - (last[name] ?? 0) < MIN_GAP[name]) return;
+  const prev = last[name];
+  if (prev !== undefined && now - prev < MIN_GAP[name]) return; // (first play is never "too soon")
   last[name] = now;
   if (ctx.state === 'suspended') void ctx.resume();
   RECIPES[name](ctx.currentTime + 0.005, o);
@@ -178,9 +236,7 @@ export function play(name: Name, o: Opts = {}) {
 export function initSound() {
   const unlock = () => {
     if (unlocked) return;
-    unlocked = true;
-    boot();
-    void ctx?.resume();
+    unlockNow();
     removeEventListener('pointerdown', unlock, true);
     removeEventListener('keydown', unlock, true);
   };
