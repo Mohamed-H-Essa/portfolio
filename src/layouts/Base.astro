@@ -86,5 +86,12 @@ const buildDate = new Date().toISOString().slice(0, 10);
       <slot />
     </main>
     {!bare && !immersive && <Footer locale={locale} buildSha={buildSha} buildDate={buildDate} />}
+    <script is:inline>
+      // Firefox ignores -webkit-user-drag: stop image/link drag ghosts everywhere
+      addEventListener('dragstart', function (e) {
+        var t = e.target;
+        if (t && t.closest && t.closest('img, a, svg')) e.preventDefault();
+      });
+    </script>
   </body>
 </html>

@@ -127,3 +127,18 @@ body.immersive {
   @view-transition { navigation: auto; }
   ::view-transition-group(*) { animation-duration: 520ms; animation-timing-function: var(--ease-strong); }
 }
+
+/* ---- careless input: stray drags and selections never look broken ---------
+   Interface chrome (intro, map, header, HUD, buttons, labels) can't be
+   selected; reading text (project stories, titles, impact) still can, in the
+   site's own colours. Images and links never leave a drag ghost; phones get no
+   grey tap flash, no long-press image menu, no double-tap zoom on controls. */
+::selection { background: color-mix(in srgb, var(--origin) 30%, #000); color: #fff; }
+html { -webkit-tap-highlight-color: transparent; }
+img, svg, canvas, a { -webkit-user-drag: none; }
+img { -webkit-touch-callout: none; }
+a, button, label, summary { touch-action: manipulation; }
+:is(.site-header, .intro, .stage, .hud, .btn, button, .label, .chips, .node, .gallery__nav, .site-footer) {
+  -webkit-user-select: none;
+  user-select: none;
+}
