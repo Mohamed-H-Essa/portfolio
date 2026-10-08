@@ -26,7 +26,10 @@ const links = [
 ---
 
 <header class:list={['hero', `hero--${layer}`, { 'hero--badge': !art, 'hero--diagram': art && !hasScreens(d.slug) }]}>
-  <div class="hero__art">
+  <div
+    class="hero__art"
+    style={art ? `--art-wide:url(${assetUrl(d.slug, rtl ? 'cover-rtl' : 'cover')});--art-tall:url(${assetUrl(d.slug, 'cover-portrait')})` : undefined}
+  >
     {
       art ? (
         <picture>
@@ -105,7 +108,12 @@ const links = [
   .hero--cloud { --c: var(--cloud); }
   /* art keeps to the inline-end two thirds so wide (cloud) covers never run under the title */
   .hero__art { position: absolute; inset-block: 0; inset-inline: 34% 0; z-index: -1; color: var(--c); }
-  .hero__art picture { display: block; block-size: 100%; }
+  /* the picture is pinned inside a clipped box: Safari doesn't resolve % heights
+     against an aspect-ratio box, so an in-flow image spilled past the fade.
+     The box's own background is the same picture (low-res), so it's never blank. */
+  .hero__art { overflow: hidden; background: #0d0e10 var(--art-wide, none) right center / cover no-repeat; }
+  :root[dir='rtl'] .hero__art { background-position: left center; }
+  .hero__art picture { position: absolute; inset: 0; display: block; }
   /* code/cloud diagram covers read at their natural 16:9, top-anchored (hero-rect.ts: diagram) */
   @media (min-width: 761px) {
     .hero--diagram .hero__art { inset-block-end: auto; aspect-ratio: 16 / 9; max-block-size: 100%; }
@@ -134,6 +142,7 @@ const links = [
     filter: drop-shadow(0 0 60px color-mix(in srgb, var(--c) 25%, transparent));
   }
   .hero--badge .hero__art::after { display: none; }
+  .hero--badge .hero__art { background: none; overflow: visible; }
   .hero--badge .hero__art :global(.badge) {
     -webkit-mask-image: radial-gradient(closest-side, #000 72%, transparent);
     mask-image: radial-gradient(closest-side, #000 72%, transparent);
@@ -179,12 +188,14 @@ const links = [
 
   @media (max-width: 760px) {
     .hero { min-block-size: auto; align-items: start; }
-    .hero__art { position: relative; inset: auto; aspect-ratio: 4 / 5; max-block-size: 68svh; inline-size: 100%; }
+    /* explicit height (same formula as hero-rect.ts): the box has no in-flow
+       content, so an aspect-ratio alone gave the grid row a too-small size */
+    .hero__art { position: relative; inset: auto; inline-size: 100%; block-size: min(68svh, 125vw); background-image: var(--art-tall, none); background-position: center top; }
     .hero__art::after,
     :root[dir='rtl'] .hero__art::after { background: linear-gradient(to top, var(--bg) 2%, transparent 45%); }
     .hero__art img { object-position: center; }
     .hero__copy { padding-block: 0 2rem; margin-block-start: -5rem; position: relative; }
-    .hero--badge .hero__art { inset: auto; inline-size: 62vw; aspect-ratio: 120 / 128; margin: 6rem auto 0; }
+    .hero--badge .hero__art { inset: auto; inline-size: 62vw; block-size: auto; aspect-ratio: 120 / 128; margin: 6rem auto 0; }
     .hero--badge .hero__copy { margin-block-start: 1rem; }
   }
 </style>

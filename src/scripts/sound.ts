@@ -36,6 +36,19 @@ export function unlockNow() {
   boot();
   void ctx?.resume();
 }
+/** Resolves once audio is really running (a fresh context takes a moment,
+ *  longer in Safari), with the device's output delay in ms, so a visual can
+ *  start in step with the sound. Gives up after 700 ms (visuals never wait long). */
+export function whenRunning(): Promise<number> {
+  const latency = () => Math.round(((ctx as AudioContext & { outputLatency?: number })?.outputLatency || ctx?.baseLatency || 0.02) * 1000);
+  if (!ctx) return Promise.resolve(0);
+  if (ctx.state === 'running') return Promise.resolve(latency());
+  return Promise.race([
+    ctx.resume().then(latency),
+    new Promise<number>((r) => setTimeout(() => r(-1), 700)),
+  ]).catch(() => -1);
+}
+
 /** Without a gesture: does the browser already allow sound here (e.g. the
  *  visitor clicked through from another page of the site)? */
 export async function canPlayWithoutGesture(): Promise<boolean> {

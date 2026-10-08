@@ -6,7 +6,7 @@
 import { point, confine, type Lobe } from '../lib/lemniscate';
 import { initField } from './intro-field';
 import { initSwipeBack } from './swipe-back';
-import { play, unlockNow, setSound, soundWanted, canPlayWithoutGesture } from './sound';
+import { play, unlockNow, setSound, soundWanted, canPlayWithoutGesture, whenRunning } from './sound';
 
 type Lang = 'en' | 'de' | 'ar';
 interface IntroJson { strings: Record<Lang, Record<string, string>>; base: string; labels: Record<Lang, string> }
@@ -274,17 +274,24 @@ export function initIntro(root: HTMLElement) {
   initField(root.querySelector<HTMLCanvasElement>('[data-field]')!, fig, reduce);
 
   // ---- go: everything is timed from the moment the entrance is chosen --------
-  const begin = (sound: boolean) => {
+  const begin = () => {
     gated = false;
     root.classList.remove('is-gated');
     t0 = performance.now();
     last = t0;
-    if (sound) play('intro');
     window.setTimeout(() => root.classList.add('is-drawn'), reduce ? 0 : DRAW_START + DRAW_MS);
     if (root.dataset.step === 'lang') startLangStep();
     else window.setTimeout(() => root.classList.add('is-live'), 2200 * k);
   };
   showAgain();
+  // with sound: wait until audio is really running, start the sound, then the
+  // picture after the device's output delay, so the two land together
+  const beginWithSound = () =>
+    whenRunning().then((ms) => {
+      if (ms < 0) return begin(); // audio didn't start: don't hold the picture
+      play('intro');
+      window.setTimeout(begin, ms);
+    });
 
   // ---- the entrance gate: sound needs one click, so ask once, quietly ------
   // (skipped when the visitor muted before, or the browser already allows sound)
@@ -307,7 +314,7 @@ export function initIntro(root: HTMLElement) {
       if (gate.classList.contains('is-out')) return;
       if (sound) { unlockNow(); setSound(true); } else setSound(false);
       gate.classList.add('is-out');
-      begin(sound);
+      if (sound) beginWithSound(); else begin();
       window.setTimeout(() => gate.remove(), 900);
       removeEventListener('keydown', onKey, true);
     };
@@ -321,10 +328,10 @@ export function initIntro(root: HTMLElement) {
   };
   // ?gate forces it (to preview; headless browsers always allow sound)
   const force = new URLSearchParams(location.search).has('gate');
-  if (!gated) begin(false);
+  if (!gated) begin();
   else if (force) gateFor();
-  else if (!soundWanted()) begin(false);
-  else canPlayWithoutGesture().then((ok) => (ok ? (unlockNow(), begin(true)) : gateFor()));
+  else if (!soundWanted()) begin();
+  else canPlayWithoutGesture().then((ok) => (ok ? (unlockNow(), beginWithSound()) : gateFor()));
 
   if (!reduce && ctx) {
     size();
