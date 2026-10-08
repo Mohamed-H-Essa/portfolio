@@ -1,3 +1,5 @@
+import { initPanelFx } from './panel-fx';
+
 // Camera + interaction for the layered 3D map (Scene.astro).
 // The scene's geometry is static CSS 3D from SSR; this only drives a handful of
 // CSS variables on the stage (--fx --fz --yaw --pitch --zoom) every frame, plus
@@ -5,7 +7,7 @@
 
 interface PanelItem {
   code: string; title: string; impact: string; role: string; years: string;
-  stack: string[]; layer: string; cover: string; href: string;
+  stack: string[]; layer: string; cover: string; gallery: string[]; href: string;
   appStore: string; playStore: string; live: string;
 }
 interface SceneJson {
@@ -27,6 +29,7 @@ export function initScene(stage: HTMLElement) {
   const index = stage.querySelector<HTMLElement>('[data-index]')!;
   const indexOpen = stage.querySelector<HTMLButtonElement>('[data-index-open]')!;
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const fx = initPanelFx(stage.querySelector<HTMLElement>('[data-panel]')!, reduce);
 
   // ---- camera state ---------------------------------------------------------
   const cam0 = json.camera;
@@ -200,7 +203,8 @@ export function initScene(stage: HTMLElement) {
   const fillPanel = (slug: string) => {
     const d = json.panel[slug];
     if (!d) return;
-    setP('cover', (el) => ((el as HTMLImageElement).src = d.cover || ''));
+    panel.dataset.layer = d.layer;
+    fx.show({ slug, cover: d.cover, gallery: d.gallery });
     setP('code', (el) => (el.textContent = d.code));
     setP('years', (el) => (el.textContent = d.years));
     setP('title', (el) => (el.textContent = d.title));

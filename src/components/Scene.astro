@@ -5,7 +5,7 @@
 // drag / orbit / zoom / fly-to / selection on top.
 import { layoutScene, PLANE_DEPTH, CARD_LIFT, type SceneInput, type Layer } from '../lib/scene';
 import { loc, t, url, dir as dirOf, type Locale, type Track } from '../i18n';
-import { hasAssets, hasScreens, assetUrl } from '../lib/assets';
+import { hasAssets, hasScreens, assetUrl, galleryCount, galleryUrl } from '../lib/assets';
 import Badge from './Badge.astro';
 import type { Project } from '../lib/content';
 
@@ -53,6 +53,7 @@ const panelData = Object.fromEntries(
         stack: d.stack,
         layer: d.worlds[0],
         cover: has ? assetUrl(d.slug, rtl ? 'cover-rtl' : 'cover') : '',
+        gallery: Array.from({ length: galleryCount(d.slug) }, (_, i) => galleryUrl(d.slug, i + 1)),
         href: url(locale, track, 'p', d.slug),
         appStore: d.links?.appStore ?? '',
         playStore: d.links?.playStore ?? '',
@@ -201,7 +202,11 @@ const ssrFocus = startCard ? { y: startCard.y, z: startCard.z + CARD_LIFT + 110 
   </div>
 
   <aside class="panel" data-panel aria-live="polite">
-    <div class="panel__art"><img data-p="cover" alt="" /></div>
+    <a class="panel__art" data-p="href" tabindex="-1" aria-hidden="true">
+      <span class="panel__frames" data-frames></span>
+      <span class="panel__bars" data-bars></span>
+    </a>
+    <canvas class="panel__stars" data-stars aria-hidden="true"></canvas>
     <div class="panel__body">
       <p class="label panel__meta"><span data-p="code"></span> · <span data-p="years"></span></p>
       <h2 class="panel__title" data-p="title"></h2>
@@ -234,6 +239,15 @@ const ssrFocus = startCard ? { y: startCard.y, z: startCard.z + CARD_LIFT + 110 
       </ol>
       <button class="index__close ctl" data-index-close aria-label="Close">×</button>
     </div>
+  </div>
+
+  {/* the panel shows a project's Badge when it has no cover art */}
+  <div hidden>
+    {projects.filter((p) => !hasAssets(p.data.slug)).map((p) => (
+      <template data-badge={p.data.slug}>
+        <Badge slug={p.data.slug} title={p.data.short?.en ?? p.data.title.en} kind={p.data.kind} />
+      </template>
+    ))}
   </div>
 
   <script type="application/json" data-scene-json set:html={JSON.stringify({ panel: panelData, strings, camera })} />
@@ -531,9 +545,54 @@ const ssrFocus = startCard ? { y: startCard.y, z: startCard.z + CARD_LIFT + 110 
     pointer-events: none;
   }
   .panel.is-open { opacity: 1; transform: none; pointer-events: auto; }
-  .panel__art img { display: block; inline-size: 100%; aspect-ratio: 16 / 9; object-fit: cover; background: var(--bg-3); }
-  .panel__art img:not([src]), .panel__art img[src=''] { display: none; }
-  .panel__body { padding: 1rem 1.1rem 1.15rem; display: grid; gap: 0.45rem; }
+  .panel[data-layer='mobile'] { --c: var(--mobile); }
+  .panel[data-layer='cloud'] { --c: var(--cloud); }
+  /* hover: lift + tilt toward the pointer, a sheen that follows it */
+  .panel.is-open.is-hover {
+    transform: perspective(1100px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) scale(1.035);
+    border-color: color-mix(in srgb, var(--c, var(--origin)) 45%, transparent);
+    box-shadow: 0 30px 80px rgba(0,0,0,.55), 0 0 60px color-mix(in srgb, var(--c, var(--origin)) 14%, transparent);
+    transition: transform 160ms var(--ease-out), opacity var(--dur) var(--ease), border-color var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
+  }
+  .panel::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    pointer-events: none;
+    background: radial-gradient(420px circle at var(--mx, 50%) var(--my, 30%), rgba(255,255,255,.08), transparent 45%);
+    opacity: 0;
+    transition: opacity var(--dur) var(--ease);
+  }
+  .panel.is-hover::after { opacity: 1; }
+  .panel__stars { position: absolute; inset: 0; inline-size: 100%; block-size: 100%; z-index: 2; pointer-events: none; mix-blend-mode: screen; }
+
+  .panel__art { position: relative; display: block; aspect-ratio: 16 / 9; overflow: hidden; background: var(--bg-3); color: var(--c, var(--origin)); }
+  .panel__frames { position: absolute; inset: 0; }
+  .panel__frames :global(img) {
+    position: absolute;
+    inset: 0;
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transition: opacity 700ms var(--ease), transform 4s var(--ease-out);
+  }
+  .panel__frames :global(img[data-kind='screen']) { object-fit: contain; background: #0b0c0e; }
+  .panel__frames :global(img.is-on) { opacity: 1; }
+  .panel.is-hover .panel__frames :global(img.is-on) { transform: scale(1.06); }
+  .panel__frames :global(.badge) { position: absolute; inset-block: 0; inset-inline: 0; margin-inline: auto; block-size: 100%; inline-size: auto; aspect-ratio: 120 / 128; }
+  .panel.has-badge .panel__art { background: radial-gradient(closest-side, color-mix(in srgb, var(--c, var(--origin)) 12%, #0e0f12), #0e0f12); }
+  .panel.has-badge .panel__frames :global(.badge > g:nth-of-type(1)) { transform-origin: 60px 64px; animation: panel-spin 40s linear infinite paused; }
+  .panel.has-badge.is-hover .panel__frames :global(.badge > g:nth-of-type(1)) { animation-play-state: running; }
+  @keyframes panel-spin { to { transform: rotate(360deg); } }
+  .panel__bars { position: absolute; inset-inline: 10px; inset-block-end: 8px; display: flex; gap: 4px; z-index: 1; }
+  .panel__bars :global(span) { position: relative; flex: 1; block-size: 2px; border-radius: 2px; background: rgba(255,255,255,.22); overflow: hidden; }
+  .panel__bars :global(span)::after { content: ''; position: absolute; inset: 0; transform-origin: left; transform: scaleX(0); background: #fff; }
+  .panel__bars :global(span.is-done)::after { transform: scaleX(1); }
+  .panel__bars :global(span.is-run)::after { animation: panel-fill 1.7s linear forwards; }
+  @keyframes panel-fill { to { transform: scaleX(1); } }
+  .panel__body { position: relative; z-index: 1; padding: 1rem 1.1rem 1.15rem; display: grid; gap: 0.45rem; }
   .panel__meta { color: var(--ink-3); }
   .panel__title { font-size: 1.35rem; line-height: 1.15; }
   .panel__impact { color: var(--ink-2); font-size: 0.92rem; }
@@ -589,7 +648,7 @@ const ssrFocus = startCard ? { y: startCard.y, z: startCard.z + CARD_LIFT + 110 
       display: grid;
       grid-template-columns: 96px 1fr;
     }
-    .panel__art img { aspect-ratio: auto; block-size: 100%; }
+    .panel__art { aspect-ratio: auto; block-size: 100%; min-block-size: 110px; }
     .panel__stack { display: none; }
     /* one compact row: store links live on the dossier */
     .panel__actions .btn:not(.btn--primary) { display: none; }
