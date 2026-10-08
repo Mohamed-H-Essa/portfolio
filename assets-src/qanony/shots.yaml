@@ -1,0 +1,21 @@
+# Qanony — legal services, Arabic-first. iPhone (1177x2560). Source frames are
+# clean (real status bar, real demo data). Hero is the Arabic home dashboard
+# since Arabic is the product's primary listing.
+# Filenames map to the contact-sheet positions noted in comments.
+device: iphone
+accent: auto   # purple brand sampled from the hero
+world: mobile
+title: Qanony
+code: M01
+impact: A bilingual legal-services app, live on both stores
+shots:
+  - file: "WhatsApp Image 2026-09-01 at 3.23.47 PM.jpeg"   # #23 AR home "فريقك القانوني بلمسة واحدة"
+    role: hero
+  - file: "WhatsApp Image 2026-09-01 at 3.13.24 PM.jpeg"   # #11 EN home "Your legal team, a tap away"
+    role: gallery
+  - file: "WhatsApp Image 2026-09-01 at 3.12.22 PM.jpeg"   # #5 wizard — request details
+    role: gallery
+  - file: "WhatsApp Image 2026-09-01 at 3.12.35 PM.jpeg"   # #7 review + pricing
+    role: gallery
+  - file: "WhatsApp Image 2026-09-01 at 3.23.56 PM.jpeg"   # #24 services catalogue (AR)
+    role: gallery

@@ -1,0 +1,9 @@
+<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" fill="none">
+  <g transform="rotate(199 60 60)" stroke="#5db8d6" stroke-width="2" opacity="0.9">
+    <circle cx="60" cy="44" r="26"/>
+    <circle cx="38" cy="78" r="26"/>
+    <circle cx="82" cy="78" r="26"/>
+  </g>
+  <text x="60" y="68" text-anchor="middle" font-family="ui-monospace, monospace"
+        font-size="30" font-weight="600" fill="#5db8d6">WD</text>
+</svg>

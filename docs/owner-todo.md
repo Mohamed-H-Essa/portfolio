@@ -178,3 +178,9 @@ Created Jan 12, 2024
 1
 2
 3"
+
+## assets (added 2026-10-08 by the asset pipeline)
+- [ ] aratc: the home hero still shows "QA Private Session Course / Notification Trainer" demo text in one card (in-screen, can't mask). Recapture home with real/neutral course data for a cleaner hero? Current output is still good.
+- [ ] heaven-flowers: the screenshots you gave are pre-made store frames (phone already in a purple branded frame). They're fine as a gallery, but for the tilted hero/thumb I'd want raw in-app screens (no frame). Can you grab 4-5 raw captures (release mode, banner off)? Otherwise I'll use the framed ones as-is.
+- [ ] ehc-board (Egyptian Board health app): I have 5 clean screens — want me to add it as a project node + generate assets? (It's a government health app; you said all screenshots are OK to show.)
+- [ ] bioot (two real-estate apps): no screenshots yet. Send captures, or should I render a cloud/diagram-style cover from the repo instead?

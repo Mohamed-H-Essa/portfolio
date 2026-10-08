@@ -1,0 +1,20 @@
+# German study app — code/cloud project. cover-cloud template.
+world: cloud
+accent: "#5db8d6"
+title: wrangler deploy
+code: |
+  $ cd worker && npx wrangler deploy
+  Total Upload: 42.18 KiB / gzip: 9.87 KiB
+  Your Worker has access to:
+    - Durable Object: SyncDO (SQLite)
+  Uploaded german-sync (1.04 sec)
+  Published german-sync
+    https://german-sync.••••.workers.dev
+  Routes:
+    pull / push / adminGet / adminSet
+  Merge: per-key by kind
+    done = monotonic
+    anki = per-card max
+diagram:
+  nodes: ["GitHub Pages", "Cloudflare Worker", "Durable Object (SQLite)"]
+  edges: [[0, 1], [1, 2]]

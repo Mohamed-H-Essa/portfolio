@@ -1,0 +1,31 @@
+# ARATC — iPhone 16 Pro (1206x2622). Every raw screen has a red "LOCAL" debug
+# ribbon in the top-right and a black notch blob top-center; clean.ts repaints
+# the top status band (removes the notch + most of the ribbon). The mask below
+# covers the ribbon's diagonal tail that dips below the status band.
+device: iphone
+accent: auto   # sampled; ARATC brand is blue, falls back to that
+world: mobile
+title: ARATC
+code: M02
+impact: Training & course platform on iOS and Android
+shots:
+  - file: "Simulator Screenshot - iPhone 16 Pro - 2026-09-26 at 03.08.38.png"   # 1 Home
+    role: hero
+    masks:
+      - { x: 1040, y: 0, w: 166, h: 180 }   # LOCAL ribbon corner
+  - file: "Simulator Screenshot - iPhone 16 Pro - 2026-09-26 at 03.11.11.png"   # 17 onboarding / educator
+    role: gallery
+    masks:
+      - { x: 1040, y: 0, w: 166, h: 180 }
+  - file: "Simulator Screenshot - iPhone 16 Pro - 2026-09-26 at 03.10.17.png"   # 13 My Learning
+    role: gallery
+    masks:
+      - { x: 1040, y: 0, w: 166, h: 180 }
+  - file: "Simulator Screenshot - iPhone 16 Pro - 2026-09-26 at 03.08.57.png"   # 5 Course details (About)
+    role: gallery
+    masks:
+      - { x: 1040, y: 0, w: 166, h: 180 }
+  - file: "Simulator Screenshot - iPhone 16 Pro - 2026-09-26 at 03.09.53.png"   # 11 Search results
+    role: gallery
+    masks:
+      - { x: 1040, y: 0, w: 166, h: 180 }

@@ -1,0 +1,21 @@
+# HOPE — code/cloud project (no screenshots). Renders the cover-cloud template:
+# a terminal snippet layered over an architecture flow diagram.
+world: cloud
+accent: "#5db8d6"
+title: hope deploy — eu-west-3
+code: |
+  $ ./backend/infra/deploy.sh
+  ==> HOPE deploy starting
+      Region  : eu-west-3
+      Bucket  : hope-data-••••
+  [1/7] IAM role ............ ok
+  [2/7] DynamoDB table ...... hope-sessions
+  [3/7] S3 bucket ........... created
+  [4/7] Lambda hope_ingest .. deployed
+  [5/7] Lambda session_api .. deployed
+  [6/7] API Gateway ......... prod
+  [7/7] Stage deploy ........ ok
+  API: https://••••.execute-api.eu-west-3.amazonaws.com/prod
+diagram:
+  nodes: ["ESP32 glove", "API Gateway", "Lambda", "DynamoDB / S3"]
+  edges: [[0, 1], [1, 2], [2, 3]]

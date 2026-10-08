@@ -36,13 +36,17 @@ Read first: `AGENTS.md` → `docs/spec.md` → this file. `docs/assets.md` and `
 - [ ] Write `release-pipeline.yaml` and `mobile-security-hardening.yaml` (Origin), and `egpi-simulator.yaml`, from the LinkedIn facts.
 - Check: the build passes; every node has en + a de/ar draft marked `review`.
 
-## Phase 3 — Asset pipeline (docs/assets.md)
-- [ ] `tools/assets/clean.ts` (sharp) + `render.ts` (Playwright) + templates: `cover`, `cover-portrait`, `thumb`, `gallery`, `og`, `sigil`, `cover-cloud`.
-      `npm run assets [-- slug]`.
-- [ ] Run it for **aratc** first (raw from `~/Documents/aratc screenshots` → copy into `assets-src/aratc/raw/`), then qanony
-      (raw = `~/work/qanony_flutter/store_screenshots/`; its `store_output/` frames can serve as gallery extras).
-- [ ] Site-level OG images: 9 × `public/og/<lang>-<track>.png`.
-- Check: the quality checklist in assets.md passes for both projects. Show the owner `cover` + `thumb` for aratc before continuing (owner-todo).
+## Phase 3 — Asset pipeline (docs/assets.md)  ✅ CORE DONE 2026-10-08
+- [x] `tools/assets/`: `lib.ts` (device detect, accent sampling, status-bar repaint, top-edge colour), `clean.ts` (sharp), `templates.ts` (cover, cover-portrait, thumb, gallery, cover-cloud + ground/grain/glow/watermark), `sigil.ts` (deterministic per-slug mark), `render.ts` orchestrator. `npm run assets [-- slug]`. Screenshot projects read `assets-src/<slug>/shots.yaml`; code/cloud projects read `diagram.yaml` → terminal+architecture cover.
+- [x] Ran for **aratc** (masks the LOCAL ribbon + repaints status bar) and **qanony** (Arabic-first hero). Also **hope-glove** + **german-study** cloud covers. Output committed to `public/projects/<slug>/` (560K total, all within budget). Covers verified by eye — portfolio-grade.
+- [x] Wired into UI: `src/lib/assets.ts` (`hasAssets`, `assetUrl`, `galleryUrl`) + thumbs on track-home node cards (verified rendering, dimmed correctly off-world).
+- [ ] **Remaining (gaps for the implementer / owner):**
+  - Site-level OG images: 9 × `public/og/<lang>-<track>.png` (make an `og` template in templates.ts; also per-project `og/<lang>.png`). Not built yet — needed before launch for LinkedIn previews.
+  - **heaven-flowers**: raw in `~/Downloads/heaven_flower_screenshots` are *pre-composed store frames* (device already in a purple branded frame), 1320×2868. They work as gallery as-is but the hero/thumb device-tilt expects a raw screen; owner-todo asks for raw captures. Write `assets-src/heaven-flowers/shots.yaml` once decided.
+  - **ehc-board**: raw in `~/Downloads/the_egyptian_board_screenshots` (5 × webp, 1242×2688) are clean real screens (medical records, wizard). Copy to `assets-src/ehc-board/raw/`, write `shots.yaml` (hero = records list or wizard), add the `ehc-board` content node first.
+  - **bioot** (two real-estate apps): no screenshots supplied; owner-todo. Could use `cover-cloud`-style or request captures.
+  - Accent sampling is good but `thumb` for cloud projects is a raw crop of the diagram — acceptable; revisit if it reads flat.
+- Check: quality checklist in assets.md passed for aratc + qanony (no ribbon/test-data in the status band, tilt reads as one plane, sizes within budget). **Minor known issue:** aratc home hero still shows small "QA Private Session Course / Notification Trainer" demo text in a lower card — in-screen content, not maskable; recapture noted in owner-todo.
 
 ## Phase 4 — World chooser + track home
 - [ ] `/{lang}/` world chooser: 3 worlds (Mobile · Cloud · Both). Desktop: three tall columns that widen on hover/focus with accent glow;
