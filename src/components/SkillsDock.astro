@@ -1,0 +1,70 @@
+---
+import { t, type Locale } from '../i18n';
+interface Props {
+  skills: string[];
+  locale: Locale;
+}
+const { skills, locale } = Astro.props;
+---
+
+<section class="dock-wrap" aria-label={t(locale, 'cv.skills')}>
+  <p class="label dock-label">{t(locale, 'cv.skills')}</p>
+  <ul class="dock">
+    {skills.map((s) => <li class="chip">{s}</li>)}
+  </ul>
+</section>
+
+<style>
+  .dock-wrap { margin-block-start: 2.5rem; }
+  .dock-label { color: var(--ink-2); margin-block-end: 0.9rem; }
+  .dock {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+  }
+  .chip {
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    padding: 0.5rem 0.85rem;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    color: var(--ink);
+    background: var(--bg-2);
+    transition: transform var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+    will-change: transform;
+  }
+  .chip:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .chip { transition: none; }
+  }
+</style>
+
+<script>
+  // Magnetic dock: chips near the cursor swell slightly (pointer devices only).
+  const mq = window.matchMedia('(hover: hover) and (pointer: fine)');
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+  if (mq.matches && !reduce.matches) {
+    const dock = document.querySelector<HTMLElement>('.dock');
+    const chips = Array.from(document.querySelectorAll<HTMLElement>('.chip'));
+    const RADIUS = 110;
+    dock?.addEventListener('pointermove', (e) => {
+      for (const c of chips) {
+        const r = c.getBoundingClientRect();
+        const dx = e.clientX - (r.left + r.width / 2);
+        const dy = e.clientY - (r.top + r.height / 2);
+        const d = Math.hypot(dx, dy);
+        const k = Math.max(0, 1 - d / RADIUS);
+        c.style.transform = `scale(${1 + k * 0.18})`;
+      }
+    });
+    dock?.addEventListener('pointerleave', () => {
+      for (const c of chips) c.style.transform = '';
+    });
+  }
+</script>

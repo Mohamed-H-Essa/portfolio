@@ -48,13 +48,11 @@ Read first: `AGENTS.md` → `docs/spec.md` → this file. `docs/assets.md` and `
   - Accent sampling is good but `thumb` for cloud projects is a raw crop of the diagram — acceptable; revisit if it reads flat.
 - Check: quality checklist in assets.md passed for aratc + qanony (no ribbon/test-data in the status band, tilt reads as one plane, sizes within budget). **Minor known issue:** aratc home hero still shows small "QA Private Session Course / Notification Trainer" demo text in a lower card — in-screen content, not maskable; recapture noted in owner-todo.
 
-## Phase 4 — World chooser + track home
-- [ ] `/{lang}/` world chooser: 3 worlds (Mobile · Cloud · Both). Desktop: three tall columns that widen on hover/focus with accent glow;
-      phone: three stacked panels. Short intro line, name with a **masked type** reveal (kit #09), "CV ↓" and contact visible.
-      Remember the choice in localStorage (try/catch). Check: works with keyboard only and without JS (plain links).
-- [ ] `/{lang}/{track}/` page: hero (track headline + subline from i18n), featured project card, Timeline (Phase 5 placeholder list first),
-      skills dock (kit #08, as a plain list on touch), "app → API → cloud" perspective layer (kit #13; static image under reduced motion), contact block.
-- [ ] Track switch in the header keeps the current page; language switch keeps track + page.
+## Phase 4 — World chooser + track home  ✅ DONE 2026-10-08 (MVP shown to owner)
+- [x] `/{lang}/` world chooser: 3 worlds. Desktop = full-height columns that widen on hover (`:has()` grid) with accent glow + "open →" reveal; phone = stacked panels. Name does a masked-type gradient-rise reveal (kit #09), reduced-motion safe. localStorage remembers the track (URLs still win). Works keyboard-only + no-JS (plain links).
+- [x] `/{lang}/{track}/` page: hero + `FeaturedCard.astro` (cover image + gradient + impact) + `SkillsDock.astro` (deduped stack chips, magnetic swell on pointer devices, kit #08) + project list (thumbs, off-world dimmed). Featured selection is deterministic: `featuredForTrack` picks the highest-weight `featured` node in-world (Qanony→mobile, HOPE→cloud/all). `skillsForTrack` dedupes stack by frequency.
+  - **Deferred to Phase 5/6 (noted):** the "app→API→cloud" perspective layer (kit #13) — belongs with the other motion work; the project list here is still the Phase-5 map's no-JS fallback.
+- [x] Track + language switches preserve the page (Header already did this in Phase 1).
 
 ## Phase 5 — The Timeline map (spec D3)
 - [ ] Data → layout: a pure function `layoutTimeline(nodes, track, dir)` → `{x,y}` per node (x from `start`, lane from primary world,

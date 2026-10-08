@@ -1,0 +1,65 @@
+---
+import { loc, url, t, type Locale, type Track } from '../i18n';
+import { hasAssets, assetUrl } from '../lib/assets';
+import type { Project } from '../lib/content';
+
+interface Props {
+  project: Project;
+  locale: Locale;
+  track: Track;
+}
+const { project, locale, track } = Astro.props;
+const p = project.data;
+const href = url(locale, track, 'p', p.slug);
+const img = hasAssets(p.slug) ? assetUrl(p.slug, 'cover') : null;
+---
+
+<a class="featured" href={href} data-era={p.era}>
+  {img && <img class="featured__img" src={img} alt="" loading="eager" width="1600" height="900" />}
+  <div class="featured__body">
+    <p class="label featured__eyebrow">{p.code} · {t(locale, 'dossier.impact')}</p>
+    <h2 class="featured__title">{loc(p.title, locale, p.slug)}</h2>
+    {p.impact?.line && <p class="featured__line">{loc(p.impact.line, locale, p.slug)}</p>}
+    <span class="label featured__cta">{t(locale, 'map.openProject')} →</span>
+  </div>
+</a>
+
+<style>
+  .featured {
+    position: relative;
+    display: block;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    background: var(--bg-2);
+    min-block-size: 300px;
+    transition: border-color var(--dur) var(--ease), transform var(--dur) var(--ease);
+  }
+  .featured:hover,
+  .featured:focus-visible {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+  }
+  .featured__img {
+    position: absolute;
+    inset: 0;
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: cover;
+    opacity: 0.9;
+  }
+  .featured__body {
+    position: relative;
+    z-index: 1;
+    padding: clamp(1.25rem, 3vw, 2rem);
+    display: grid;
+    gap: 0.5rem;
+    align-content: end;
+    min-block-size: 300px;
+    background: linear-gradient(0deg, rgba(8, 8, 8, 0.96) 25%, rgba(8, 8, 8, 0.72) 55%, rgba(8, 8, 8, 0.25) 100%);
+  }
+  .featured__eyebrow { color: var(--accent); }
+  .featured__title { font-size: var(--fs-h2); }
+  .featured__line { color: var(--ink); font-size: var(--fs-lead); max-inline-size: 36ch; }
+  .featured__cta { color: var(--accent); margin-block-start: 0.5rem; }
+</style>

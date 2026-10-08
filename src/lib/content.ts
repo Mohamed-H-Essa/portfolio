@@ -47,13 +47,34 @@ export async function projectsForTrack(track: Track): Promise<Project[]> {
   });
 }
 
-/** The single featured project for a track, if any. */
+/** The single featured project for a track: among `featured` nodes in-world,
+ *  the one with the highest weight for this track (ties → newest). */
 export async function featuredForTrack(track: Track): Promise<Project | undefined> {
   const all = await loadProjects();
-  return all.find((p) => p.data.featured && p.data.weight[track] > 0);
+  const candidates = all.filter((p) => p.data.featured && p.data.weight[track] > 0);
+  if (!candidates.length) return undefined;
+  return candidates.sort((a, b) => {
+    const dw = b.data.weight[track] - a.data.weight[track];
+    if (dw !== 0) return dw;
+    return a.data.start < b.data.start ? 1 : -1;
+  })[0];
 }
 
 /** Is this node dimmed (off-world) on the given track? */
 export function isDimmed(p: Project, track: Track): boolean {
   return p.data.weight[track] === 0;
+}
+
+/** Distinct stack entries across the track's in-world projects, by frequency. */
+export async function skillsForTrack(track: Track, limit = 14): Promise<string[]> {
+  const all = await loadProjects();
+  const counts = new Map<string, number>();
+  for (const p of all) {
+    if (p.data.weight[track] === 0) continue;
+    for (const s of p.data.stack) counts.set(s, (counts.get(s) ?? 0) + 1);
+  }
+  return [...counts.entries()]
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+    .slice(0, limit)
+    .map(([s]) => s);
 }

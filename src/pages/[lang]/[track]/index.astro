@@ -13,8 +13,10 @@ import {
   type Locale,
   type Track,
 } from '../../../i18n';
-import { projectsForTrack, isDimmed } from '../../../lib/content';
+import { projectsForTrack, featuredForTrack, skillsForTrack, isDimmed } from '../../../lib/content';
 import { hasAssets, assetUrl } from '../../../lib/assets';
+import FeaturedCard from '../../../components/FeaturedCard.astro';
+import SkillsDock from '../../../components/SkillsDock.astro';
 
 export async function getStaticPaths() {
   const paths = [];
@@ -33,6 +35,10 @@ const locale: Locale = lang;
 const tr: Track = track;
 
 const projects = await projectsForTrack(tr);
+const featured = await featuredForTrack(tr);
+const skills = await skillsForTrack(tr);
+// Don't repeat the featured project in the list below.
+const listed = projects.filter((p) => p.data.slug !== featured?.data.slug);
 ---
 
 <Base locale={locale} track={tr} pathParts={[tr]}>
@@ -42,12 +48,23 @@ const projects = await projectsForTrack(tr);
     <p class="hero__sub">{t(locale, `track.${tr}.sub`)}</p>
   </section>
 
+  {featured && (
+    <section class="shell featured-section">
+      <FeaturedCard project={featured} locale={locale} track={tr} />
+    </section>
+  )}
+
+  <section class="shell">
+    <SkillsDock skills={skills} locale={locale} />
+  </section>
+
   <!-- Phase 5 replaces this list with the interactive Timeline map.
        It stays as the no-JS / screen-reader baseline. -->
   <section class="shell timeline-fallback" aria-label="Projects">
+    <p class="label section-label">{t(locale, 'map.lane.' + (tr === 'cloud' ? 'cloud' : 'mobile'))} · {projects.length}</p>
     <ol class="nodes">
       {
-        projects.map((p) => (
+        listed.map((p) => (
           <li class:list={['node', { 'is-dimmed': isDimmed(p, tr) }]} data-era={p.data.era}>
             <a href={url(locale, tr, 'p', p.data.slug)}>
               {hasAssets(p.data.slug) && (
@@ -78,6 +95,8 @@ const projects = await projectsForTrack(tr);
     font-size: var(--fs-lead);
     margin-block-start: 1rem;
   }
+  .featured-section { margin-block-start: 2rem; }
+  .section-label { color: var(--ink-3); margin-block: 2.5rem 1rem; }
   .nodes {
     list-style: none;
     padding: 0;

@@ -5,7 +5,7 @@ era: s4
 start: 2026-06
 end: present
 weight: { mobile: 0, cloud: 3, all: 2 }
-featured: true
+featured: false
 confidential: false
 code: C01
 title:
