@@ -41,7 +41,7 @@ export function initScene(stage: HTMLElement) {
   let vz = 0;
   const [xMin, xMax] = cam0.xRange;
   // z reaches past the top layer so a lifted card on Mobile can be centred
-  const zMin = -520, zMax = 740;
+  const zMin = -620, zMax = 840;
 
   const computeFit = () => {
     const base = parseFloat(getComputedStyle(stage).getPropertyValue('--fit-zoom')) || 0.78;

@@ -73,23 +73,30 @@ export interface SceneLayout {
 export const LAYERS: Layer[] = ['mobile', 'origin', 'cloud'];
 // The gap must exceed lift + a card's height in world units at the default zoom,
 // or the plane above slices through the top of every billboard.
-export const LAYER_Z: Record<Layer, number> = { mobile: 430, origin: 0, cloud: -430 };
-export const PLANE_DEPTH = 600; // y extent of a plane
+export const LAYER_Z: Record<Layer, number> = { mobile: 560, origin: 0, cloud: -560 };
+// A plane runs from y = -PLANE_BACK (back) to +PLANE_FRONT (front, toward the
+// camera). The last LANE_BAND of the front is the lane's label strip: name +
+// years, kept clear of cards and skills.
+export const PLANE_BACK = 230;
+export const PLANE_FRONT = 300;
+export const LANE_BAND = 70;
+export const PLANE_DEPTH = PLANE_BACK + PLANE_FRONT;
 export const CARD_LIFT = 46; // how high a card floats above its plane
 const MONTH_W = 30;
 const PAD_START = 520; // room before the first card for the engraved title
 const PAD_END = 360;
-const ROWS = [0, -150, 150]; // card rows across a plane's depth, in preference order
+const ROWS = [0, -130, 130]; // card rows across a plane's depth, in preference order
 const MIN_DX = 250; // cards in the same row closer than this get a different row
 /** Same-layer cards are nudged forward in time to at least this far apart on x,
  *  so billboards in different rows never stack fully on screen. Cards still
  *  print their real year; the nudge is at most a few months per crowded node. */
 export const MIN_SEP = 150;
-const SKILL_BANDS = [-232, 232]; // back / front strips where skills are engraved
+export const SKILL_BANDS = [-198, 196]; // back / front strips where skills are engraved
 const SKILL_CHAR_W = 12.5; // approx. advance per char of the engraved skill font
 const SKILL_GAP = 34;
-export const TITLE_EVERY = 1150; // repeat the engraved layer name this often on x
-const TITLE_W = 700; // approx. width of an engraved name; never start one that would run off
+const YEAR_W = 12 * MONTH_W;
+const TITLE_HALF = 115; // approx. half-width of a lane name in the band
+const NAME_AT = 210; // a name's centre, after its year line (the year label sits right after the line)
 
 function monthIndex(ym: string): number {
   const [y, m] = ym.split('-').map(Number);
@@ -107,11 +114,6 @@ export function beamGeometry(a: Vec3, b: Vec3): { length: number; rotZ: number; 
   return { length, rotZ, rotY };
 }
 
-function titleStarts(width: number): number[] {
-  const xs: number[] = [];
-  for (let x = 70; x === 70 || x + TITLE_W <= width; x += TITLE_EVERY) xs.push(x);
-  return xs;
-}
 
 export function layoutScene(
   input: SceneInput[],
@@ -225,15 +227,21 @@ export function layoutScene(
     z: LAYER_Z[layer],
     x0: 0,
     width: totalW,
-    y0: -PLANE_DEPTH / 2,
+    y0: -PLANE_BACK,
     depth: PLANE_DEPTH,
-    titleXs: titleStarts(totalW).map(mirror),
+    titleXs: [],
   }));
   const years: SceneYear[] = [];
+  const yearXs: number[] = []; // unmirrored
   for (let y = Math.floor(m0 / 12); y <= Math.floor(m1 / 12) + 1; y++) {
     const x = xOfMonth(y * 12);
-    if (x <= xEnd) years.push({ year: y, x: mirror(x) });
+    if (x <= xEnd) { years.push({ year: y, x: mirror(x) }); yearXs.push(x); }
   }
+  // lane names sit centred between year lines (so they never meet a year
+  // label): in the lead-in before the first year, then every other year
+  const names = [PAD_START / 2];
+  yearXs.forEach((x, i) => { if (i % 2 === 1 && x + YEAR_W - TITLE_HALF <= xEnd) names.push(x + NAME_AT); });
+  for (const pl of planes) pl.titleXs = names.map(mirror);
 
   const xs = cards.map((c) => c.x);
   const xRange: [number, number] = [Math.min(...xs) - 200, Math.max(...xs) + 200];

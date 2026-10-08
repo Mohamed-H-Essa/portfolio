@@ -95,18 +95,16 @@ const ssrFocus = startCard ? { y: startCard.y, z: startCard.z + CARD_LIFT + 110 
             data-layer={pl.layer}
             style={`width:${pl.width}px;height:${pl.depth}px;transform:translate3d(${pl.x0}px,${pl.y0}px,${pl.z}px)`}
           >
+            <span class="plane__band" />
             {pl.titleXs.map((tx) => (
-              <span class="plane__title" style={`${rtl ? 'right' : 'left'}:${rtl ? pl.width - tx : tx}px`}>
-                {layerName(pl.layer)}
-              </span>
+              <span class="plane__title" style={`left:${tx - pl.x0}px`}>{layerName(pl.layer)}</span>
             ))}
             {L.years.map((y) => (
-              <span class="plane__year" style={`left:${y.x - pl.x0}px`} />
-            ))}
-            {pl.layer === 'cloud' &&
-              L.years.map((y) => (
+              <>
+                <span class="plane__year" style={`left:${y.x - pl.x0}px`} />
                 <span class="plane__yearlabel" style={`left:${y.x - pl.x0}px`}>{y.year}</span>
-              ))}
+              </>
+            ))}
             {L.skills
               .filter((s) => s.layer === pl.layer)
               .map((s) => (
@@ -316,38 +314,52 @@ const ssrFocus = startCard ? { y: startCard.y, z: startCard.z + CARD_LIFT + 110 
     mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
     transition: opacity var(--dur-slow) var(--ease);
   }
+  .plane[data-layer='origin'] { --c: color-mix(in srgb, var(--origin) 70%, #000); } /* pale colour: tint less */
   .plane[data-layer='mobile'] { --c: var(--mobile); }
   .plane[data-layer='cloud'] { --c: var(--cloud); }
+  /* the lane's label strip along the front edge: colour fading into the plane */
+  .plane__band {
+    position: absolute;
+    inset-inline: 0;
+    inset-block-end: 0;
+    block-size: 70px;
+    background: linear-gradient(to top, color-mix(in srgb, var(--c) 24%, transparent), color-mix(in srgb, var(--c) 6%, transparent) 70%, transparent);
+    border-block-end: 1.5px solid color-mix(in srgb, var(--c) 55%, transparent);
+  }
   .plane__title {
     position: absolute;
-    inset-block-start: 50%;
-    transform: translateY(-50%);
+    inset-block-end: 18px;
+    transform: translateX(-50%);
     font-family: var(--font-display);
-    font-weight: 700;
-    font-size: 112px;
-    letter-spacing: 0.16em;
+    font-weight: 600;
+    font-size: 30px;
+    line-height: 1;
+    letter-spacing: 0.22em;
     text-transform: uppercase;
     color: var(--c);
-    opacity: 0.09;
+    opacity: 0.9;
     white-space: nowrap;
     pointer-events: none;
   }
-  :root[dir='rtl'] .plane__title { font-family: var(--font-ar); letter-spacing: 0; text-transform: none; }
+  :root[dir='rtl'] .plane__title { font-family: var(--font-ar); font-size: 34px; letter-spacing: 0; text-transform: none; }
   .plane__year {
     position: absolute;
-    inset-block: 6%;
-    inline-size: 1px;
-    background: linear-gradient(180deg, transparent, rgba(255,255,255,.08) 20%, rgba(255,255,255,.08) 80%, transparent);
+    inset-block: 0;
+    inline-size: 1.5px;
+    background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.16) 60%, rgba(255,255,255,.34));
   }
   .plane__yearlabel {
     position: absolute;
-    inset-block-end: 22px;
-    transform: translateX(-50%);
+    inset-block-end: 20px;
+    transform: translateX(12px);
     font-family: var(--font-mono);
-    font-size: 26px;
-    letter-spacing: 0.2em;
-    color: rgba(255,255,255,.22);
+    font-size: 24px;
+    line-height: 1;
+    letter-spacing: 0.12em;
+    color: rgba(255,255,255,.62);
   }
+  /* RTL time runs right→left: the year label sits after its line, i.e. to its left */
+  :root[dir='rtl'] .plane__yearlabel { transform: translateX(calc(-100% - 12px)); }
   .skill {
     position: absolute;
     transform: translate(-50%, -50%);

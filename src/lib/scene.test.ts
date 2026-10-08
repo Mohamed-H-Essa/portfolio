@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { layoutScene, beamGeometry, LAYER_Z, MIN_SEP, type SceneInput } from './scene';
+import { layoutScene, beamGeometry, LAYER_Z, MIN_SEP, SKILL_BANDS, type SceneInput } from './scene';
 
 const W = { mobile: 3, cloud: 0, all: 2 };
 const input: SceneInput[] = [
@@ -88,7 +88,7 @@ describe('layoutScene', () => {
 
   it('never overlaps skills in the same strip', () => {
     for (const layer of ['mobile', 'origin', 'cloud'] as const) {
-      for (const band of [-232, 232]) {
+      for (const band of SKILL_BANDS) {
         const row = l.skills.filter((s) => s.layer === layer && s.y === band).sort((a, b) => a.x - b.x);
         for (let i = 1; i < row.length; i++) {
           const prevHalf = (row[i - 1].name.length * 12.5 + 34) / 2;
@@ -104,14 +104,18 @@ describe('layoutScene', () => {
     expect(l.years.map((y) => y.year)).toEqual(expect.arrayContaining([2024, 2025, 2026]));
   });
 
-  it('repeats the engraved layer name along the plane, inside it', () => {
+  it('repeats the lane name along the plane, inside it, between year lines', () => {
     const wide = layoutScene(
       [...input, { slug: 'late', code: 'C09', start: '2029-01', worlds: ['cloud'], weight: W, connects: [], stack: [] }],
       'all'
     );
     for (const pl of wide.planes) {
       expect(pl.titleXs.length).toBeGreaterThan(1);
-      for (const x of pl.titleXs) expect(x).toBeGreaterThanOrEqual(0), expect(x).toBeLessThanOrEqual(pl.width);
+      for (const x of pl.titleXs) {
+        expect(x).toBeGreaterThanOrEqual(0);
+        expect(x).toBeLessThanOrEqual(pl.width);
+        for (const y of wide.years) expect(Math.abs(x - y.x)).toBeGreaterThanOrEqual(140);
+      }
     }
   });
 
