@@ -6,6 +6,7 @@
 import { point, confine, type Lobe } from '../lib/lemniscate';
 import { initField } from './intro-field';
 import { initSwipeBack } from './swipe-back';
+import { play } from './sound';
 
 type Lang = 'en' | 'de' | 'ar';
 interface IntroJson { strings: Record<Lang, Record<string, string>>; base: string; labels: Record<Lang, string> }
@@ -106,6 +107,7 @@ export function initIntro(root: HTMLElement) {
 
   const chooseLang = (l: Lang) => {
     window.clearInterval(hintTimer);
+    play('unfold');
     const r = fig.getBoundingClientRect();
     const cx = r.left + r.width / 2, cy = r.top + r.height / 2;
     langLinks.forEach((a) => {
@@ -148,7 +150,7 @@ export function initIntro(root: HTMLElement) {
   let mode: Lobe | null = null;
   lobes.forEach((a) => {
     const tr = a.dataset.track!;
-    const on = () => { root.dataset.hover = tr; mode = tr === 'all' ? null : (tr as Lobe); };
+    const on = () => { root.dataset.hover = tr; mode = tr === 'all' ? null : (tr as Lobe); play('tick', { level: 0.8 }); };
     const off = () => { delete root.dataset.hover; mode = null; };
     a.addEventListener('pointerenter', on);
     a.addEventListener('focus', on);
@@ -168,6 +170,8 @@ export function initIntro(root: HTMLElement) {
       root.style.setProperty('--wc', `var(--${tr === 'all' ? 'origin' : tr})`);
       root.classList.add('is-leaving');
       burst = 1;
+      play('whoosh', { dir: 1 });
+      play('swell', { level: 0.8 });
       window.setTimeout(() => (location.href = a.href), 620);
     });
   });
@@ -263,7 +267,7 @@ export function initIntro(root: HTMLElement) {
 
   // ---- background: develops once the loop is whole --------------------------
   initField(root.querySelector<HTMLCanvasElement>('[data-field]')!, fig, reduce);
-  window.setTimeout(() => root.classList.add('is-drawn'), reduce ? 0 : DRAW_START + DRAW_MS);
+  window.setTimeout(() => { root.classList.add('is-drawn'); play('swell', { level: 0.6 }); }, reduce ? 0 : DRAW_START + DRAW_MS);
 
   // ---- go ------------------------------------------------------------------
   if (root.dataset.step === 'lang') startLangStep();

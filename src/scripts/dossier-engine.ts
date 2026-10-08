@@ -4,6 +4,7 @@
 // scrolls inside itself first and only then hands over to the next frame.
 // Runs only when the inline head script has set html.is-engine.
 import { initSwipeBack } from './swipe-back';
+import { play } from './sound';
 
 // Input is never locked: a new move retargets the frames mid-transition (CSS
 // transitions run from wherever they are), so you can always intercept. The
@@ -77,6 +78,7 @@ export function initEngine(root: HTMLElement) {
     idx = i;
     lastMove = performance.now();
     apply(from);
+    play('whoosh', { dir: i > from ? 1 : -1, level: 0.8 });
     if (hadFocus) frames[idx].focus({ preventScroll: true });
   };
 

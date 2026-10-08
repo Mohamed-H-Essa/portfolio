@@ -5,6 +5,7 @@
 // invisible in every browser (Chrome/Safari also cross-fade the two frames).
 
 import { heroArtRect } from '../lib/hero-rect';
+import { play } from './sound';
 
 export interface HandoffTarget {
   slug: string;
@@ -84,6 +85,7 @@ export function handoff(t: HandoffTarget, from: HTMLElement, stage: HTMLElement)
   }
   document.body.append(clone);
   stage.classList.add('is-handoff');
+  play('whoosh', { dir: 1 });
 
   const fly = clone.animate(
     [

@@ -8,6 +8,7 @@
 //   Esc · × · click outside · swipe down · browser Back → it flies back into the strip
 // html.is-lightbox pauses the page engine, swipe-back and the carousel.
 import './lightbox.css';
+import { play } from './sound';
 
 interface Shot { lo: string; hi: string; alt: string }
 
@@ -37,6 +38,7 @@ export function initLightbox(section: HTMLElement) {
   let W = 0, H = 0;
   let closing: Animation[] = [];
   let origin: HTMLImageElement | null = null; // the thumbnail it flew out of
+  let openedAt = 0;
 
   // ---- the stack --------------------------------------------------------------
   const measure = () => {
@@ -136,6 +138,7 @@ export function initLightbox(section: HTMLElement) {
     count.textContent = `${String(n + 1).padStart(2, '0')} / ${String(shots.length).padStart(2, '0')}`;
     sharpen(n);
     if (changed) setAmbient(n);
+    if (changed && lb && !closing.length && items.length && idx >= 0 && pos === n && openedAt && performance.now() - openedAt > 300) play('flip');
   };
 
   // ---- open / close -------------------------------------------------------------
@@ -185,6 +188,7 @@ export function initLightbox(section: HTMLElement) {
   const open = (i: number, from: HTMLImageElement) => {
     teardown();
     origin = from;
+    openedAt = 0; // no page-flip sound for the opening card itself
     html.classList.add('is-lightbox');
     build();
     measure();
@@ -192,6 +196,8 @@ export function initLightbox(section: HTMLElement) {
     go(i);
     place(i, true);
     history.pushState({ ...(history.state ?? {}), lb: true }, '');
+    openedAt = performance.now();
+    play('unfold');
     lb!.querySelector<HTMLElement>('.lb__close')!.focus({ preventScroll: true });
     if (reduce) return;
     const a = from.getBoundingClientRect();
@@ -233,6 +239,7 @@ export function initLightbox(section: HTMLElement) {
     const done = () => { teardown(); link?.focus({ preventScroll: true }); };
     if (reduce) return done();
     lb.classList.add('is-closing');
+    play('whoosh', { dir: -1, level: 0.6 });
     const room = lb.querySelector('.lb__room')!.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 480, easing: 'ease-in', fill: 'forwards' });
     const bg = lb.animate([{ backgroundColor: '#070708' }, { backgroundColor: 'rgba(7,7,8,0)' }], { duration: 480, easing: 'ease-in', fill: 'forwards' });
     const rest = items.filter((x) => x !== el).map((x) => x.animate([{ opacity: x.style.opacity }, { opacity: 0 }], { duration: 300, easing: 'ease-in', fill: 'forwards' }));

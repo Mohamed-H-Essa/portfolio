@@ -227,3 +227,5 @@
   .langs { gap: 0.25rem 0.9rem; }
   .langs a { font-size: 1.3rem; }
 }
+
+.intro__tools { display: inline-flex; align-items: center; gap: 0.5rem; }

@@ -7,6 +7,7 @@
 // time. The browser's own swipe navigation is off on these pages
 // (overscroll-behavior), so this is the one back gesture.
 import './swipe-back.css';
+import { play } from './sound';
 
 export interface SwipeBackOptions {
   targets: HTMLElement[]; // what recedes
@@ -63,7 +64,7 @@ export function initSwipeBack(o: SwipeBackOptions) {
     if (r !== ready) {
       ready = r;
       chip.classList.toggle('is-ready', r);
-      if (r) navigator.vibrate?.(8);
+      if (r) { navigator.vibrate?.(8); play('tick'); }
     }
   };
   const tick = () => {
@@ -83,6 +84,7 @@ export function initSwipeBack(o: SwipeBackOptions) {
     cancelAnimationFrame(raf);
     raf = 0;
     chip.classList.add('is-ready');
+    play('whoosh', { dir: -1 });
     if (reduce) { o.onCommit(); return; }
     for (const t of o.targets) {
       t.style.transition = 'transform 460ms var(--ease-strong), opacity 380ms var(--ease), filter 380ms var(--ease)';

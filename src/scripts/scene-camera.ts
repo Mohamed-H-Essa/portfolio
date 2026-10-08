@@ -1,5 +1,6 @@
 import { initPanelFx } from './panel-fx';
 import { handoff, prefetch, type HandoffTarget } from './handoff';
+import { play } from './sound';
 
 // Camera + interaction for the layered 3D map (Scene.astro).
 // The scene's geometry is static CSS 3D from SSR; this only drives a handful of
@@ -277,7 +278,7 @@ export function initScene(stage: HTMLElement) {
         handoff(target(card.dataset.slug!), card.querySelector<HTMLElement>('.card__img')!, stage);
       }
     });
-    card.addEventListener('pointerenter', () => !dragging && light(card.dataset.slug!));
+    card.addEventListener('pointerenter', (e) => { if (dragging) return; light(card.dataset.slug!); if (e.pointerType === 'mouse') play('tick', { level: 0.7 }); });
     card.addEventListener('pointerleave', () => light(selected));
     // keyboard focus selects (Enter then opens); mouse focus is handled by click
     card.addEventListener('focus', () => card.matches(':focus-visible') && select(card.dataset.slug!));
