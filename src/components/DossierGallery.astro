@@ -62,6 +62,9 @@ const rtl = locale === 'ar';
     outline-offset: -2px;
   }
   .gallery__strip li { flex: none; scroll-snap-align: start; }
+  /* JS carousel (gallery-marquee.ts): no native scroll, every item shifts together */
+  .gallery__strip:global(.is-marquee) { overflow: hidden; scroll-snap-type: none; cursor: grab; }
+  .gallery__strip:global(.is-marquee) > li { translate: var(--mx, 0px) 0; }
   .gallery__shot { --push: 18px; position: relative; display: block; border-radius: 14px; transition: translate 600ms var(--ease-strong); }
   :root[dir='rtl'] .gallery__shot { --push: -18px; }
   .gallery__shot img { transition: transform 600ms var(--ease-strong), box-shadow 600ms var(--ease), border-color var(--dur) var(--ease); }
@@ -106,7 +109,8 @@ const rtl = locale === 'ar';
 
 <script>
   import { initLightbox } from '../scripts/lightbox';
-  document.querySelectorAll<HTMLElement>('[data-gallery]').forEach(initLightbox);
+  import { initMarquee } from '../scripts/gallery-marquee';
+  document.querySelectorAll<HTMLElement>('[data-gallery]').forEach((g) => { initMarquee(g); initLightbox(g); });
   document.querySelectorAll<HTMLElement>('[data-gallery]').forEach((g) => {
     const strip = g.querySelector<HTMLElement>('.gallery__strip')!;
     const nav = g.querySelector<HTMLElement>('[data-gallery-nav]')!;

@@ -1,56 +1,99 @@
-/* full-screen screenshot viewer (lightbox.ts) */
+/* full-screen screenshot viewer (lightbox.ts): a tilted card stack in a room
+   lit by the current shot */
 .lb {
   position: fixed;
   inset: 0;
   z-index: 400;
+  overflow: hidden;
   touch-action: none;
   user-select: none;
   -webkit-user-select: none;
+  background: #070708;
 }
-.lb__backdrop {
+
+/* the room: the current shot as a coarse colour grid, enlarged smoothly (soft
+   cells you can just make out), lifted in saturation and dimmed */
+.lb__room { position: absolute; inset: -4%; }
+.lb__ambient {
   position: absolute;
   inset: 0;
-  background:
-    radial-gradient(60% 70% at 50% 45%, color-mix(in srgb, var(--p, var(--origin)) 14%, transparent), transparent 70%),
-    rgba(6, 6, 7, 0.9);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
+  inline-size: 100%;
+  block-size: 100%;
+  image-rendering: auto;
+  filter: blur(2.5px) saturate(1.5) brightness(0.5);
+  opacity: 0;
+  transition: opacity 900ms ease;
 }
+.lb__ambient.is-on { opacity: 1; }
+.lb__room::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(75% 70% at 50% 50%, transparent 30%, rgba(5, 5, 6, 0.75) 100%);
+}
+/* fine grain: crisp texture over the soft light */
+.lb__grain {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.14;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .9 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
 .lb__stage {
   position: absolute;
   inset: 0;
-  perspective: 1800px;
+  perspective: 1600px;
   transform-style: preserve-3d;
   transition: transform 420ms cubic-bezier(0.785, 0.135, 0.15, 0.86);
 }
 .lb__item {
   position: absolute;
-  inset-block-start: calc(50% - var(--h) / 2);
+  inset-block-start: calc(50% - var(--h) / 2 + 8px);
   left: calc(50% - var(--w) / 2);
   inline-size: var(--w);
   block-size: var(--h);
   margin: 0;
   cursor: pointer;
-  will-change: transform;
-  backface-visibility: hidden;
+  will-change: transform, filter;
   transition:
-    transform 640ms cubic-bezier(0.785, 0.135, 0.15, 0.86),
-    opacity 420ms ease,
-    filter 520ms ease;
+    transform 680ms cubic-bezier(0.785, 0.135, 0.15, 0.86),
+    opacity 480ms ease,
+    filter 560ms ease;
 }
 .lb__item.is-active { cursor: grab; }
+.lb__tilt {
+  position: relative;
+  inline-size: 100%;
+  block-size: 100%;
+  transform: perspective(1200px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+  transition: transform 260ms ease-out;
+}
 .lb__item img {
   display: block;
   inline-size: 100%;
   block-size: 100%;
   object-fit: contain;
-  border-radius: 18px;
-  box-shadow: 0 40px 90px rgba(0, 0, 0, 0.6);
+  border-radius: 20px;
+  box-shadow: 0 50px 100px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.06);
   pointer-events: none;
 }
+/* a soft light that follows the pointer across the top card */
+.lb__shine {
+  position: absolute;
+  inset: 0;
+  border-radius: 20px;
+  pointer-events: none;
+  background: radial-gradient(380px circle at var(--sx, 50%) var(--sy, 30%), rgba(255, 255, 255, 0.1), transparent 55%);
+  opacity: 0;
+  transition: opacity 300ms ease;
+}
+.lb__tilt.is-lit .lb__shine { opacity: 1; }
+
 .lb__count {
   position: absolute;
-  inset-block-end: 20px;
+  inset-block-end: 18px;
   left: 50%;
   translate: -50% 0;
   margin: 0;
@@ -58,13 +101,14 @@
 }
 .lb__btn {
   position: absolute;
+  z-index: 200;
   display: grid;
   place-items: center;
   inline-size: 46px;
   block-size: 46px;
   border-radius: 50%;
   border: 1px solid var(--line);
-  background: rgba(14, 14, 16, 0.6);
+  background: rgba(14, 14, 16, 0.55);
   backdrop-filter: blur(8px);
   color: var(--ink);
   font-size: 1.4rem;
@@ -87,3 +131,4 @@
 .lb__next::before { transform: translateX(-2px) rotate(135deg); }
 .lb.is-closing .lb__btn, .lb.is-closing .lb__count { opacity: 0; }
 @media (hover: none) { .lb__prev, .lb__next { display: none; } }
+@media (prefers-reduced-motion: reduce) { .lb__tilt { transform: none; } }

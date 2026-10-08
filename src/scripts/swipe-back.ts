@@ -119,6 +119,7 @@ export function initSwipeBack(o: SwipeBackOptions) {
   const ignored = (el: EventTarget | null, dx: number) => {
     const s = o.ignore && (el as Element | null)?.closest?.(o.ignore);
     if (!(s instanceof HTMLElement)) return false;
+    if (s.classList.contains('is-marquee')) return true; // the carousel owns every sideways gesture
     // sideways inside a scroller scrolls it, until it can't go further that way
     const max = s.scrollWidth - s.clientWidth;
     if (max <= 1) return false;
