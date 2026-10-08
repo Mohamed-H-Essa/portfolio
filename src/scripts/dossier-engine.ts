@@ -8,9 +8,12 @@ import { play } from './sound';
 
 // Input is never locked: a new move retargets the frames mid-transition (CSS
 // transitions run from wherever they are), so you can always intercept. The
-// rule that stops skipping: ONE step per gesture, however hard. A gesture ends
-// only after a short silence or a change of direction, so a hard flick (and
-// its long inertia tail, or a fast-spun wheel) is still exactly one step.
+// rule that stops skipping: ONE step per gesture, however hard. After a move,
+// the rest of that gesture is ignored: its build-up, its peak and its whole
+// inertia tail (which on a Mac can run for seconds with no pause in it). A new
+// gesture is recognised by a pause, a change of direction, or, once the tail
+// has visibly faded, deltas clearly rising again: that can only be fingers
+// starting a new swipe (a single flick only rises before it fades).
 const QUIET_MS = 220;
 const GAP_MS = 120; // minimum time between two moves
 const WHEEL_STEP = 40; // accumulated delta that counts as "go"
@@ -90,6 +93,9 @@ export function initEngine(root: HTMLElement) {
   let lastWheel = 0;
   let lastDir = 0;
   let armed = true;
+  let peak = 0; // largest delta of the gesture that moved
+  let trough = Infinity; // smallest delta since its tail began fading
+  let fading = false;
   addEventListener(
     'wheel',
     (e) => {
@@ -100,6 +106,16 @@ export function initEngine(root: HTMLElement) {
       const mag = Math.abs(e.deltaY) * (e.deltaMode === 1 ? 32 : 1);
       const gap = now - lastWheel;
       if (gap > QUIET_MS || dir !== lastDir) { armed = true; acc = 0; } // a new gesture
+      else if (!armed) {
+        // still inside the gesture that moved: follow its tail
+        if (!fading) {
+          peak = Math.max(peak, mag);
+          if (mag < peak * 0.5) { fading = true; trough = mag; }
+        } else {
+          trough = Math.min(trough, mag);
+          if (mag >= 8 && mag > Math.max(trough * 2.2, trough + 6)) { armed = true; acc = 0; } // new fingers
+        }
+      }
       lastWheel = now;
       lastDir = dir;
       if (canScroll(frames[idx], dir)) return; // the frame scrolls itself first
@@ -109,6 +125,9 @@ export function initEngine(root: HTMLElement) {
       if (Math.abs(acc) >= WHEEL_STEP && now - lastMove >= GAP_MS) {
         acc = 0;
         armed = false;
+        peak = mag;
+        fading = false;
+        trough = Infinity;
         go(idx + dir);
       }
     },

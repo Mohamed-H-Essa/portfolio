@@ -9,7 +9,7 @@ type Name = 'tick' | 'tap' | 'whoosh' | 'unfold' | 'flip' | 'swell' | 'intro';
 interface Opts { dir?: 1 | -1; level?: number }
 
 const KEY = 'sound';
-const MASTER = 0.22;
+const MASTER = 0.34; // owner: "a bit louder" (≈ +4 dB from 0.22)
 let ctx: AudioContext | null = null;
 let out: GainNode;
 let wet: GainNode;
@@ -242,6 +242,15 @@ export function initSound() {
   };
   addEventListener('pointerdown', unlock, true);
   addEventListener('keydown', unlock, true);
+  // Chrome/Edge remember a click on the previous page of this site and allow
+  // sound on the next one: try at once, so sound carries across pages there.
+  // (Safari/Firefox stay suspended until the first click/key, as before.)
+  if (pref()) {
+    boot();
+    const check = () => { if (ctx?.state === 'running') unlock(); };
+    check();
+    void ctx?.resume().then(check).catch(() => {});
+  }
 
   const sync = () =>
     document.querySelectorAll<HTMLButtonElement>('[data-sound-toggle]').forEach((b) => {
