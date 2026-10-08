@@ -18,10 +18,11 @@ export function hasAssets(slug: string): boolean {
 // Generated asset paths under public/projects/<slug>/. `npm run assets` writes
 // these; they're committed. A node without generated assets falls back to null
 // so components can show a placeholder.
-export type AssetKind = 'cover' | 'cover-portrait' | 'thumb' | 'sigil';
+export type AssetKind = 'cover' | 'cover-rtl' | 'cover-portrait' | 'thumb' | 'sigil';
 
 const EXT: Record<AssetKind, string> = {
   cover: 'cover.webp',
+  'cover-rtl': 'cover-rtl.webp',
   'cover-portrait': 'cover-portrait.webp',
   thumb: 'thumb.webp',
   sigil: 'sigil.svg',

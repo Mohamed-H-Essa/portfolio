@@ -98,12 +98,18 @@ async function renderScreenshotProject(browser: Browser, slug: string, spec: Sho
   const backScreens: Screen[] = [];
   for (const gs of gallerySpecs.slice(0, 2)) backScreens.push(await toScreen(await cleanOf(gs)));
 
-  // cover (LTR + mirrored for RTL feel used by og/ar)
-  const caption = spec.code
-    ? { code: spec.code, title, impact: spec.impact }
-    : undefined;
-  const cv = coverTemplate(hero, backScreens, { accent, sigilSvg: sigil }, caption);
+  // UI covers carry NO baked-in text: the page renders the title in HTML over
+  // the empty side. LTR puts the devices right; RTL mirrors them left.
+  const cv = coverTemplate(hero, backScreens, { accent, sigilSvg: sigil });
   await writeWebp(await shoot(browser, cv.html, cv.w, cv.h), join(outDir, 'cover.webp'), 80);
+  const cvr = coverTemplate(hero, backScreens, { accent, sigilSvg: sigil, rtl: true });
+  await writeWebp(await shoot(browser, cvr.html, cvr.w, cvr.h), join(outDir, 'cover-rtl.webp'), 80);
+
+  // The captioned variant is for link previews (OG), where there is no HTML.
+  if (spec.code) {
+    const og = coverTemplate(hero, backScreens, { accent, sigilSvg: sigil }, { code: spec.code, title, impact: spec.impact });
+    await sharp(await shoot(browser, og.html, og.w, og.h)).resize(1200, 675).png().toFile(join(outDir, 'og.png'));
+  }
 
   const cp = coverPortraitTemplate(hero, { accent, sigilSvg: sigil });
   await writeWebp(await shoot(browser, cp.html, cp.w, cp.h), join(outDir, 'cover-portrait.webp'), 80);
@@ -129,13 +135,16 @@ async function renderCloudProject(browser: Browser, slug: string, spec: DiagramY
   const sigil = sigilSvg(slug, spec.title, accent);
   writeFileSync(join(outDir, 'sigil.svg'), sigil);
 
-  const cc = cloudCoverTemplate({ accent, code: spec.code, diagram: spec.diagram, title: spec.title });
+  const base = { accent, code: spec.code, diagram: spec.diagram, title: spec.title };
+  const cc = cloudCoverTemplate(base);
   const buf = await shoot(browser, cc.html, cc.w, cc.h);
   await writeWebp(buf, join(outDir, 'cover.webp'), 80);
-  // reuse the landscape cover as the portrait fallback for code repos
-  await writeWebp(buf, join(outDir, 'cover-portrait.webp'), 80);
-  // a cropped thumb from the diagram region
-  await sharp(buf).extract({ left: 980, top: 620, width: 560, height: 260 }).resize(480, 600, { fit: 'cover' }).webp({ quality: 80 }).toFile(join(outDir, 'thumb.webp'));
+  const ccr = cloudCoverTemplate({ ...base, rtl: true });
+  await writeWebp(await shoot(browser, ccr.html, ccr.w, ccr.h), join(outDir, 'cover-rtl.webp'), 80);
+  // portrait = the art column only (terminal + diagram), cropped from the LTR cover
+  await sharp(buf).extract({ left: 650, top: 40, width: 920, height: 820 }).resize(1080, 1350, { fit: 'cover' }).webp({ quality: 80 }).toFile(join(outDir, 'cover-portrait.webp'));
+  // thumb = the terminal window, which reads as "code" at small sizes
+  await sharp(buf).extract({ left: 690, top: 100, width: 520, height: 470 }).resize(480, 600, { fit: 'cover' }).webp({ quality: 80 }).toFile(join(outDir, 'thumb.webp'));
   console.log(`  ✓ ${slug} (cloud diagram) accent=${accent}`);
 }
 

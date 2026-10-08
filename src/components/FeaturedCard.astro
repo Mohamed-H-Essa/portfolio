@@ -1,5 +1,9 @@
 ---
-import { loc, url, t, type Locale, type Track } from '../i18n';
+// Featured project. The cover art has no baked-in text: its devices sit on one
+// side (right in LTR, left in RTL — a mirrored cover is generated for Arabic)
+// and the HTML title lives on the empty side. On phones the art stacks on top
+// and the text sits below it, so the two never overlap.
+import { loc, url, t, dir as dirOf, type Locale, type Track } from '../i18n';
 import { hasAssets, assetUrl } from '../lib/assets';
 import type { Project } from '../lib/content';
 
@@ -11,13 +15,23 @@ interface Props {
 const { project, locale, track } = Astro.props;
 const p = project.data;
 const href = url(locale, track, 'p', p.slug);
-const img = hasAssets(p.slug) ? assetUrl(p.slug, 'cover') : null;
+const rtl = dirOf(locale) === 'rtl';
+const has = hasAssets(p.slug);
+const wide = has ? assetUrl(p.slug, rtl ? 'cover-rtl' : 'cover') : null;
+const tall = has ? assetUrl(p.slug, 'cover-portrait') : null;
 ---
 
-<a class="featured" href={href} data-era={p.era}>
-  {img && <img class="featured__img" src={img} alt="" loading="eager" width="1600" height="900" />}
+<a class="featured" href={href}>
+  {
+    wide && tall && (
+      <picture class="featured__art">
+        <source media="(max-width: 639px)" srcset={tall} />
+        <img src={wide} alt="" loading="eager" decoding="async" width="1600" height="900" />
+      </picture>
+    )
+  }
   <div class="featured__body">
-    <p class="label featured__eyebrow">{p.code} · {t(locale, 'dossier.impact')}</p>
+    <p class="label featured__eyebrow">{p.code}</p>
     <h2 class="featured__title">{loc(p.title, locale, p.slug)}</h2>
     {p.impact?.line && <p class="featured__line">{loc(p.impact.line, locale, p.slug)}</p>}
     <span class="label featured__cta">{t(locale, 'map.openProject')} →</span>
@@ -27,12 +41,12 @@ const img = hasAssets(p.slug) ? assetUrl(p.slug, 'cover') : null;
 <style>
   .featured {
     position: relative;
-    display: block;
+    display: flex;
+    flex-direction: column;
     border: 1px solid var(--line);
     border-radius: var(--radius-lg);
     overflow: hidden;
     background: var(--bg-2);
-    min-block-size: 300px;
     transition: border-color var(--dur) var(--ease), transform var(--dur) var(--ease);
   }
   .featured:hover,
@@ -40,26 +54,43 @@ const img = hasAssets(p.slug) ? assetUrl(p.slug, 'cover') : null;
     border-color: var(--accent);
     transform: translateY(-2px);
   }
-  .featured__img {
-    position: absolute;
-    inset: 0;
+  .featured__art img {
+    display: block;
     inline-size: 100%;
-    block-size: 100%;
+    block-size: auto; /* beat the height="" attribute so aspect-ratio applies */
+    aspect-ratio: 4 / 3;
     object-fit: cover;
-    opacity: 0.9;
+    object-position: 50% 18%;
   }
   .featured__body {
     position: relative;
-    z-index: 1;
-    padding: clamp(1.25rem, 3vw, 2rem);
     display: grid;
     gap: 0.5rem;
-    align-content: end;
-    min-block-size: 300px;
-    background: linear-gradient(0deg, rgba(8, 8, 8, 0.96) 25%, rgba(8, 8, 8, 0.72) 55%, rgba(8, 8, 8, 0.25) 100%);
+    padding: 1.25rem 1.25rem 1.5rem;
   }
   .featured__eyebrow { color: var(--accent); }
   .featured__title { font-size: var(--fs-h2); }
-  .featured__line { color: var(--ink); font-size: var(--fs-lead); max-inline-size: 36ch; }
+  .featured__line { color: var(--ink-2); font-size: var(--fs-lead); max-inline-size: 30ch; }
   .featured__cta { color: var(--accent); margin-block-start: 0.5rem; }
+
+  /* Wide: art fills the card, text column on the empty side. */
+  @media (min-width: 640px) {
+    .featured { min-block-size: clamp(320px, 34vw, 460px); justify-content: center; }
+    .featured__art { position: absolute; inset: 0; }
+    .featured__art img { block-size: 100%; aspect-ratio: auto; object-position: center; }
+    .featured__art::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      /* solid behind the text, fading out before the devices */
+      background: linear-gradient(to right, var(--bg-2) 0%, color-mix(in srgb, var(--bg-2) 85%, transparent) 30%, transparent 52%);
+    }
+    :root[dir='rtl'] .featured__art::after {
+      background: linear-gradient(to left, var(--bg-2) 0%, color-mix(in srgb, var(--bg-2) 85%, transparent) 30%, transparent 52%);
+    }
+    .featured__body {
+      max-inline-size: 46%;
+      padding: clamp(1.5rem, 3vw, 2.75rem);
+    }
+  }
 </style>

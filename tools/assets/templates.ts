@@ -170,48 +170,54 @@ export function galleryTemplate(s: Screen, g: GroundOpts): { html: string; w: nu
   return { html, w, h };
 }
 
-/** cover-cloud.webp 1600x900 — terminal + architecture diagram for code repos. */
+/** cover-cloud.webp 1600x900 — terminal + architecture diagram for code repos.
+ *  Everything sits in one half (right in LTR, left in RTL) so page text can
+ *  occupy the other half without fighting the art. */
 export function cloudCoverTemplate(opts: {
   accent: string;
   code: string; // monospace snippet lines, joined with \n
   diagram: { nodes: string[]; edges: [number, number][] };
   title: string;
+  rtl?: boolean;
 }): { html: string; w: number; h: number } {
   const w = 1600, h = 900;
-  const { accent, code, diagram, title } = opts;
-  const lines = code.split('\n').slice(0, 14);
-  // lay diagram nodes on a simple horizontal flow
-  const nx = (i: number) => 120 + (i * (1360 / Math.max(1, diagram.nodes.length - 1)));
-  const ny = 720;
+  const { accent, code, diagram, title, rtl } = opts;
+  const lines = code.split('\n').slice(0, 13);
+  const x0 = rtl ? 70 : 690; // left edge of the art column
+  const colW = 840;
+  const NW = 176; // diagram node width
+  const n = Math.max(1, diagram.nodes.length);
+  const step = n > 1 ? (colW - NW) / (n - 1) : 0;
+  const nx = (i: number) => x0 + NW / 2 + i * step;
+  const ny = 690;
   const nodeEls = diagram.nodes
     .map(
-      (n, i) =>
+      (label, i) =>
         `<g transform="translate(${nx(i)},${ny})">
-          <rect x="-95" y="-34" width="190" height="68" rx="12" fill="#111214" stroke="${accent}66"/>
-          <text x="0" y="6" text-anchor="middle" font-family="ui-monospace,monospace" font-size="20" fill="#ededed">${n}</text>
+          <rect x="${-NW / 2}" y="-32" width="${NW}" height="64" rx="12" fill="#111214" stroke="${accent}88"/>
+          <text x="0" y="6" text-anchor="middle" font-family="ui-monospace,monospace" font-size="17" fill="#ededed">${escapeHtml(label)}</text>
         </g>`
     )
     .join('');
   const edgeEls = diagram.edges
     .map(([a, b]) => {
-      const x1 = nx(a) + 95, x2 = nx(b) - 95;
-      return `<path d="M ${x1} ${ny} C ${(x1 + x2) / 2} ${ny}, ${(x1 + x2) / 2} ${ny}, ${x2} ${ny}"
-        stroke="${accent}" stroke-width="2" fill="none" stroke-dasharray="8 8" opacity=".8"/>`;
+      const x1 = nx(a) + NW / 2, x2 = nx(b) - NW / 2;
+      return `<path d="M ${x1} ${ny} L ${x2} ${ny}" stroke="${accent}" stroke-width="2" fill="none" stroke-dasharray="7 7" opacity=".85"/>`;
     })
     .join('');
   const html =
     HEAD(w, h) +
-    `<div class="stage">${ground({ accent })}
-      <div style="position:absolute;top:90px;left:120px;width:900px;height:460px;border-radius:14px;
+    `<div class="stage">${ground({ accent, rtl })}
+      <div style="position:absolute;top:100px;left:${x0}px;width:${colW}px;height:470px;border-radius:14px;
            background:#0d0e10;border:1px solid rgba(255,255,255,.1);overflow:hidden;
-           box-shadow:0 40px 90px rgba(0,0,0,.6);transform:rotateY(-10deg) rotateX(4deg);transform-origin:left center;">
+           box-shadow:0 40px 90px rgba(0,0,0,.6);">
         <div style="height:40px;background:#17181b;display:flex;align-items:center;gap:8px;padding:0 16px;">
           <span style="width:12px;height:12px;border-radius:50%;background:#ff5f57"></span>
           <span style="width:12px;height:12px;border-radius:50%;background:#febc2e"></span>
           <span style="width:12px;height:12px;border-radius:50%;background:#28c840"></span>
-          <span style="margin-left:12px;font-family:ui-monospace,monospace;font-size:14px;color:#777">${title}</span>
+          <span style="margin-left:12px;font-family:ui-monospace,monospace;font-size:14px;color:#777">${escapeHtml(title)}</span>
         </div>
-        <pre style="margin:0;padding:22px 26px;font-family:ui-monospace,monospace;font-size:19px;line-height:1.5;color:#cfd2d6;white-space:pre-wrap;">${lines
+        <pre style="margin:0;padding:20px 24px;font-family:ui-monospace,monospace;font-size:18px;line-height:1.5;color:#cfd2d6;white-space:pre-wrap;">${lines
           .map((l) => escapeHtml(l))
           .join('\n')}</pre>
       </div>
