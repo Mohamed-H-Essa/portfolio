@@ -1,0 +1,93 @@
+---
+// The intro: one seamless experience for language + world around a
+// self-drawing ∞ (owner's concept). Left lobe Mobile, right lobe Cloud, the
+// crossing Both. Step 1 (at /) picks the language, step 2 (at /{lang}/) the
+// world. Every choice is a real link, so it all works without JS; intro.ts
+// adds the orbiting light, in-place relabelling and the zoom-in hand-off.
+// The ∞ is a symbol, not a timeline, so it does not mirror in RTL.
+import '../styles/intro.css';
+import Sigil from './Sigil.astro';
+import { LOCALES, LOCALE_META, TRACKS, t, url, type Locale } from '../i18n';
+import { pathD } from '../lib/lemniscate';
+
+interface Props { locale: Locale; step: 'lang' | 'world' }
+const { locale, step } = Astro.props;
+const d = pathD(100);
+const KEYS = [
+  'intro.lang', 'intro.world', 'intro.again', 'intro.changeLang', 'site.tagline', 'nav.cv', 'skip',
+  ...TRACKS.flatMap((tr) => [`world.${tr}.name`, `world.${tr}.desc`]),
+];
+const strings = Object.fromEntries(LOCALES.map((l) => [l, Object.fromEntries(KEYS.map((k) => [k, t(l, k)]))]));
+const langs = LOCALES.map((l) => ({ l, label: LOCALE_META[l].label, dir: LOCALE_META[l].dir }));
+const tx = (k: string) => t(locale, k);
+---
+
+<section class="intro" data-intro data-step={step} data-locale={locale}>
+  <div class="intro__bar">
+    <a class="intro__me" href={url()}><Sigil size={26} /><span>Mohamed Essa</span></a>
+    <a class="intro__cv" href={url(locale, 'cv', 'all')} data-href="cv" data-t="nav.cv">{tx('nav.cv')}</a>
+  </div>
+
+  <div class="intro__fig" data-fig>
+    <svg class="inf" viewBox="-110 -60 220 120" aria-hidden="true">
+      <defs>
+        <linearGradient id="inf-g" gradientUnits="userSpaceOnUse" x1="-100" y1="0" x2="100" y2="0">
+          <stop offset="0" stop-color="var(--mobile)" />
+          <stop offset="0.5" stop-color="var(--origin)" />
+          <stop offset="1" stop-color="var(--cloud)" />
+        </linearGradient>
+        <filter id="inf-blur" x="-20%" y="-40%" width="140%" height="180%"><feGaussianBlur stdDeviation="2.4" /></filter>
+      </defs>
+      <path class="inf__glow" d={d} pathLength="1" filter="url(#inf-blur)" />
+      <path class="inf__line" d={d} pathLength="1" />
+    </svg>
+    <canvas class="intro__light" data-light aria-hidden="true"></canvas>
+
+    <nav class="lobes" aria-label={tx('intro.world')} data-lobes>
+      {
+        (['mobile', 'cloud', 'all'] as const).map((tr) => (
+          <a class={`lobe lobe--${tr}`} href={url(locale, tr)} data-track={tr}>
+            <span class="lobe__name" data-t={`world.${tr}.name`}>{tx(`world.${tr}.name`)}</span>
+            {tr !== 'all' && <span class="lobe__desc" data-t={`world.${tr}.desc`}>{tx(`world.${tr}.desc`)}</span>}
+          </a>
+        ))
+      }
+    </nav>
+  </div>
+
+  <div class="intro__copy">
+    <h1 class="intro__name">Mohamed Essa</h1>
+    <p class="intro__tag" data-t="site.tagline">{tx('site.tagline')}</p>
+
+    <p class="intro__hint" aria-live="polite">
+      <span data-hint data-t={step === 'lang' ? 'intro.lang' : 'intro.world'}>{tx(step === 'lang' ? 'intro.lang' : 'intro.world')}</span>
+    </p>
+
+    <ul class="langs" data-langs>
+      {
+        langs.map(({ l, label, dir }) => (
+          <li>
+            <a href={url(l)} lang={l} dir={dir} data-lang={l} class:list={{ 'is-current': step === 'world' && l === locale }}>
+              {label}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+
+    <div class="intro__more">
+      <a class="intro__change" href={url()} data-change-lang>
+        <span data-t="intro.changeLang">{tx('intro.changeLang')}</span> · <span data-langname>{LOCALE_META[locale].label}</span>
+      </a>
+      <a class="intro__again" href="#" data-again hidden></a>
+    </div>
+  </div>
+
+  <div class="intro__wash" data-wash aria-hidden="true"></div>
+  <script type="application/json" data-intro-json set:html={JSON.stringify({ strings, base: url(), labels: Object.fromEntries(langs.map((x) => [x.l, x.label])) })} />
+</section>
+
+<script>
+  import { initIntro } from '../scripts/intro';
+  document.querySelectorAll<HTMLElement>('[data-intro]').forEach(initIntro);
+</script>

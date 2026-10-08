@@ -84,5 +84,6 @@
   "flow.upload": "الرفع",
   "flow.upload.sub": "TestFlight · Play",
   "flow.submit": "الإرسال",
-  "flow.submit.sub": "مراجعة المتجر"
+  "flow.submit.sub": "مراجعة المتجر",
+  "intro.changeLang": "تغيير اللغة"
 }

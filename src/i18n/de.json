@@ -84,5 +84,6 @@
   "flow.upload": "Upload",
   "flow.upload.sub": "TestFlight · Play",
   "flow.submit": "Einreichen",
-  "flow.submit.sub": "Store-Prüfung"
+  "flow.submit.sub": "Store-Prüfung",
+  "intro.changeLang": "Sprache ändern"
 }

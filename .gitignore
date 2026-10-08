@@ -31,3 +31,4 @@ pnpm-debug.log*
 test-results/
 _shot.mjs
 _shot2.mjs
+_shot3.mjs

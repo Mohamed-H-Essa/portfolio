@@ -1,4 +1,17 @@
-# HANDOFF — read this first (2026-10-08, end of session 1)
+# HANDOFF — read this first (2026-10-08, end of session 2)
+
+## Session 2 (latest) — done
+- Map polish: featured card centred (cards pivot at their anchor; fly-to uses card x/y/lift/height), RTL panel offset flips,
+  compact phone sheet, wider layer gap (±430) so planes don't slice billboards, same-layer MIN_SEP on x, Badge.astro for
+  art-less nodes, repeated engraved layer names, `?p=<slug>` opens the map on a card.
+- Dossiers `/{lang}/{track}/p/{slug}/` (63 pages) + PipelineFlow diagram for release-pipeline. Map no longer 404s.
+- **∞ intro** (`Intro.astro`, `styles/intro.css`, `scripts/intro.ts`, `lib/lemniscate.ts`) replaces `/` and `/{lang}/`.
+  Verified by screenshot at 1440 + 390: draw → light orbit → language (AR relabels in place, URL → /ar/) → lobe click zoom → map.
+- Not yet: owner review of the intro feel; 320px check of the intro; background canvas (D6); Phase 7 (CV pages/colophon are
+  still linked but 404); old-world-chooser i18n keys (`world.chooser.*`) now unused.
+- Questions added to owner-todo (Test stage in pipeline, metrics).
+
+
 
 State: `main` is green (`npm run check` → 0 errors, 20 tests; `npm run build` → 14 pages).
 Read order for a new session: **this file → AGENTS.md → docs/spec.md → docs/plan.md**.

@@ -1,0 +1,194 @@
+/* The ∞ intro (Intro.astro). One orchestrated entrance: the loop draws
+   itself, then name, hint and choices fade in. Everything after that answers
+   the visitor. --k scales every delay (0.25 on a quick repeat visit). */
+
+.intro {
+  --k: 1;
+  position: relative;
+  min-block-size: 100svh;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  justify-items: center;
+  padding-block-end: clamp(1.5rem, 5vh, 3.5rem);
+  background: radial-gradient(70% 55% at 50% 42%, #101113 0%, var(--bg) 72%);
+  overflow: hidden;
+}
+.intro.is-quick { --k: 0.25; }
+
+.intro__bar {
+  inline-size: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem var(--gutter);
+}
+.intro__me { display: inline-flex; align-items: center; gap: 0.6rem; min-block-size: 44px; color: var(--ink); font-family: var(--font-mono); font-size: 0.8rem; letter-spacing: 0.14em; }
+.intro__cv {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: 44px;
+  padding-inline: 1.1rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+}
+.intro__cv:hover { border-color: var(--origin); }
+
+/* ---- the figure: SVG loop + canvas light + lobe links share one box ---- */
+.intro__fig {
+  position: relative;
+  align-self: center;
+  inline-size: min(88vw, 980px, 150svh);
+  aspect-ratio: 220 / 120;
+  transition: transform 760ms var(--ease-strong), opacity 500ms var(--ease);
+}
+.inf { position: absolute; inset: 0; inline-size: 100%; block-size: 100%; overflow: visible; }
+.inf path { fill: none; stroke: url(#inf-g); stroke-linecap: round; stroke-dasharray: 1; stroke-dashoffset: 1; }
+.inf__line { stroke-width: 0.9; animation: inf-draw calc(2.1s * var(--k)) var(--ease-strong) calc(0.2s * var(--k)) forwards; }
+.inf__glow { stroke-width: 3.2; opacity: 0.38; animation: inf-draw calc(2.1s * var(--k)) var(--ease-strong) calc(0.2s * var(--k)) forwards; }
+@keyframes inf-draw { to { stroke-dashoffset: 0; } }
+.intro__light { position: absolute; inset: -8%; inline-size: 116%; block-size: 116%; pointer-events: none; }
+
+/* world choices live on the loop itself */
+.lobes { position: absolute; inset: 0; }
+.lobe {
+  --c: var(--origin);
+  position: absolute;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 0.5rem;
+  text-align: center;
+  border-radius: 50%;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 600ms var(--ease);
+}
+.lobe--mobile { --c: var(--mobile); left: 8%; top: 18%; inline-size: 35%; block-size: 64%; }
+.lobe--cloud { --c: var(--cloud); left: 57%; top: 18%; inline-size: 35%; block-size: 64%; }
+.lobe--all { left: 45.5%; top: 41.5%; inline-size: 9%; block-size: 17%; }
+.lobe__name {
+  font-family: var(--font-display);
+  font-size: clamp(1.15rem, 0.8rem + 1.8vw, 2.5rem);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  transition: color var(--dur) var(--ease), text-shadow var(--dur) var(--ease);
+}
+.lobe__desc { max-inline-size: 22ch; font-size: 0.85rem; line-height: 1.45; color: var(--ink-2); }
+/* "Both" sits just under the crossing, the crossing itself is the target */
+.lobe--all .lobe__name {
+  position: absolute;
+  inset-block-start: 112%;
+  left: 50%; /* physical: the ∞ never mirrors */
+  translate: -50% 0;
+  font-size: clamp(0.85rem, 0.7rem + 0.5vw, 1.1rem);
+  font-weight: 500;
+  white-space: nowrap;
+  color: var(--ink-2);
+}
+.lobe--all::before {
+  content: '';
+  position: absolute;
+  inset: 22%;
+  border-radius: 50%;
+  border: 1px solid color-mix(in srgb, var(--origin) 55%, transparent);
+  transition: inset var(--dur) var(--ease), border-color var(--dur) var(--ease);
+}
+.lobe:hover .lobe__name,
+.lobe:focus-visible .lobe__name { color: var(--c); text-shadow: 0 0 28px color-mix(in srgb, var(--c) 55%, transparent); }
+.lobe--all:hover::before, .lobe--all:focus-visible::before { inset: 6%; border-color: var(--origin); }
+.lobe:focus-visible { outline: 1px dashed color-mix(in srgb, var(--c) 60%, transparent); outline-offset: 6px; }
+.intro[data-hover] .lobe:not(:hover):not(:focus-visible) { opacity: 0.4; }
+
+.intro[data-step='world'] .lobe {
+  opacity: 1;
+  pointer-events: auto;
+  transition-delay: calc(1.5s * var(--k));
+}
+.intro[data-step='world'].is-live .lobe { transition-delay: 0s; }
+
+/* ---- copy under the loop ---- */
+.intro__copy { display: grid; justify-items: center; gap: 0.55rem; text-align: center; padding-inline: var(--gutter); }
+.intro__name { font-size: clamp(1.6rem, 1.1rem + 2.4vw, 3rem); font-weight: 600; letter-spacing: -0.01em; }
+.intro__tag { color: var(--ink-2); font-size: var(--fs-body); }
+.intro__hint { margin-block-start: 1.4rem; color: var(--ink-3); font-size: 0.95rem; min-block-size: 1.5em; }
+.intro__hint span { display: inline-block; transition: opacity 420ms var(--ease), filter 420ms var(--ease); }
+.intro__hint span.is-out { opacity: 0; filter: blur(4px); }
+
+.intro__name, .intro__tag, .intro__hint, .langs, .intro__more {
+  opacity: 0;
+  animation: intro-in calc(0.9s * var(--k)) var(--ease) forwards;
+}
+.intro__name { animation-delay: calc(1.25s * var(--k)); }
+.intro__tag { animation-delay: calc(1.45s * var(--k)); }
+.intro__hint { animation-delay: calc(1.75s * var(--k)); }
+.langs { animation-delay: calc(1.9s * var(--k)); }
+.intro__more { animation-delay: calc(2.1s * var(--k)); }
+@keyframes intro-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+.langs { list-style: none; padding: 0; display: flex; flex-wrap: wrap; justify-content: center; gap: 0.25rem clamp(1rem, 4vw, 2.75rem); }
+.langs a {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  min-block-size: 48px;
+  padding-inline: 0.25rem;
+  font-family: var(--font-display);
+  font-size: clamp(1.3rem, 1rem + 1.5vw, 2.2rem);
+  color: var(--ink-2);
+  transition: color var(--dur) var(--ease), transform 720ms var(--ease-strong), opacity 620ms var(--ease), filter 620ms var(--ease);
+}
+.langs a[lang='ar'] { font-family: var(--font-ar); }
+.langs a::after {
+  content: '';
+  position: absolute;
+  inset-inline: 0.25rem;
+  inset-block-end: 6px;
+  block-size: 1px;
+  background: var(--origin);
+  transform: scaleX(0);
+  transition: transform var(--dur) var(--ease);
+}
+.langs a:hover, .langs a:focus-visible, .langs a.is-suggested { color: var(--ink); }
+.langs a:hover::after, .langs a:focus-visible::after, .langs a.is-suggested::after { transform: scaleX(1); }
+/* the unpicked words fall into the loop's crossing */
+.langs a.is-dissolving {
+  opacity: 0;
+  filter: blur(6px);
+  transform: translate(var(--dx, 0), var(--dy, 0)) scale(0.3);
+  pointer-events: none;
+}
+.intro[data-step='world'] .langs { display: none; }
+
+.intro__more { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.25rem 1.5rem; }
+.intro__change, .intro__again {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: 44px;
+  font-size: 0.85rem;
+  color: var(--ink-3);
+}
+.intro__change:hover, .intro__again:hover { color: var(--ink); }
+.intro[data-step='lang'] .intro__change { display: none; }
+.intro__again[hidden] { display: none; }
+
+/* ---- the hand-off: zoom into the chosen lobe, wash in its colour ---- */
+.intro__wash {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(circle at var(--wx, 50%) var(--wy, 50%), color-mix(in srgb, var(--wc, var(--origin)) 55%, var(--bg)) 0%, var(--bg) 68%);
+  transition: opacity 700ms var(--ease);
+}
+.intro.is-leaving .intro__wash { opacity: 1; }
+.intro.is-leaving .intro__fig { transform: scale(2.4); transform-origin: var(--zx, 50%) var(--zy, 50%); }
+.intro.is-leaving .intro__copy, .intro.is-leaving .intro__bar { opacity: 0; transition: opacity 300ms var(--ease); }
+
+@media (max-width: 760px) {
+  .intro__fig { inline-size: 94vw; }
+  .lobe__desc { display: none; }
+  .intro__hint { margin-block-start: 0.8rem; }
+}

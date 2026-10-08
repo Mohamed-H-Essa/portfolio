@@ -1,61 +1,11 @@
 ---
-// GitHub Pages has no server redirect. This static page detects the visitor's
-// language and replaces into /{lang}/, with a <meta refresh> + visible links as
-// the no-JS fallback. Astro's base path is honoured via import.meta.env.BASE_URL.
-import { LOCALES, DEFAULT_LOCALE } from '../i18n';
-const base = import.meta.env.BASE_URL || '/';
-const fallback = `${base.replace(/\/+$/, '')}/${DEFAULT_LOCALE}/`;
+// Root: the ∞ intro at step 1 (language). No redirect any more: the visitor
+// picks, with their browser language pre-highlighted. Without JS the three
+// language names are plain links to /{lang}/ (the world step).
+import Base from '../layouts/Base.astro';
+import Intro from '../components/Intro.astro';
 ---
 
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Mohamed Essa — Mobile & Cloud Engineer</title>
-    <meta name="robots" content="noindex" />
-    <meta http-equiv="refresh" content={`0; url=${fallback}`} />
-    <link rel="canonical" href={fallback} />
-    <script is:inline define:vars={{ base, locales: LOCALES, def: DEFAULT_LOCALE }}>
-      (function () {
-        try {
-          var supported = locales;
-          var langs = navigator.languages || [navigator.language || def];
-          var pick = def;
-          outer: for (var i = 0; i < langs.length; i++) {
-            var code = String(langs[i]).toLowerCase().slice(0, 2);
-            for (var j = 0; j < supported.length; j++) {
-              if (supported[j] === code) { pick = code; break outer; }
-            }
-          }
-          var b = base.replace(/\/+$/, '');
-          location.replace(b + '/' + pick + '/');
-        } catch (e) { /* meta refresh handles it */ }
-      })();
-    </script>
-    <style>
-      body {
-        background: #080808;
-        color: #ededed;
-        font-family: system-ui, sans-serif;
-        display: grid;
-        place-items: center;
-        min-height: 100vh;
-        margin: 0;
-      }
-      .choices { display: flex; gap: 1rem; margin-top: 1.5rem; }
-      a { color: #ede6d6; text-decoration: none; border: 1px solid #333; padding: 0.6rem 1.1rem; border-radius: 999px; }
-      a:hover { border-color: #ede6d6; }
-    </style>
-  </head>
-  <body>
-    <div>
-      <p>Mohamed Essa — Mobile &amp; Cloud Engineer</p>
-      <div class="choices">
-        <a href={`${base.replace(/\/+$/, '')}/en/`}>English</a>
-        <a href={`${base.replace(/\/+$/, '')}/de/`}>Deutsch</a>
-        <a href={`${base.replace(/\/+$/, '')}/ar/`}>العربية</a>
-      </div>
-    </div>
-  </body>
-</html>
+<Base locale="en" pathParts={[]} bare>
+  <Intro locale="en" step="lang" />
+</Base>
