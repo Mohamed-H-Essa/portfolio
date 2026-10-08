@@ -17,7 +17,7 @@ ${t('en', 'track.mobile.sub')} ${t('en', 'track.cloud.sub')}
 - Site (English / Deutsch / العربية): ${site(url('en'))}
 - LinkedIn: https://www.linkedin.com/in/mohamed-hosny-essa
 - GitHub: https://github.com/Mohamed-H-Essa
-- Email: me@mecodes.live
+- Email: mhosnytech@gmail.com
 - Education: B.Sc. Computer Engineering, Benha University (2019–2024)
 - Languages: Arabic (native), English (fluent), German (learning)
 - The site has three views of the same work: Mobile (${site(url('en', 'mobile'))}), Cloud (${site(url('en', 'cloud'))}) and Both (${site(url('en', 'all'))}).

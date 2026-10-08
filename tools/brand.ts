@@ -14,6 +14,8 @@ const ROOT = process.cwd();
 const PUB = join(ROOT, 'public');
 const C = { bg: '#080808', tile: '#0d0d0f', mobile: '#e8b23a', origin: '#ede6d6', cloud: '#5db8d6', ink: '#ededed', ink2: '#9a9a9a' };
 const D = pathD(100, 360);
+// the address printed on link previews (same default as astro.config.mjs)
+const HOST = new URL(process.env.SITE_URL ?? 'https://mohamed-h-essa.github.io').host;
 
 const grad = (id: string, x1: number, x2: number) =>
   `<linearGradient id="${id}" gradientUnits="userSpaceOnUse" x1="${x1}" y1="0" x2="${x2}" y2="0">` +
@@ -120,7 +122,7 @@ function ogHtml(lang: string, track: string, t: Record<string, string>): string 
     <h2>${t[`track.${track}.hero`]}</h2>
     <p>${t[`track.${track}.sub`]}</p>
   </div>
-  <div class="url">mecodes.live</div>
+  <div class="url">${HOST}</div>
   </body></html>`;
 }
 
