@@ -1,0 +1,36 @@
+slug: qanony
+kind: project
+worlds: [mobile]
+era: s3
+start: 2025-01
+end: present
+weight: { mobile: 3, cloud: 0, all: 2 }
+featured: true
+confidential: false
+code: M01
+role: { en: "Flutter developer", de: "Flutter-Entwickler", ar: "مطوّر Flutter" }
+title: { en: "Qanony", de: "Qanony", ar: "قانوني" }
+impact:
+  line:
+    en: "A bilingual legal-services app, live on both stores"
+    de: "Eine zweisprachige Rechts-App, in beiden Stores live"
+    ar: "تطبيق خدمات قانونية ثنائي اللغة، منشور على المتجرين"
+problem:
+  en: "People needed legal consultations, contracts and company paperwork handled from their phone, in Arabic first, with clear pricing before they commit."
+  de: "Nutzer wollten Rechtsberatung, Verträge und Firmenunterlagen vom Handy aus erledigen – zuerst auf Arabisch, mit klaren Preisen vorab."
+  ar: "احتاج الناس إلى استشارات قانونية وعقود وأوراق شركات تُدار من الهاتف، بالعربية أولاً، مع أسعار واضحة قبل الالتزام."
+built:
+  en: "A Flutter app with Arabic-first RTL UI, a guided multi-step request wizard, document upload and camera scanning, and an itemised payment flow (subtotal, VAT, total) in EGP."
+  de: "Eine Flutter-App mit Arabisch-first-RTL-Oberfläche, geführtem mehrstufigem Antrags-Assistenten, Dokument-Upload und Kamera-Scan sowie aufgeschlüsseltem Zahlungsfluss (netto, MwSt., brutto) in EGP."
+  ar: "تطبيق Flutter بواجهة عربية RTL، ومعالج طلبات متعدد الخطوات، ورفع المستندات والمسح بالكاميرا، وتدفق دفع مفصّل (الإجمالي الفرعي، الضريبة، الإجمالي) بالجنيه."
+result:
+  en: "Shipped to the App Store and Google Play as the product's Arabic-first primary listing."
+  de: "Im App Store und bei Google Play als arabisch-first-Hauptlisting veröffentlicht."
+  ar: "نُشر على App Store وGoogle Play كإدراج رئيسي عربي أولاً."
+stack: [Flutter, Dart, Bloc]
+links:
+  playStore: "https://play.google.com/store/apps/details?id=com.qanony.qanony"
+  appStore: "https://apps.apple.com/us/app/qanoni-services/id6761679733"
+connects: [release-pipeline]
+assets: auto
+review: { de: true, ar: true }

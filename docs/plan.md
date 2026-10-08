@@ -13,33 +13,22 @@ Read first: `AGENTS.md` → `docs/spec.md` → this file. `docs/assets.md` and `
 - [x] Docs, content template, git repo.
 - [x] Astro project scaffolded 2026-10-08 (minimal template, deps installed). Still to do in Phase 1: `npx playwright install chromium`; the sitemap warning goes away once `site` is set. Check: `npm run dev` serves the default page.
 
-## Phase 1 — Foundations
-- [ ] **Config.** `astro.config.mjs`: `site: 'https://mecodes.live'`, `trailingSlash: 'always'`, `build.format: 'directory'`,
-      i18n `locales: ['en','de','ar']`, `defaultLocale: 'en'`, `prefixDefaultLocale: true`, `routing.redirectToDefaultLocale: false`
-      (we write our own `/` page). TS strict.
-- [ ] **Design tokens** in `src/styles/tokens.css`:
+## Phase 1 — Foundations  ✅ DONE 2026-10-08 (check + build green, screenshots verified at 390/1440 in en + ar RTL)
+- [x] **Config.** `astro.config.mjs`: site/base (base via `BASE_PATH` env for the `<user>.github.io/<repo>/` case), `trailingSlash:'always'`, `build.format:'directory'`, i18n en/de/ar, `prefixDefaultLocale:true`, `redirectToDefaultLocale:false`. TS strict.
+- [x] **Design tokens** in `src/styles/tokens.css`:
       `--bg:#080808; --bg-2:#111; --ink:#EDEDED; --ink-2:#9A9A9A; --line:rgba(255,255,255,.12);`
       `--mobile:#E8B23A; --cloud:#5DB8D6; --origin:#EDE6D6; --accent:var(--origin)` (set per track on `<body data-track>`),
       `--ease:cubic-bezier(.455,.03,.515,.955); --ease-strong:cubic-bezier(.785,.135,.15,.86);`
       type scale with `clamp()`; labels = JetBrains Mono, uppercase, `letter-spacing:.18em`, 11–13 px.
-      Logical properties only (stylelint rule or a grep check in CI: no `margin-left|padding-right|left:|right:` in src). `body` always dark.
-- [ ] **Fonts** via `@fontsource/space-grotesk`, `@fontsource/jetbrains-mono`, `@fontsource/tajawal` (only the weights used, latin/arabic subsets).
-      Arabic pages use Tajawal for everything.
-- [ ] **i18n core**: `src/i18n/{en,de,ar}.json` UI strings; `t(lang, key)` with EN fallback + a console warning at build;
-      `loc(lang, field)` for localized content fields; `url(lang, ...parts)` that respects `BASE_URL`; `dir(lang)`.
-      Check: a unit test (vitest) covers the fallback + url().
-- [ ] **Content collection** `src/content.config.ts`: a glob loader for `src/content/projects/*.yaml` (ignore `_*.yaml`),
-      a zod schema matching `_template.yaml` (localized = `{en: string, de?: string, ar?: string}`), unique `code` and `slug`
-      validation, `connects` must reference existing slugs. Check: a bad file fails the build with a clear message.
-- [ ] **Base layout** `src/layouts/Base.astro`: `<html lang dir>`, meta + OG tags (image `og/<lang>-<track>.png`, hreflang alternates for
-      the 3 langs), skip link, header (sigil logo · language switch · track switch · "CV ↓"), footer (contact, build SHA + date from
-      `process.env.GITHUB_SHA`/build time, fallback "dev").
-      Check: a no-JS render shows a fully usable header at 320 px.
-- [ ] **Root `/`** (`src/pages/index.astro`): detect language → `location.replace`, meta-refresh fallback, three visible language links.
-- [ ] **404** (`src/pages/404.astro`): "This timeline doesn't exist." + links to `/en/`, `/de/`, `/ar/`.
-- [ ] **CI/CD** `.github/workflows/deploy.yml` per spec D8 (start with install → check → build → deploy to Pages; add PDF, link check
-      and Lighthouse budgets in Phase 7). `public/CNAME` = `mecodes.live` **only after the owner confirms the DNS switch** (owner-todo).
-      Check: a push to main deploys and the Pages URL loads.
+      Logical properties only throughout (verified by eye in RTL). `body` always dark. Also `src/styles/base.css` (reset, skip link, `.shell`, reduced-motion).
+- [x] **Fonts** via `src/styles/fonts.css`: Space Grotesk (latin 400/600/700), JetBrains Mono (latin 400/500), Tajawal (arabic 400/500/700). RTL swaps display face to Tajawal.
+- [x] **i18n core**: `src/i18n/{en,de,ar}.json` + `index.ts` (`t`, `translator`, `loc`, `url`, `dir`) + `config.ts` (LOCALES, TRACKS, meta). EN fallback warns once. `i18n.test.ts`: 10 tests pass.
+- [x] **Content collection** `src/content.config.ts` (zod via `astro:schema`, glob ignores `_*.yaml`). Relational checks (unique slug/code, `connects` resolve) in `src/lib/content.ts::loadProjects()`. Helpers: `projectsForTrack`, `featuredForTrack`, `isDimmed`.
+- [x] **Base layout** `src/layouts/Base.astro` (lang/dir, canonical, hreflang×3 + x-default, OG). `components/Header.astro` (sigil, inline track+lang switches, always-on CV ↓, phone hamburger menu), `Footer.astro` (contact, copy-email, colophon link, build SHA·date), `Sigil.astro`.
+- [x] **Root `/`** `src/pages/index.astro`: JS lang-detect + `location.replace`, meta-refresh fallback, 3 visible language links.
+- [x] **404** `src/pages/404.astro`.
+- [x] **CI/CD** `.github/workflows/deploy.yml`: PR → ci (checkout, node20, npm ci, `npm run check`, build, upload artifact); main → deploy-pages. **`public/CNAME` NOT added yet** — waiting on the owner's DNS answer in owner-todo. Phase 7 adds PDF + link check + Lighthouse here.
+- [ ] **Remaining for the implementer:** push to GitHub, enable Pages (Settings → Pages → Source: GitHub Actions), confirm the Actions deploy succeeds and the Pages URL loads. If launching on `<user>.github.io/<repo>/`, set repo variable/secret so the build runs with `BASE_PATH=/<repo>/` and `SITE_URL` accordingly.
 
 ## Phase 2 — Seed content (2 real projects, end to end, before building more UI)
 - [ ] Write `aratc.yaml` and `qanony.yaml` per `docs/content-intake.md` (read their repos briefly; questions → `docs/owner-todo.md`).

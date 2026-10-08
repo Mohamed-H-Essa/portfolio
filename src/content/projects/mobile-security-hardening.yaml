@@ -1,0 +1,37 @@
+slug: mobile-security-hardening
+kind: project
+worlds: [origin]
+era: s3
+start: 2025-03
+end: present
+weight: { mobile: 2, cloud: 1, all: 3 }
+featured: false
+confidential: false
+code: O02
+role: { en: "Mobile security", de: "Mobile Security", ar: "أمن التطبيقات" }
+title:
+  en: "Mobile security hardening"
+  de: "Mobile Security Hardening"
+  ar: "تحصين أمن التطبيقات"
+impact:
+  line:
+    en: "Production hardening for apps handling sensitive data"
+    de: "Produktionshärtung für Apps mit sensiblen Daten"
+    ar: "تحصين إنتاجي لتطبيقات تتعامل مع بيانات حساسة"
+problem:
+  en: "Apps handling sensitive user data needed to resist tampering, traffic interception and reverse engineering before going to production."
+  de: "Apps mit sensiblen Nutzerdaten mussten vor Produktivbetrieb gegen Manipulation, Traffic-Abfang und Reverse Engineering geschützt werden."
+  ar: "كانت التطبيقات التي تتعامل مع بيانات حساسة بحاجة إلى مقاومة العبث واعتراض البيانات والهندسة العكسية قبل الإنتاج."
+built:
+  en: "Certificate pinning, code obfuscation with split debug info, removal of debug logging, root/jailbreak and debug-mode detection, plus MobSF scans across the dependency tree."
+  de: "Certificate Pinning, Code-Obfuskation mit getrennten Debug-Infos, Entfernen von Debug-Logs, Root-/Jailbreak- und Debug-Modus-Erkennung sowie MobSF-Scans über den Abhängigkeitsbaum."
+  ar: "تثبيت الشهادات، وتشويش الكود مع فصل معلومات التصحيح، وإزالة سجلات التصحيح، وكشف الـroot/الـjailbreak ووضع التصحيح، إضافة إلى فحوص MobSF عبر شجرة الاعتماديات."
+result:
+  en: "Apps shipped to production meeting client security requirements for sensitive data."
+  de: "Apps gingen produktiv und erfüllten die Sicherheitsanforderungen der Kunden für sensible Daten."
+  ar: "نُشرت التطبيقات في الإنتاج وهي تلبّي متطلبات الأمان للعملاء للبيانات الحساسة."
+stack: [MobSF, Certificate pinning, Obfuscation, Root detection]
+links: {}
+connects: []
+assets: auto
+review: { de: true, ar: true }

@@ -1,0 +1,108 @@
+---
+// Track home. Phase 1: hero + a plain project list (no-JS baseline for the map).
+// Phase 4/5 add the hero flourishes, the interactive timeline, skills dock.
+import Base from '../../../layouts/Base.astro';
+import {
+  LOCALES,
+  TRACKS,
+  isLocale,
+  isTrack,
+  t,
+  loc,
+  url,
+  type Locale,
+  type Track,
+} from '../../../i18n';
+import { projectsForTrack, isDimmed } from '../../../lib/content';
+
+export async function getStaticPaths() {
+  const paths = [];
+  for (const lang of LOCALES) {
+    for (const track of TRACKS) {
+      paths.push({ params: { lang, track } });
+    }
+  }
+  return paths;
+}
+
+const { lang, track } = Astro.params;
+if (!lang || !isLocale(lang)) throw new Error(`bad lang param: ${lang}`);
+if (!track || !isTrack(track)) throw new Error(`bad track param: ${track}`);
+const locale: Locale = lang;
+const tr: Track = track;
+
+const projects = await projectsForTrack(tr);
+---
+
+<Base locale={locale} track={tr} pathParts={[tr]}>
+  <section class="shell hero">
+    <p class="label">{t(locale, `world.${tr}.name`)}</p>
+    <h1>{t(locale, `track.${tr}.hero`)}</h1>
+    <p class="hero__sub">{t(locale, `track.${tr}.sub`)}</p>
+  </section>
+
+  <!-- Phase 5 replaces this list with the interactive Timeline map.
+       It stays as the no-JS / screen-reader baseline. -->
+  <section class="shell timeline-fallback" aria-label="Projects">
+    <ol class="nodes">
+      {
+        projects.map((p) => (
+          <li class:list={['node', { 'is-dimmed': isDimmed(p, tr) }]} data-era={p.data.era}>
+            <a href={url(locale, tr, 'p', p.data.slug)}>
+              <span class="node__code label">{p.data.code}</span>
+              <span class="node__title">{loc(p.data.title, locale, p.data.slug)}</span>
+              {p.data.impact?.line && (
+                <span class="node__impact">{loc(p.data.impact.line, locale, p.data.slug)}</span>
+              )}
+            </a>
+          </li>
+        ))
+      }
+    </ol>
+  </section>
+</Base>
+
+<style>
+  .hero {
+    padding-block: clamp(2.5rem, 7vh, 6rem) 2rem;
+  }
+  .hero__sub {
+    color: var(--ink-2);
+    max-inline-size: 52ch;
+    font-size: var(--fs-lead);
+    margin-block-start: 1rem;
+  }
+  .nodes {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    gap: 0.75rem;
+    grid-template-columns: 1fr;
+  }
+  .node a {
+    display: grid;
+    gap: 0.25rem;
+    padding: 1rem 1.25rem;
+    border: 1px solid var(--line-2);
+    border-inline-start: 3px solid var(--accent);
+    border-radius: var(--radius);
+    background: var(--bg-2);
+    transition: border-color var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease);
+  }
+  .node[data-era='s4'] a { border-inline-start-color: var(--cloud); }
+  .node a:hover {
+    transform: translateY(-1px);
+    border-color: var(--line);
+  }
+  .node.is-dimmed a {
+    opacity: 0.4;
+    filter: grayscale(0.6);
+  }
+  .node__code { color: var(--ink-3); }
+  .node__title { font-family: var(--font-display); font-size: 1.1rem; color: var(--ink); }
+  .node__impact { color: var(--ink-2); font-size: 0.9rem; }
+
+  @media (min-width: 720px) {
+    .nodes { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>

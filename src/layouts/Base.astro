@@ -1,0 +1,87 @@
+---
+import '../styles/fonts.css';
+import '../styles/tokens.css';
+import '../styles/base.css';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { LOCALE_META, LOCALES, type Locale, type Track } from '../i18n';
+import { t, url } from '../i18n';
+
+interface Props {
+  locale: Locale;
+  track?: Track;
+  title?: string;
+  description?: string;
+  /** Path (after the locale) of THIS page in each locale, for hreflang + switcher.
+   *  e.g. ['mobile','p','aratc'] -> /en/mobile/p/aratc/ */
+  pathParts?: (string | number)[];
+  /** OG image absolute-from-base path, e.g. 'og/en-mobile.png' */
+  ogImage?: string;
+  /** Hide the chrome (used by the CV print page). */
+  bare?: boolean;
+}
+
+const {
+  locale,
+  track = 'all',
+  title,
+  description,
+  pathParts = [],
+  ogImage,
+  bare = false,
+} = Astro.props;
+
+const meta = LOCALE_META[locale];
+const pageTitle = title ? `${title} — Mohamed Essa` : t(locale, 'site.title');
+const desc = description ?? t(locale, 'site.tagline');
+const canonical = new URL(url(locale, ...pathParts), Astro.site).href;
+const og = ogImage
+  ? new URL(url(ogImage), Astro.site).href
+  : new URL(url(`og/${locale}-${track}.png`), Astro.site).href;
+
+const buildSha = (process.env.GITHUB_SHA ?? 'dev').slice(0, 7);
+const buildDate = new Date().toISOString().slice(0, 10);
+---
+
+<!doctype html>
+<html lang={meta.htmlLang} dir={meta.dir} data-track={track}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={desc} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" type="image/svg+xml" href={url('favicon.svg')} />
+
+    {/* hreflang alternates for the same page in every locale */}
+    {
+      LOCALES.map((l) => (
+        <link
+          rel="alternate"
+          hreflang={LOCALE_META[l].htmlLang}
+          href={new URL(url(l, ...pathParts), Astro.site).href}
+        />
+      ))
+    }
+    <link rel="alternate" hreflang="x-default" href={new URL(url('en', ...pathParts), Astro.site).href} />
+
+    {/* Open Graph / Twitter */}
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={desc} />
+    <meta property="og:image" content={og} />
+    <meta property="og:url" content={canonical} />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <meta name="generator" content={Astro.generator} />
+    <slot name="head" />
+  </head>
+  <body data-track={track}>
+    <a class="skip-link" href="#main">{t(locale, 'skip')}</a>
+    {!bare && <Header locale={locale} track={track} pathParts={pathParts} buildSha={buildSha} />}
+    <main id="main">
+      <slot />
+    </main>
+    {!bare && <Footer locale={locale} buildSha={buildSha} buildDate={buildDate} />}
+  </body>
+</html>

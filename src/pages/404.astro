@@ -1,0 +1,51 @@
+---
+// GitHub Pages serves /404.html automatically for unknown paths.
+// Default to English chrome; it's a dead end, so keep it simple.
+import Base from '../layouts/Base.astro';
+import { t, url } from '../i18n';
+const locale = 'en';
+---
+
+<Base locale={locale} title="404">
+  <section class="shell notfound">
+    <p class="label">404</p>
+    <h1>{t(locale, 'notfound.title')}</h1>
+    <p class="notfound__sub">{t(locale, 'notfound.sub')}</p>
+    <div class="notfound__links">
+      <a href={url('en')}>English</a>
+      <a href={url('de')}>Deutsch</a>
+      <a href={url('ar')}>العربية</a>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .notfound {
+    min-block-size: 60svh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 1rem;
+    padding-block: 4rem;
+  }
+  .notfound__sub {
+    color: var(--ink-2);
+    max-inline-size: 40ch;
+  }
+  .notfound__links {
+    display: flex;
+    gap: 1rem;
+    margin-block-start: 1rem;
+  }
+  .notfound__links a {
+    border: 1px solid var(--line);
+    padding: 0.5rem 1rem;
+    border-radius: 999px;
+    color: var(--ink);
+    transition: border-color var(--dur-fast) var(--ease);
+  }
+  .notfound__links a:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+</style>

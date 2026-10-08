@@ -1,0 +1,37 @@
+slug: aws-saa
+kind: cert
+worlds: [cloud]
+era: s4
+start: 2026-06
+end: present
+weight: { mobile: 0, cloud: 3, all: 2 }
+featured: true
+confidential: false
+code: C01
+title:
+  en: "AWS Certified Solutions Architect – Associate"
+  de: "AWS Certified Solutions Architect – Associate"
+  ar: "AWS Certified Solutions Architect – Associate"
+impact:
+  line:
+    en: "The first milestone of the move into cloud"
+    de: "Der erste Meilenstein des Wechsels in die Cloud"
+    ar: "أول محطة في الانتقال إلى السحابة"
+problem:
+  en: "After years building mobile and platform products, I wanted to own the infrastructure underneath the apps, not just consume it."
+  de: "Nach Jahren im Bau von Mobile- und Plattformprodukten wollte ich die Infrastruktur unter den Apps selbst verantworten, nicht nur nutzen."
+  ar: "بعد سنوات من بناء منتجات الموبايل والمنصات، أردت امتلاك البنية التحتية تحت التطبيقات، لا مجرد استهلاكها."
+built:
+  en: "Studied and passed the AWS Solutions Architect – Associate exam: designing resilient, cost-aware, well-architected systems on AWS."
+  de: "Die Prüfung AWS Solutions Architect – Associate vorbereitet und bestanden: belastbare, kostenbewusste, well-architected Systeme auf AWS entwerfen."
+  ar: "درست واجتزت اختبار AWS Solutions Architect – Associate: تصميم أنظمة مرنة وواعية بالتكلفة ومُحكمة البناء على AWS."
+result:
+  en: "Certified June 2026, and a deliberate shift toward platform and reliability engineering."
+  de: "Zertifiziert im Juni 2026 – ein bewusster Schritt Richtung Platform- und Reliability-Engineering."
+  ar: "معتمد في يونيو 2026، وتحوّل مقصود نحو هندسة المنصات والموثوقية."
+stack: [AWS, "Well-Architected", "Solutions Architecture"]
+links:
+  live: "https://www.credly.com/users/mohamed-essa"
+connects: []
+assets: auto
+review: { de: true, ar: true }

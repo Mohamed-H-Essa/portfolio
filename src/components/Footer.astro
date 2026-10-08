@@ -1,0 +1,80 @@
+---
+import { t, url, type Locale } from '../i18n';
+interface Props {
+  locale: Locale;
+  buildSha: string;
+  buildDate: string;
+}
+const { locale, buildSha, buildDate } = Astro.props;
+---
+
+<footer class="site-footer">
+  <div class="shell site-footer__inner">
+    <div class="site-footer__contact">
+      <a href="mailto:me@mecodes.live">me@mecodes.live</a>
+      <a href="https://www.linkedin.com/in/mohamed-hosny-essa" target="_blank" rel="noopener">LinkedIn</a>
+      <button class="copy-email" data-email="me@mecodes.live" data-copied={t(locale, 'nav.copied')}>{t(locale, 'nav.copyEmail')}</button>
+    </div>
+    <div class="site-footer__meta label">
+      <a href={url(locale, 'colophon')}>{t(locale, 'colophon.title')}</a>
+      <span>{t(locale, 'footer.build')} {buildSha} · {buildDate}</span>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    margin-block-start: 4rem;
+    border-block-start: 1px solid var(--line-2);
+    padding-block: 2rem;
+  }
+  .site-footer__inner {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem 2rem;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .site-footer__contact {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1.25rem;
+  }
+  .site-footer__contact a,
+  .copy-email {
+    color: var(--ink-2);
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    transition: color var(--dur-fast) var(--ease);
+  }
+  .site-footer__contact a:hover,
+  .copy-email:hover {
+    color: var(--accent);
+  }
+  .site-footer__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: center;
+  }
+  .site-footer__meta a:hover {
+    color: var(--ink);
+  }
+</style>
+
+<script>
+  document.querySelector<HTMLButtonElement>('.copy-email')?.addEventListener('click', async (e) => {
+    const btn = e.currentTarget as HTMLButtonElement;
+    const email = btn.dataset.email;
+    if (!email) return;
+    try {
+      await navigator.clipboard.writeText(email);
+      const prev = btn.textContent;
+      btn.textContent = btn.getAttribute('data-copied') ?? 'Copied';
+      setTimeout(() => (btn.textContent = prev), 1500);
+    } catch {
+      /* clipboard blocked — no-op */
+    }
+  });
+</script>

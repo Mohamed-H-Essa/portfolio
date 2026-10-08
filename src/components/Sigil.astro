@@ -1,0 +1,58 @@
+---
+// The "ME" monogram inside a triquetra fragment — the site mark.
+// Pure inline SVG so it inherits currentColor and animates cheaply.
+interface Props {
+  size?: number;
+  title?: string;
+  spin?: boolean;
+}
+const { size = 28, title = 'Mohamed Essa', spin = false } = Astro.props;
+---
+
+<svg
+  class={`sigil${spin ? ' sigil--spin' : ''}`}
+  width={size}
+  height={size}
+  viewBox="0 0 48 48"
+  role="img"
+  aria-label={title}
+  fill="none"
+>
+  <g class="sigil__ring" stroke="currentColor" stroke-width="1.5" opacity="0.55">
+    <circle cx="24" cy="18" r="9" />
+    <circle cx="16.2" cy="30" r="9" />
+    <circle cx="31.8" cy="30" r="9" />
+  </g>
+  <text
+    x="24"
+    y="27.5"
+    text-anchor="middle"
+    font-family="var(--font-mono)"
+    font-size="12"
+    font-weight="500"
+    fill="currentColor"
+    letter-spacing="0.5">ME</text>
+</svg>
+
+<style>
+  .sigil {
+    color: var(--accent);
+    display: block;
+  }
+  .sigil__ring {
+    transform-origin: 24px 24px;
+  }
+  .sigil--spin .sigil__ring {
+    animation: sigil-rot 18s linear infinite;
+  }
+  @keyframes sigil-rot {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .sigil--spin .sigil__ring {
+      animation: none;
+    }
+  }
+</style>

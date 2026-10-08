@@ -1,0 +1,17 @@
+/* Self-hosted fonts via @fontsource. Only the weights/subsets we use,
+   font-display: swap is baked into these packages. */
+
+/* Display: Space Grotesk (Latin) */
+@import '@fontsource/space-grotesk/latin-400.css';
+@import '@fontsource/space-grotesk/latin-500.css';
+@import '@fontsource/space-grotesk/latin-600.css';
+@import '@fontsource/space-grotesk/latin-700.css';
+
+/* Labels/meta: JetBrains Mono (Latin) */
+@import '@fontsource/jetbrains-mono/latin-400.css';
+@import '@fontsource/jetbrains-mono/latin-500.css';
+
+/* Arabic: Tajawal (Arabic subset) */
+@import '@fontsource/tajawal/arabic-400.css';
+@import '@fontsource/tajawal/arabic-500.css';
+@import '@fontsource/tajawal/arabic-700.css';

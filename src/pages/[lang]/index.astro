@@ -1,0 +1,97 @@
+---
+// World chooser. Phase 1: a working, accessible, no-JS version.
+// Phase 4 adds the hover-widen columns, glow and masked-type reveal.
+import Base from '../../layouts/Base.astro';
+import { LOCALES, TRACKS, isLocale, t, url, type Locale } from '../../i18n';
+
+export function getStaticPaths() {
+  return LOCALES.map((lang) => ({ params: { lang } }));
+}
+
+const { lang } = Astro.params;
+if (!lang || !isLocale(lang)) throw new Error(`bad lang param: ${lang}`);
+const locale: Locale = lang;
+---
+
+<Base locale={locale} track="all" pathParts={[]}>
+  <section class="shell chooser">
+    <p class="label chooser__eyebrow">{t(locale, 'world.chooser.eyebrow')}</p>
+    <h1 class="chooser__title">{t(locale, 'world.chooser.title')}</h1>
+    <p class="chooser__sub">{t(locale, 'world.chooser.sub')}</p>
+
+    <ul class="worlds">
+      {
+        TRACKS.map((tr) => (
+          <li class="world" data-track={tr}>
+            <a href={url(locale, tr)}>
+              <span class="world__name">{t(locale, `world.${tr}.name`)}</span>
+              <span class="world__desc">{t(locale, `world.${tr}.desc`)}</span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+</Base>
+
+<style>
+  .chooser {
+    padding-block: clamp(3rem, 8vh, 7rem) 3rem;
+  }
+  .chooser__eyebrow {
+    color: var(--ink-2);
+  }
+  .chooser__title {
+    margin-block: 0.5rem 0.75rem;
+    max-inline-size: 18ch;
+  }
+  .chooser__sub {
+    color: var(--ink-2);
+    max-inline-size: 48ch;
+    margin-block-end: 2.5rem;
+  }
+  .worlds {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: 1fr;
+  }
+  .world a {
+    display: block;
+    padding: 1.5rem;
+    min-block-size: 96px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    background: var(--bg-2);
+    transition: border-color var(--dur) var(--ease), transform var(--dur) var(--ease);
+  }
+  .world[data-track='mobile'] { --w: var(--mobile); }
+  .world[data-track='cloud'] { --w: var(--cloud); }
+  .world[data-track='all'] { --w: var(--origin); }
+  .world a:hover,
+  .world a:focus-visible {
+    border-color: var(--w);
+    transform: translateY(-2px);
+  }
+  .world__name {
+    display: block;
+    font-family: var(--font-display);
+    font-size: var(--fs-h3);
+    color: var(--w);
+  }
+  .world__desc {
+    display: block;
+    color: var(--ink-2);
+    margin-block-start: 0.4rem;
+  }
+
+  @media (min-width: 880px) {
+    .worlds {
+      grid-template-columns: repeat(3, 1fr);
+    }
+    .world a {
+      min-block-size: 220px;
+    }
+  }
+</style>

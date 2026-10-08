@@ -1,0 +1,36 @@
+slug: aratc
+kind: project
+worlds: [mobile]
+era: s3
+start: 2024-06
+end: present
+weight: { mobile: 3, cloud: 0, all: 2 }
+featured: false
+confidential: false
+code: M02
+role: { en: "Flutter developer", de: "Flutter-Entwickler", ar: "مطوّر Flutter" }
+title: { en: "ARATC", de: "ARATC", ar: "ARATC" }
+impact:
+  line:
+    en: "Training & course platform on iOS and Android"
+    de: "Schulungs- und Kursplattform für iOS und Android"
+    ar: "منصة تدريب ودورات على iOS وAndroid"
+problem:
+  en: "A training provider needed a cross-platform app where learners browse courses, see what each includes, and manage their enrolment on the go."
+  de: "Ein Schulungsanbieter brauchte eine plattformübergreifende App, in der Lernende Kurse durchsuchen, deren Inhalte sehen und ihre Anmeldung unterwegs verwalten."
+  ar: "احتاجت جهة تدريب إلى تطبيق متعدد المنصات يتصفح فيه المتعلمون الدورات، ويرون محتوى كل دورة، ويديرون تسجيلهم أثناء التنقل."
+built:
+  en: "A Flutter app covering course catalogue, course detail with chapters and duration, and enrolment — released to both the App Store and Google Play."
+  de: "Eine Flutter-App mit Kurskatalog, Kursdetails samt Kapiteln und Dauer sowie Anmeldung – veröffentlicht im App Store und bei Google Play."
+  ar: "تطبيق Flutter يغطي كتالوج الدورات، وتفاصيل الدورة مع الفصول والمدة، والتسجيل — منشور على App Store وGoogle Play."
+result:
+  en: "Live on both stores as part of IntraZero's app portfolio."
+  de: "In beiden Stores live, als Teil des App-Portfolios von IntraZero."
+  ar: "منشور على المتجرين ضمن محفظة تطبيقات IntraZero."
+stack: [Flutter, Dart, Bloc]
+links:
+  playStore: "https://play.google.com/store/apps/details?id=com.intrazero.aratcapp"
+  appStore: "https://apps.apple.com/us/app/aratc/id1640463270"
+connects: [release-pipeline]
+assets: auto
+review: { de: true, ar: true }

@@ -1,0 +1,73 @@
+/* Design tokens — the single source of truth for colour, type and motion.
+   Dark (Netflix) mood: near-black ground, one accent per world.
+   The site is ALWAYS dark; there is no light theme. */
+
+:root {
+  /* Ground */
+  --bg: #080808;
+  --bg-2: #111214;
+  --bg-3: #191a1d;
+  --ink: #ededed;
+  --ink-2: #9a9a9a;
+  --ink-3: #6b6b6b;
+  --line: rgba(255, 255, 255, 0.12);
+  --line-2: rgba(255, 255, 255, 0.06);
+  --overlay: rgba(0, 0, 0, 0.5);
+
+  /* World accents */
+  --mobile: #e8b23a;  /* Jonas's raincoat amber */
+  --cloud: #5db8d6;   /* cold cyan */
+  --origin: #ede6d6;  /* pale white-gold (the knot) */
+  /* The live accent; Base.astro sets it per track on <body data-track>. */
+  --accent: var(--origin);
+  --accent-ink: #080808; /* text that sits ON an accent fill */
+
+  /* Motion — Dark's own easings (verified from its CSS) */
+  --ease: cubic-bezier(0.455, 0.03, 0.515, 0.955);        /* default, 38 uses on Dark */
+  --ease-strong: cubic-bezier(0.785, 0.135, 0.15, 0.86);  /* emphatic camera moves */
+  --ease-out: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --dur-fast: 180ms;
+  --dur: 320ms;
+  --dur-slow: 450ms;
+
+  /* Type */
+  --font-display: 'Space Grotesk', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  --font-ar: 'Tajawal', system-ui, sans-serif;
+  --font-body: var(--font-display);
+
+  /* Fluid type scale */
+  --fs-label: clamp(0.69rem, 0.66rem + 0.15vw, 0.81rem);
+  --fs-body: clamp(0.95rem, 0.9rem + 0.25vw, 1.05rem);
+  --fs-lead: clamp(1.1rem, 1rem + 0.6vw, 1.4rem);
+  --fs-h3: clamp(1.25rem, 1.1rem + 0.8vw, 1.75rem);
+  --fs-h2: clamp(1.6rem, 1.3rem + 1.6vw, 2.75rem);
+  --fs-h1: clamp(2.2rem, 1.6rem + 3.4vw, 5rem);
+
+  /* Spacing + layout */
+  --gutter: clamp(1rem, 0.6rem + 2vw, 2.5rem);
+  --maxw: 72rem;
+  --radius: 10px;
+  --radius-lg: 18px;
+
+  color-scheme: dark;
+}
+
+/* Arabic: switch the whole display face to Tajawal. */
+:root[dir='rtl'] {
+  --font-display: 'Tajawal', system-ui, sans-serif;
+  --font-body: 'Tajawal', system-ui, sans-serif;
+}
+
+/* A spaced, uppercase mono label — the Dark "label-xs…l" look. */
+.label {
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+:root[dir='rtl'] .label {
+  letter-spacing: 0; /* Arabic must not be letter-spaced */
+  text-transform: none;
+}

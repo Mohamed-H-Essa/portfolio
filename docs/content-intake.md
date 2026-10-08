@@ -41,6 +41,26 @@ Possible extra repos in `~/work` (**ask the owner which are real, finished and p
 `bioot`, `sis`, `me_boutique`, `iassets`, `mo_api`, `netflix_multi_subtitles`. The Cloud world is thin, so cloud repos are valuable.
 `~/work/latex_cv` and `~/work/mecodes_live` (current site) may hold extra facts. Skim, don't deep-read.
 
+## Owner answers (2026-10-08) — authoritative, overrides guesses above
+- **Show all screenshots**, including UNICEF / government apps. So `confidential` can be `false` across the board (still describe only what's genuinely public-facing; no secrets).
+- **Hero/CV photo:** `assets-src/_photo/mohamed.png` (800×800; the file came misnamed as "DARK … NETFLIX.png").
+- **qanony** source screenshots: use `~/work/qanony_flutter/store_screenshots/`. It is public on both stores.
+- GitLab group for all IntraZero code: `https://gitlab.com/intrazero/mobileapp` (individual: `.../mobileapp/<repo>`). Clone from there if a repo isn't already in `~/work/`. Many `~/work/*` dirs correspond to these.
+
+### Confirmed projects with real store links + screenshot folders
+| Slug | Store links | Raw screenshots | Notes |
+|---|---|---|---|
+| qanony | Play `com.qanony.qanony` · App Store `id6761679733` | `~/work/qanony_flutter/store_screenshots/` + polished `store_output/` | legal services, EN/AR |
+| aratc | Play `com.intrazero.aratcapp` · App Store `id1640463270` | `~/Documents/aratc screenshots` | has test data + LOCAL ribbon → mask |
+| heaven-flowers | Play `com.intrazero.flowers` · App Store `id6743226370` | `~/Downloads/heaven_flower_screenshots` | GitLab `flowers` |
+| bioot | Play `com.bioot.client` · App Store `id6787982763` (users) + `id6787982982` (partners) | — (stores) | **two** real-estate apps (agents/developers + users), has calls; GitLab `BIOOT Kotlin` (Kotlin, not Flutter) |
+| ehc-board | Play `com.intrazero.ehcboard` | `~/Downloads/the_egyptian_board_screenshots` (unprocessed) | Egyptian Board for Medical Professions — govt health app, log/report cases; GitLab `SIS-MoHP`? confirm |
+| yafleet | Play `com.intrazero.majdiyafleet` | — (no code) | fleet app |
+| unicef-case-management | — | ask owner for captures | GitLab `unicef cma`; OK to show |
+
+Other GitLab repos (may map to `~/work` or need cloning; ask before documenting as finished/public): `i_tutor`, `gharemeen`, `waste-management` (medwaste?), `Al Diplomacy`, `homevalley-crm`, `jahzeen-ios/android`, `motary`, `Iassets mobile`, `ITicket IOS`, `HIS`, `intrazeroemployee`, `flutter-packages`.
+Move the Downloads screenshot folders into `assets-src/<slug>/raw/` when processing each project.
+
 ## Owner profile (facts for hero, about and CV)
 Senior Mobile Engineer (Mobile & Platform), IntraZero, May 2024 – now, Cairo (hybrid). Freelance Software Engineer
 (Node.js / Flutter) Jan 2022 – Dec 2024. Head of Flutter Committee, IEEE, Aug–Dec 2020. B.Sc. Computer Engineering,

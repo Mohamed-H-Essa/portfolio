@@ -1,0 +1,37 @@
+slug: release-pipeline
+kind: project
+worlds: [origin]
+era: s3
+start: 2024-07
+end: present
+weight: { mobile: 2, cloud: 2, all: 3 }
+featured: false
+confidential: false
+code: O01
+role: { en: "Release engineer", de: "Release-Engineer", ar: "مهندس إصدارات" }
+title:
+  en: "Mobile release pipeline"
+  de: "Mobile Release-Pipeline"
+  ar: "خط إصدار التطبيقات"
+impact:
+  line:
+    en: "Cut release cycles from multi-day to same-day"
+    de: "Release-Zyklen von mehreren Tagen auf denselben Tag verkürzt"
+    ar: "تقليص دورات الإصدار من عدة أيام إلى اليوم نفسه"
+problem:
+  en: "Shipping updates across several apps meant slow, manual builds, signing and store submissions that took days and were easy to get wrong."
+  de: "Updates über mehrere Apps hinweg bedeuteten langsame, manuelle Builds, Signierung und Store-Einreichungen, die Tage dauerten und fehleranfällig waren."
+  ar: "كان إصدار التحديثات عبر عدة تطبيقات يعني بناءً وتوقيعاً وتقديماً يدوياً بطيئاً يستغرق أياماً وعُرضة للأخطاء."
+built:
+  en: "GitHub Actions pipelines that build, sign and submit iOS and Android apps automatically, with code signing handled in CI and store uploads to TestFlight and Google Play."
+  de: "GitHub-Actions-Pipelines, die iOS- und Android-Apps automatisch bauen, signieren und einreichen – Code-Signierung in der CI, Store-Uploads zu TestFlight und Google Play."
+  ar: "خطوط GitHub Actions تبني وتوقّع وتقدّم تطبيقات iOS وAndroid تلقائياً، مع توقيع الكود داخل الـCI ورفع إلى TestFlight وGoogle Play."
+result:
+  en: "Releases that took multiple days became same-day across the app portfolio."
+  de: "Releases, die mehrere Tage dauerten, wurden portfolioweit zu Same-Day-Releases."
+  ar: "أصبحت الإصدارات التي كانت تستغرق أياماً تتم في اليوم نفسه عبر محفظة التطبيقات."
+stack: [GitHub Actions, Fastlane, Code signing, TestFlight, Google Play]
+links: {}
+connects: [qanony, aratc, mobile-security-hardening]
+assets: auto
+review: { de: true, ar: true }
