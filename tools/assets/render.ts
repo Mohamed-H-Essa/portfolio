@@ -125,6 +125,7 @@ async function renderScreenshotProject(browser: Browser, slug: string, spec: Sho
     i++;
   }
 
+  writeMeta(outDir, accent);
   console.log(`  ✓ ${slug} (screenshots) accent=${accent} galleries=${i - 1}`);
 }
 
@@ -145,7 +146,13 @@ async function renderCloudProject(browser: Browser, slug: string, spec: DiagramY
   await sharp(buf).extract({ left: 650, top: 40, width: 920, height: 820 }).resize(1080, 1350, { fit: 'cover' }).webp({ quality: 80 }).toFile(join(outDir, 'cover-portrait.webp'));
   // thumb = the terminal window, which reads as "code" at small sizes
   await sharp(buf).extract({ left: 690, top: 100, width: 520, height: 470 }).resize(480, 600, { fit: 'cover' }).webp({ quality: 80 }).toFile(join(outDir, 'thumb.webp'));
+  writeMeta(outDir, accent);
   console.log(`  ✓ ${slug} (cloud diagram) accent=${accent}`);
+}
+
+/** The project's accent, for the site's per-project colour theme (src/lib/assets.ts). */
+function writeMeta(outDir: string, accent: string) {
+  writeFileSync(join(outDir, 'meta.json'), JSON.stringify({ accent }, null, 2) + '\n');
 }
 
 async function main() {

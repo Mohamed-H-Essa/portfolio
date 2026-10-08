@@ -10,7 +10,7 @@ import NodeLink from '../../../../components/NodeLink.astro';
 import { LOCALES, TRACKS, loc, t, type Locale, type Track } from '../../../../i18n';
 import { loadProjects, type Project } from '../../../../lib/content';
 import { worldSequence, prevNext } from '../../../../lib/dossier';
-import { ogPath, galleryCount } from '../../../../lib/assets';
+import { ogPath, galleryCount, projectAccent } from '../../../../lib/assets';
 import '../../../../styles/engine.css';
 
 export async function getStaticPaths() {
@@ -43,6 +43,8 @@ const blocks = (['problem', 'built', 'result'] as const)
   .map((k) => ({ k, text: d[k] ? loc(d[k], lang, `${slug}.${k}`) : '' }))
   .filter((b) => b.text);
 const shots = galleryCount(slug);
+// the project's own colour: a subtle ambient theme (falls back to its world colour)
+const accent = projectAccent(slug) ?? `var(--${d.worlds[0]})`;
 
 // the engine's frames, in order (each becomes one full-screen view)
 const frames = [
@@ -73,7 +75,8 @@ const frames = [
     } catch (e) {}
   </script>
 
-  <article class="dossier" data-layer={d.worlds[0]} data-engine data-slug={slug}>
+  <article class="dossier" data-layer={d.worlds[0]} data-engine data-slug={slug} style={`--p:${accent}`}>
+    <div class="ambient" aria-hidden="true"></div>
     <div class="frame frame--hero" data-frame id="f-overview">
       <DossierHero project={project} locale={lang} track={track} />
     </div>
@@ -172,6 +175,18 @@ const frames = [
 
 <style>
   .dossier { --c: var(--origin); padding-block-end: 4rem; }
+  /* the project's colour as light in the room, never as paint on the content */
+  .ambient {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background:
+      radial-gradient(55% 60% at var(--ax, 82%) var(--ay, 18%), color-mix(in srgb, var(--p) 16%, transparent), transparent 70%),
+      radial-gradient(40% 45% at calc(100% - var(--ax, 82%)) 100%, color-mix(in srgb, var(--p) 7%, transparent), transparent 70%);
+    transition: --ax 1.4s var(--ease-strong), --ay 1.4s var(--ease-strong);
+  }
+  .dossier ::selection { background: color-mix(in srgb, var(--p) 55%, #000); color: #fff; }
   .dossier[data-layer='mobile'] { --c: var(--mobile); }
   .dossier[data-layer='cloud'] { --c: var(--cloud); }
   .dossier section > h2 { margin-block-end: 1.1rem; }

@@ -97,7 +97,7 @@ export function coverTemplate(
         s,
         'back',
         `width:300px;height:650px;top:${90 + i * 40}px;${rtl ? 'left' : 'right'}:${430 + i * 230}px;` +
-          `filter:blur(2px) brightness(.68);transform:rotate(${rtl ? -1 : 1}deg) rotateY(${rtl ? 14 : -14}deg);z-index:${1 - i};`
+          `filter:blur(.6px) brightness(.62) saturate(.9);transform:rotate(${rtl ? -1 : 1}deg) rotateY(${rtl ? 14 : -14}deg);z-index:${1 - i};`
       )
     )
     .join('');

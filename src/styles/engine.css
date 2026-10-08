@@ -4,6 +4,10 @@
    depth transition. A frame taller than the screen scrolls inside itself
    first. The HUD (rail, counter, next cue) floats over everything. */
 
+/* animatable ambient-light position (the dossier's .ambient drifts per frame) */
+@property --ax { syntax: '<percentage>'; inherits: true; initial-value: 82%; }
+@property --ay { syntax: '<percentage>'; inherits: true; initial-value: 18%; }
+
 html.is-engine,
 html.is-engine body { block-size: 100%; overflow: hidden; overscroll-behavior: none; }
 
@@ -121,6 +125,10 @@ html.is-engine .hud { display: block; }
   transition: inline-size var(--dur) var(--ease-strong), background var(--dur) var(--ease);
 }
 .hud__label {
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: rgba(8, 8, 8, 0.62);
+  backdrop-filter: blur(6px);
   font-family: var(--font-mono);
   font-size: 0.7rem;
   letter-spacing: 0.14em;

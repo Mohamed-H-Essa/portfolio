@@ -8,6 +8,7 @@ const LOCK_MS = 950; // one transition; input is ignored meanwhile
 const QUIET_MS = 200; // a trackpad flick's inertia must stop before the next move
 const WHEEL_STEP = 40; // accumulated delta that counts as "go"
 const SWIPE = 56; // px
+const LIGHT: [number, number][] = [[82, 18], [18, 30], [70, 80], [30, 70], [85, 55]];
 
 export function initEngine(root: HTMLElement) {
   const html = document.documentElement;
@@ -51,6 +52,10 @@ export function initEngine(root: HTMLElement) {
       else t.removeAttribute('aria-current');
     });
     count.textContent = String(idx + 1).padStart(2, '0');
+    // the ambient light drifts to a new spot per frame, like a camera moving
+    const spot = LIGHT[idx % LIGHT.length];
+    root.style.setProperty('--ax', `${spot[0]}%`);
+    root.style.setProperty('--ay', `${spot[1]}%`);
     const last = idx === frames.length - 1;
     next.hidden = last;
     if (!last) nextLabel.textContent = `${json.next}: ${json.labels[idx + 1]}`;

@@ -1,4 +1,4 @@
-import { existsSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { url } from '../i18n';
 
@@ -59,4 +59,15 @@ export function galleryCount(slug: string): number {
 /** Base-relative path of the project's captioned link-preview image, if generated. */
 export function ogPath(slug: string): string | undefined {
   return existsSync(join(PUB, slug, 'og.png')) ? `projects/${slug}/og.png` : undefined;
+}
+
+/** The project's own accent (sampled from its hero screen by `npm run assets`),
+ *  for its page's subtle colour theme; undefined when there's no generated art. */
+export function projectAccent(slug: string): string | undefined {
+  try {
+    const m = JSON.parse(readFileSync(join(PUB, slug, 'meta.json'), 'utf8')) as { accent?: string };
+    return /^#[0-9a-f]{3,8}$/i.test(m.accent ?? '') ? m.accent : undefined;
+  } catch {
+    return undefined;
+  }
 }
