@@ -17,19 +17,19 @@ impact:
   line:
     en: "The first milestone of the move into cloud"
     de: "Der erste Meilenstein des Wechsels in die Cloud"
-    ar: "أول محطة في الانتقال إلى السحابة"
+    ar: "المحطة الأولى في الانتقال إلى الحوسبة السحابية"
 problem:
   en: "After years building mobile and platform products, I wanted to own the infrastructure underneath the apps, not just consume it."
-  de: "Nach Jahren im Bau von Mobile- und Plattformprodukten wollte ich die Infrastruktur unter den Apps selbst verantworten, nicht nur nutzen."
-  ar: "بعد سنوات من بناء منتجات الموبايل والمنصات، أردت امتلاك البنية التحتية تحت التطبيقات، لا مجرد استهلاكها."
+  de: "Nach Jahren in der Entwicklung von Mobile- und Plattformprodukten wollte ich die Infrastruktur hinter den Apps selbst verantworten, statt sie nur zu nutzen."
+  ar: "بعد سنوات من بناء تطبيقات الجوّال والمنصّات، أردت أن أتولّى مسؤولية البنية التحتية التي تقوم عليها التطبيقات، لا أن أكتفي باستخدامها."
 built:
   en: "Studied and passed the AWS Solutions Architect – Associate exam: designing resilient, cost-aware, well-architected systems on AWS."
-  de: "Die Prüfung AWS Solutions Architect – Associate vorbereitet und bestanden: belastbare, kostenbewusste, well-architected Systeme auf AWS entwerfen."
-  ar: "درست واجتزت اختبار AWS Solutions Architect – Associate: تصميم أنظمة مرنة وواعية بالتكلفة ومُحكمة البناء على AWS."
+  de: "Die Prüfung AWS Certified Solutions Architect – Associate vorbereitet und bestanden: belastbare, kostenbewusste Systeme auf AWS nach dem Well-Architected Framework entwerfen."
+  ar: "استعددت لاختبار AWS Certified Solutions Architect – Associate واجتزته: تصميم أنظمة مرنة ومراعية للتكلفة على AWS وفق إطار Well-Architected."
 result:
   en: "Certified June 2026, and a deliberate shift toward platform and reliability engineering."
-  de: "Zertifiziert im Juni 2026 – ein bewusster Schritt Richtung Platform- und Reliability-Engineering."
-  ar: "معتمد في يونيو 2026، وتحوّل مقصود نحو هندسة المنصات والموثوقية."
+  de: "Zertifiziert im Juni 2026 – ein bewusster Schritt in Richtung Platform Engineering und Reliability Engineering."
+  ar: "حصلت على الشهادة في يونيو 2026، في خطوة مقصودة نحو هندسة المنصّات وهندسة الموثوقية (SRE)."
 stack: [AWS, SAA-C03, "Well-Architected", "Solutions Architecture"]
 links:
   # Verified Credly badge (issued 2026-06-20, expires 2029-06-20)

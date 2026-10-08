@@ -25,9 +25,9 @@ built:
   de: "Eine Flutter-App mit Kurskatalog, Kursdetails samt Kapiteln und Dauer sowie Anmeldung – veröffentlicht im App Store und bei Google Play."
   ar: "تطبيق Flutter يغطي كتالوج الدورات، وتفاصيل الدورة مع الفصول والمدة، والتسجيل — منشور على App Store وGoogle Play."
 result:
-  en: "Live on both stores as part of IntraZero's app portfolio."
-  de: "In beiden Stores live, als Teil des App-Portfolios von IntraZero."
-  ar: "منشور على المتجرين ضمن محفظة تطبيقات IntraZero."
+  en: "Live on both stores as part of Intrazero's app portfolio."
+  de: "In beiden Stores live, als Teil des App-Portfolios von Intrazero."
+  ar: "منشور على المتجرين ضمن محفظة تطبيقات Intrazero."
 stack: [Flutter, Dart, Bloc]
 links:
   playStore: "https://play.google.com/store/apps/details?id=com.intrazero.aratcapp"

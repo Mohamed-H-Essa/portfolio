@@ -11,7 +11,7 @@ code: C02
 role:
   en: "Full-stack & cloud (app, backend, firmware)"
   de: "Full-Stack & Cloud (App, Backend, Firmware)"
-  ar: "مطوّر متكامل وسحابة (تطبيق، خلفية، عتاد)"
+  ar: "Full-stack وسحابة (التطبيق والـBackend والبرمجيات المدمجة)"
 short: { en: "HOPE glove", de: "HOPE-Handschuh", ar: "قفاز HOPE" }   # ≤14 chars, used on the map
 title:
   en: "HOPE — hand-rehab glove"
@@ -20,8 +20,8 @@ title:
 impact:
   line:
     en: "A sensor glove, an app, and a serverless AWS backend — end to end"
-    de: "Ein Sensor-Handschuh, eine App und ein serverloses AWS-Backend — komplett"
-    ar: "قفاز حسّي وتطبيق وخلفية AWS بلا خوادم — من البداية للنهاية"
+    de: "Ein Sensor-Handschuh, eine App und ein Serverless-Backend auf AWS – durchgängig umgesetzt"
+    ar: "قفاز بحسّاسات وتطبيق وBackend بلا خوادم (Serverless) على AWS — من البداية إلى النهاية"
 problem:
   en: "A hand-rehabilitation idea needed the whole stack built at once: a wearable that measures finger motion, a patient/practitioner app, and a backend to score sessions and store recordings."
   de: "Eine Hand-Reha-Idee brauchte den ganzen Stack auf einmal: ein Wearable, das Fingerbewegung misst, eine Patienten-/Behandler-App und ein Backend, das Sitzungen bewertet und Aufnahmen speichert."
@@ -29,11 +29,11 @@ problem:
 built:
   en: "An ESP32 glove (flex sensors + MPU6050) streaming over HTTPS to API Gateway; Python Lambdas that batch sensor data and score assessment and exercise; DynamoDB for sessions and S3 for video; and a Flutter patient/practitioner app. One scripted deploy stands up every resource in eu-west-3."
   de: "Ein ESP32-Handschuh (Flex-Sensoren + MPU6050), der per HTTPS an API Gateway sendet; Python-Lambdas, die Sensordaten bündeln und Assessment sowie Übung bewerten; DynamoDB für Sitzungen, S3 für Videos; dazu eine Flutter-App für Patient und Behandler. Ein Skript-Deploy erstellt alle Ressourcen in eu-west-3."
-  ar: "قفاز ESP32 (حسّاسات انثناء + MPU6050) يبثّ عبر HTTPS إلى API Gateway؛ ودوال Lambda بايثون تجمّع بيانات الحسّاسات وتقيّم التقييم والتمرين؛ وDynamoDB للجلسات وS3 للفيديو؛ وتطبيق Flutter للمريض والمعالج. سكربت نشر واحد يُنشئ كل الموارد في eu-west-3."
+  ar: "قفاز ESP32 (حسّاسات انثناء + MPU6050) يبثّ عبر HTTPS إلى API Gateway؛ ودوال Lambda بلغة Python تجمع بيانات الحسّاسات على دفعات وتحتسب درجات التقييم والتمارين؛ وDynamoDB للجلسات وS3 للفيديو؛ وتطبيق Flutter للمريض والمعالج. سكربت نشر واحد يُنشئ كل الموارد في eu-west-3."
 result:
   en: "A working end-to-end demo: glove to cloud to app, with scoring, recorded exercises, and a practitioner view — plus clean teardown scripts for a cost-aware single-region footprint."
-  de: "Eine funktionierende End-to-End-Demo: vom Handschuh über die Cloud zur App, mit Bewertung, aufgezeichneten Übungen und Behandler-Ansicht — samt sauberen Teardown-Skripten für einen kostenbewussten Single-Region-Footprint."
-  ar: "عرض متكامل يعمل: من القفاز إلى السحابة إلى التطبيق، مع التقييم وتسجيل التمارين وواجهة للمعالج — إضافة إلى سكربتات هدم نظيفة لبصمة اقتصادية بمنطقة واحدة."
+  de: "Eine funktionierende End-to-End-Demo: vom Handschuh über die Cloud zur App, mit Bewertung, aufgezeichneten Übungen und Behandler-Ansicht — samt sauberen Teardown-Skripten für einen kostenbewussten Betrieb in einer einzigen AWS-Region."
+  ar: "عرض متكامل يعمل: من القفاز إلى السحابة إلى التطبيق، مع التقييم وتسجيل التمارين وواجهة للمعالج — إضافة إلى سكربتات إزالة نظيفة تُبقي التكلفة منخفضة في منطقة AWS واحدة."
 stack: [AWS Lambda, API Gateway, DynamoDB, S3, Python, ESP32, Flutter]
 links: {}
 connects: [aws-saa, release-pipeline]
