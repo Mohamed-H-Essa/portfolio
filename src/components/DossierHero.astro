@@ -1,0 +1,166 @@
+---
+// Dossier hero (spec D4 §1–2 + hero visual): code · layer · years, title, role,
+// platform links and the one-line impact over the generated cover. Covers have
+// no baked text and keep the devices on the inline-end side (cover-rtl for
+// Arabic), so the copy always sits on clear ground. No art → a large Badge.
+import Badge from './Badge.astro';
+import { loc, t, url, type Locale, type Track } from '../i18n';
+import { hasAssets, assetUrl } from '../lib/assets';
+import { yearSpan } from '../lib/dossier';
+import type { Project } from '../lib/content';
+
+interface Props { project: Project; locale: Locale; track: Track }
+const { project, locale, track } = Astro.props;
+const d = project.data;
+const rtl = locale === 'ar';
+const layer = d.worlds[0];
+const art = hasAssets(d.slug);
+const metric = d.impact?.metric?.value ? d.impact.metric : undefined;
+const links = [
+  d.links?.appStore && { href: d.links.appStore, label: t(locale, 'dossier.appStore') },
+  d.links?.playStore && { href: d.links.playStore, label: t(locale, 'dossier.playStore') },
+  d.links?.github && { href: d.links.github, label: t(locale, 'dossier.github') },
+  d.links?.live && { href: d.links.live, label: t(locale, d.kind === 'cert' ? 'dossier.verify' : 'dossier.visit') },
+].filter(Boolean) as { href: string; label: string }[];
+---
+
+<header class:list={['hero', `hero--${layer}`, { 'hero--badge': !art }]}>
+  <div class="hero__art" style={`view-transition-name: art-${d.slug}`}>
+    {
+      art ? (
+        <picture>
+          <source media="(max-width: 760px)" srcset={assetUrl(d.slug, 'cover-portrait')} width="1080" height="1350" />
+          <img src={assetUrl(d.slug, rtl ? 'cover-rtl' : 'cover')} alt="" width="1600" height="900" fetchpriority="high" />
+        </picture>
+      ) : (
+        <Badge slug={d.slug} title={d.short?.en ?? d.title.en} kind={d.kind} />
+      )
+    }
+  </div>
+
+  <div class="hero__copy shell">
+    <a class="hero__back label" href={`${url(locale, track)}?p=${d.slug}`}>
+      <span aria-hidden="true">{rtl ? '→' : '←'}</span>
+      {t(locale, 'dossier.back')}
+    </a>
+    <p class="label hero__meta">
+      <span class="hero__code">{d.code}</span>
+      <span>{d.kind === 'cert' ? t(locale, 'dossier.cert') : t(locale, `map.lane.${layer}`)}</span>
+      <span>{yearSpan(d.start, d.end, t(locale, 'cv.present'))}</span>
+    </p>
+    <h1 class="hero__title">{loc(d.title, locale, d.slug)}</h1>
+    {d.role && <p class="hero__role">{loc(d.role, locale, `${d.slug}.role`)}</p>}
+    {
+      metric && (
+        <p class="hero__metric">
+          <span class="hero__metric-n">{metric.value}</span>
+          {metric.label && <span class="label">{loc(metric.label, locale, `${d.slug}.metric`)}</span>}
+        </p>
+      )
+    }
+    {d.impact?.line && <p class="hero__impact">{loc(d.impact.line, locale, `${d.slug}.impact`)}</p>}
+    {
+      links.length > 0 && (
+        <ul class="hero__links">
+          {links.map((l, i) => (
+            <li>
+              <a class:list={['btn', { 'btn--primary': i === 0 }]} href={l.href} target="_blank" rel="noopener">
+                {l.label} <span aria-hidden="true">↗</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      )
+    }
+  </div>
+</header>
+
+<style>
+  .hero {
+    --c: var(--origin);
+    position: relative;
+    display: grid;
+    align-items: end;
+    min-block-size: min(88svh, 820px);
+    overflow: hidden;
+    isolation: isolate;
+  }
+  .hero--mobile { --c: var(--mobile); }
+  .hero--cloud { --c: var(--cloud); }
+  /* art keeps to the inline-end two thirds so wide (cloud) covers never run under the title */
+  .hero__art { position: absolute; inset-block: 0; inset-inline: 34% 0; z-index: -1; color: var(--c); }
+  .hero__art img { inline-size: 100%; block-size: 100%; object-fit: cover; object-position: right center; }
+  :root[dir='rtl'] .hero__art img { object-position: left center; }
+  /* ground the copy: fade from the copy side and the bottom into the page */
+  .hero__art::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(to right, var(--bg) 0%, color-mix(in srgb, var(--bg) 55%, transparent) 22%, transparent 45%),
+      linear-gradient(to top, var(--bg) 0%, transparent 40%);
+  }
+  :root[dir='rtl'] .hero__art::after {
+    background:
+      linear-gradient(to left, var(--bg) 0%, color-mix(in srgb, var(--bg) 55%, transparent) 22%, transparent 45%),
+      linear-gradient(to top, var(--bg) 0%, transparent 40%);
+  }
+  /* badge heroes: the mark floats on the inline-end side in a world-colour haze */
+  .hero--badge .hero__art {
+    inset-block: 12% 10%;
+    inset-inline: auto 6%;
+    inline-size: min(42vw, 520px);
+    filter: drop-shadow(0 0 60px color-mix(in srgb, var(--c) 25%, transparent));
+  }
+  .hero--badge .hero__art::after { display: none; }
+  .hero--badge .hero__art :global(.badge) {
+    -webkit-mask-image: radial-gradient(closest-side, #000 72%, transparent);
+    mask-image: radial-gradient(closest-side, #000 72%, transparent);
+  }
+  .hero--badge .hero__art :global(.badge) { border-radius: var(--radius-lg); }
+
+  .hero__copy { padding-block: 7rem 3rem; display: grid; gap: 0.9rem; justify-items: start; }
+  .hero__copy > * { max-inline-size: 36rem; }
+  .hero__back { color: var(--ink-2); display: inline-flex; gap: 0.6em; align-items: center; min-block-size: 44px; }
+  .hero__back:hover { color: var(--c); }
+  .hero__meta { display: flex; flex-wrap: wrap; gap: 0.4rem 1.1rem; }
+  .hero__code { color: var(--c); }
+  .hero__title { font-size: var(--fs-h1); line-height: 1.02; letter-spacing: -0.01em; }
+  .hero__role { color: var(--ink-2); font-size: var(--fs-lead); }
+  .hero__metric { display: grid; gap: 0.2rem; }
+  .hero__metric-n { font-size: var(--fs-h1); font-weight: 700; color: var(--c); line-height: 1; }
+  .hero__impact {
+    font-size: var(--fs-lead);
+    line-height: 1.4;
+    padding-inline-start: 1rem;
+    border-inline-start: 2px solid var(--c);
+  }
+  .hero__links { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 0.5rem; margin-block-start: 0.4rem; }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4em;
+    min-block-size: 44px;
+    padding-inline: 1.1rem;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    letter-spacing: 0.06em;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--bg) 60%, transparent);
+    backdrop-filter: blur(8px);
+  }
+  .btn:hover { border-color: var(--c); }
+  .btn--primary { background: var(--c); border-color: var(--c); color: var(--accent-ink); }
+
+  @media (max-width: 760px) {
+    .hero { min-block-size: auto; align-items: start; }
+    .hero__art { position: relative; inset: auto; aspect-ratio: 4 / 5; max-block-size: 68svh; inline-size: 100%; }
+    .hero__art::after,
+    :root[dir='rtl'] .hero__art::after { background: linear-gradient(to top, var(--bg) 2%, transparent 45%); }
+    .hero__art img { object-position: center; }
+    .hero__copy { padding-block: 0 2rem; margin-block-start: -5rem; position: relative; }
+    .hero--badge .hero__art { inset: auto; inline-size: 62vw; aspect-ratio: 120 / 128; margin: 6rem auto 0; }
+    .hero--badge .hero__copy { margin-block-start: 1rem; }
+  }
+</style>

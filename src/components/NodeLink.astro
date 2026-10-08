@@ -1,0 +1,66 @@
+---
+// A compact link to another node's dossier: art (thumb or Badge), code, short
+// name, layer colour. Used by "Connected to" and prev/next.
+import Badge from './Badge.astro';
+import { loc, t, url, type Locale, type Track } from '../i18n';
+import { hasAssets, hasScreens, assetUrl } from '../lib/assets';
+import type { Project } from '../lib/content';
+
+interface Props { project: Project; locale: Locale; track: Track; rel?: 'prev' | 'next' }
+const { project, locale, track, rel } = Astro.props;
+const d = project.data;
+const layer = d.worlds[0];
+const name = d.short ? loc(d.short, locale, d.slug) : loc(d.title, locale, d.slug);
+const dim = d.weight[track] === 0;
+---
+
+<a class:list={['node', `node--${layer}`, { 'is-dimmed': dim }]} href={url(locale, track, 'p', d.slug)} rel={rel}>
+  <span class="node__art">
+    {
+      hasScreens(d.slug) && hasAssets(d.slug) ? (
+        <img src={assetUrl(d.slug, 'thumb')} alt="" loading="lazy" decoding="async" width="104" height="128" />
+      ) : (
+        <Badge slug={d.slug} title={d.short?.en ?? d.title.en} kind={d.kind} />
+      )
+    }
+  </span>
+  <span class="node__text">
+    {rel && <span class="label node__rel">{t(locale, `dossier.${rel}`)}</span>}
+    <span class="label node__code">{d.code} · {t(locale, `map.lane.${layer}`)}</span>
+    <span class="node__name">{name}</span>
+  </span>
+</a>
+
+<style>
+  .node {
+    --c: var(--origin);
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    padding: 0.6rem;
+    padding-inline-end: 1rem;
+    border: 1px solid var(--line-2);
+    border-radius: var(--radius);
+    background: var(--bg-2);
+    transition: border-color var(--dur-fast) var(--ease), transform var(--dur) var(--ease);
+  }
+  .node--mobile { --c: var(--mobile); }
+  .node--cloud { --c: var(--cloud); }
+  .node:hover, .node:focus-visible { border-color: var(--c); transform: translateY(-2px); }
+  .node__art {
+    flex: none;
+    inline-size: 52px;
+    block-size: 64px;
+    border-radius: 6px;
+    overflow: hidden;
+    color: var(--c);
+    background: #0e0f12;
+  }
+  .node__art img { inline-size: 100%; block-size: 100%; object-fit: cover; object-position: top; }
+  .node__text { display: grid; gap: 0.2rem; min-inline-size: 0; }
+  .node__rel { color: var(--c); }
+  .node__code { font-size: 0.68rem; color: var(--ink-3); }
+  .node__name { font-size: 1.02rem; overflow-wrap: anywhere; }
+  .node.is-dimmed { opacity: 0.55; }
+  @media (prefers-reduced-motion: reduce) { .node:hover, .node:focus-visible { transform: none; } }
+</style>

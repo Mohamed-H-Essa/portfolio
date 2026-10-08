@@ -70,5 +70,19 @@
   "intro.world": "من أين تريد أن تبدأ؟",
   "intro.both": "الاثنان",
   "intro.continue": "متابعة",
-  "intro.again": "آخر مرة"
+  "intro.again": "آخر مرة",
+  "dossier.back": "العودة إلى الخريطة",
+  "dossier.cert": "شهادة",
+  "dossier.verify": "التحقق من الشهادة",
+  "dossier.flow": "كيف يُنشر الإصدار",
+  "flow.push": "دفع الكود",
+  "flow.push.sub": "GitHub Actions",
+  "flow.build": "البناء",
+  "flow.build.sub": "iOS · Android",
+  "flow.sign": "التوقيع",
+  "flow.sign.sub": "داخل CI",
+  "flow.upload": "الرفع",
+  "flow.upload.sub": "TestFlight · Play",
+  "flow.submit": "الإرسال",
+  "flow.submit.sub": "مراجعة المتجر"
 }

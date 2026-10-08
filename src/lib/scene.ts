@@ -71,9 +71,11 @@ export interface SceneLayout {
 }
 
 export const LAYERS: Layer[] = ['mobile', 'origin', 'cloud'];
-export const LAYER_Z: Record<Layer, number> = { mobile: 330, origin: 0, cloud: -330 };
+// The gap must exceed lift + a card's height in world units at the default zoom,
+// or the plane above slices through the top of every billboard.
+export const LAYER_Z: Record<Layer, number> = { mobile: 430, origin: 0, cloud: -430 };
 export const PLANE_DEPTH = 600; // y extent of a plane
-export const CARD_LIFT = 86; // how high a card floats above its plane
+export const CARD_LIFT = 46; // how high a card floats above its plane
 const MONTH_W = 30;
 const PAD_START = 520; // room before the first card for the engraved title
 const PAD_END = 360;
@@ -82,7 +84,7 @@ const MIN_DX = 250; // cards in the same row closer than this get a different ro
 /** Same-layer cards are nudged forward in time to at least this far apart on x,
  *  so billboards in different rows never stack fully on screen. Cards still
  *  print their real year; the nudge is at most a few months per crowded node. */
-export const MIN_SEP = 130;
+export const MIN_SEP = 150;
 const SKILL_BANDS = [-232, 232]; // back / front strips where skills are engraved
 const SKILL_CHAR_W = 12.5; // approx. advance per char of the engraved skill font
 const SKILL_GAP = 34;

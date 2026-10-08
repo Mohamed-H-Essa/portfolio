@@ -1,0 +1,88 @@
+---
+// Screenshot gallery: a horizontal scroll-snap strip. Works with touch,
+// trackpad and keyboard (the strip is focusable) without JS; the arrow buttons
+// are a small enhancement for mouse-wheel users.
+import { t, type Locale } from '../i18n';
+import { galleryCount, galleryUrl } from '../lib/assets';
+
+interface Props { slug: string; title: string; locale: Locale }
+const { slug, title, locale } = Astro.props;
+const n = galleryCount(slug);
+const rtl = locale === 'ar';
+---
+
+{
+  n > 0 && (
+    <section class="gallery" aria-labelledby="gallery-h" data-gallery>
+      <div class="gallery__head shell">
+        <h2 id="gallery-h" class="label">{t(locale, 'dossier.gallery')}</h2>
+        <div class="gallery__nav" hidden data-gallery-nav>
+          <button type="button" data-dir="-1" aria-label={t(locale, 'dossier.prev')}>{rtl ? '→' : '←'}</button>
+          <button type="button" data-dir="1" aria-label={t(locale, 'dossier.next')}>{rtl ? '←' : '→'}</button>
+        </div>
+      </div>
+      <ul class="gallery__strip" tabindex="0" aria-label={t(locale, 'dossier.gallery')}>
+        {Array.from({ length: n }, (_, i) => (
+          <li>
+            <img src={galleryUrl(slug, i + 1)} alt={`${title} — ${i + 1}/${n}`} width="720" height="1091" loading="lazy" decoding="async" />
+          </li>
+        ))}
+      </ul>
+    </section>
+  )
+}
+
+<style>
+  .gallery { padding-block: 2.5rem; }
+  .gallery__head { display: flex; justify-content: space-between; align-items: center; margin-block-end: 1rem; }
+  .gallery__nav { display: flex; gap: 0.5rem; }
+  .gallery__nav button {
+    inline-size: 44px;
+    block-size: 44px;
+    border-radius: 50%;
+    border: 1px solid var(--line);
+    color: var(--ink);
+    font-family: var(--font-mono);
+  }
+  .gallery__nav button:hover { border-color: var(--accent); }
+  .gallery__strip {
+    list-style: none;
+    margin: 0;
+    padding-block: 0.25rem 1rem;
+    padding-inline: max(var(--gutter), (100vw - var(--maxw)) / 2);
+    display: flex;
+    gap: clamp(0.75rem, 2vw, 1.5rem);
+    overflow-x: auto;
+    scroll-snap-type: inline mandatory;
+    scroll-padding-inline: max(var(--gutter), (100vw - var(--maxw)) / 2);
+    scrollbar-width: thin;
+    outline-offset: -2px;
+  }
+  .gallery__strip li { flex: none; scroll-snap-align: start; }
+  .gallery__strip img {
+    block-size: clamp(340px, 62svh, 600px);
+    inline-size: auto;
+    aspect-ratio: 720 / 1091;
+    border-radius: 14px;
+    border: 1px solid var(--line-2);
+    background: var(--bg-2);
+  }
+  @media (max-width: 760px) { .gallery__strip img { block-size: min(64svh, 520px); } }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-gallery]').forEach((g) => {
+    const strip = g.querySelector<HTMLElement>('.gallery__strip')!;
+    const nav = g.querySelector<HTMLElement>('[data-gallery-nav]')!;
+    if (strip.scrollWidth <= strip.clientWidth + 4) return;
+    nav.hidden = false;
+    const rtl = getComputedStyle(strip).direction === 'rtl';
+    const smooth = matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth';
+    nav.querySelectorAll<HTMLButtonElement>('button').forEach((b) =>
+      b.addEventListener('click', () => {
+        const step = strip.clientWidth * 0.8 * Number(b.dataset.dir) * (rtl ? -1 : 1);
+        strip.scrollBy({ left: step, behavior: smooth as ScrollBehavior });
+      })
+    );
+  });
+</script>

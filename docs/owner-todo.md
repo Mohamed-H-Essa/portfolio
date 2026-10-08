@@ -184,3 +184,7 @@ Created Jan 12, 2024
 - [ ] heaven-flowers: the screenshots you gave are pre-made store frames (phone already in a purple branded frame). They're fine as a gallery, but for the tilted hero/thumb I'd want raw in-app screens (no frame). Can you grab 4-5 raw captures (release mode, banner off)? Otherwise I'll use the framed ones as-is.
 - [ ] ehc-board (Egyptian Board health app): I have 5 clean screens — want me to add it as a project node + generate assets? (It's a government health app; you said all screenshots are OK to show.)
 - [ ] bioot (two real-estate apps): no screenshots yet. Send captures, or should I render a cloud/diagram-style cover from the repo instead?
+
+## dossiers (added 2026-10-08, session 2)
+- [ ] release-pipeline: the dossier shows a flow diagram **Push → Build → Sign → Upload → Submit**. The plan also had a **Test** stage, but your content only says build/sign/submit, so I left it out. Do the pipelines run tests (unit/widget/integration)? If yes I'll add the stage.
+- [ ] No project has an impact **metric** (a number) yet. The dossier shows a big number when one exists — any you can state and stand behind (e.g. release time in hours before/after, crash-free %, downloads)?

@@ -54,6 +54,8 @@ const projects = defineCollection({
       .optional(),
     connects: z.array(z.string()).default([]),
     assets: z.union([z.literal('auto'), z.string()]).default('auto'),
+    // an extra built-in diagram on the dossier (e.g. the release pipeline flow)
+    visual: z.enum(['release-flow']).optional(),
     review: z.object({ de: z.boolean(), ar: z.boolean() }).partial().optional(),
   }),
 });

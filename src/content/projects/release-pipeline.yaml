@@ -35,4 +35,5 @@ stack: [GitHub Actions, Fastlane, Code signing, TestFlight, Google Play]
 links: {}
 connects: [qanony, aratc, mobile-security-hardening]
 assets: auto
+visual: release-flow
 review: { de: true, ar: true }

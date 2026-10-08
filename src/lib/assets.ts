@@ -48,3 +48,15 @@ export function assetUrl(slug: string, kind: AssetKind): string {
 export function galleryUrl(slug: string, n: number): string {
   return url('projects', slug, 'gallery', `${String(n).padStart(2, '0')}.webp`).replace(/\/$/, '');
 }
+
+/** How many gallery images `npm run assets` produced (01.webp, 02.webp, …). */
+export function galleryCount(slug: string): number {
+  let n = 0;
+  while (existsSync(join(PUB, slug, 'gallery', `${String(n + 1).padStart(2, '0')}.webp`))) n++;
+  return n;
+}
+
+/** Base-relative path of the project's captioned link-preview image, if generated. */
+export function ogPath(slug: string): string | undefined {
+  return existsSync(join(PUB, slug, 'og.png')) ? `projects/${slug}/og.png` : undefined;
+}

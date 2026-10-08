@@ -38,7 +38,7 @@ export function initScene(stage: HTMLElement) {
   let vz = 0;
   const [xMin, xMax] = cam0.xRange;
   // z reaches past the top layer so a lifted card on Mobile can be centred
-  const zMin = -420, zMax = 620;
+  const zMin = -520, zMax = 740;
 
   const computeFit = () => {
     const base = parseFloat(getComputedStyle(stage).getPropertyValue('--fit-zoom')) || 0.78;
@@ -363,9 +363,12 @@ export function initScene(stage: HTMLElement) {
   });
   addEventListener('resize', () => { computeFit(); sizeCanvas(); });
 
-  // start framed on the featured project, without animating the first frame
-  if (stage.dataset.start) {
-    select(stage.dataset.start, true);
+  // start framed on the featured project (or ?p=<slug> when coming back from
+  // a dossier), without animating the first frame
+  const back = new URLSearchParams(location.search).get('p');
+  const first = back && json.panel[back] ? back : stage.dataset.start;
+  if (first) {
+    select(first, true);
     cur.fx = tgt.fx;
     cur.fy = tgt.fy;
     cur.fz = tgt.fz;

@@ -154,7 +154,7 @@ const ssrFocus = startCard ? { y: startCard.y, z: startCard.z + CARD_LIFT + 110 
               data-z={c.z + CARD_LIFT}
               style={`transform:translate3d(${c.x}px,${c.y}px,${c.z + CARD_LIFT}px) rotateZ(calc(var(--yaw) * -1)) rotateX(calc(var(--pitch) * -1)) scale(calc(var(--card-k) / var(--zoom))) translate(-50%,-100%)`}
             >
-              <span class="card__img">
+              <span class="card__img" style={`view-transition-name: art-${c.slug}`}>
                 {hasScreens(c.slug) && hasAssets(c.slug) ? (
                   <img src={assetUrl(c.slug, 'thumb')} alt="" loading="lazy" decoding="async" draggable="false" />
                 ) : (

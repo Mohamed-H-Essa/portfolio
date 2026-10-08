@@ -70,5 +70,19 @@
   "intro.world": "Wo möchtest du anfangen?",
   "intro.both": "Beides",
   "intro.continue": "Weiter",
-  "intro.again": "Zuletzt"
+  "intro.again": "Zuletzt",
+  "dossier.back": "Zurück zur Karte",
+  "dossier.cert": "Zertifizierung",
+  "dossier.verify": "Nachweis prüfen",
+  "dossier.flow": "So geht ein Release raus",
+  "flow.push": "Push",
+  "flow.push.sub": "GitHub Actions",
+  "flow.build": "Build",
+  "flow.build.sub": "iOS · Android",
+  "flow.sign": "Signieren",
+  "flow.sign.sub": "in der CI",
+  "flow.upload": "Upload",
+  "flow.upload.sub": "TestFlight · Play",
+  "flow.submit": "Einreichen",
+  "flow.submit.sub": "Store-Prüfung"
 }
