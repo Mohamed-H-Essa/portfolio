@@ -43,6 +43,9 @@ interface ShotsYaml {
   title?: string;
   code?: string;   // Dark-style case code for the cover caption, e.g. "M02"
   impact?: string; // one-line impact for the cover caption (English)
+  /** the shots are finished store frames (device + marketing text already in
+   *  the image): gallery only, shown as-is; the site uses a Badge for the art */
+  framed?: boolean;
   shots: ShotSpec[];
 }
 interface DiagramYaml {
@@ -71,7 +74,28 @@ async function writeWebp(buf: Buffer, path: string, quality = 78) {
   await sharp(buf).webp({ quality }).toFile(path);
 }
 
+async function renderFramedProject(slug: string, spec: ShotsYaml) {
+  const raw = join(SRC, slug, 'raw');
+  const outDir = join(OUT, slug);
+  const galDir = join(outDir, 'gallery');
+  mkdirSync(galDir, { recursive: true });
+  const first = readFileSync(join(raw, spec.shots[0].file));
+  let accent = spec.accent && spec.accent !== 'auto' ? spec.accent : '';
+  if (!accent) accent = await sampleAccent(first);
+  if (!accent) accent = WORLD_ACCENT[spec.world ?? 'mobile'];
+  let i = 1;
+  for (const sh of spec.shots) {
+    await sharp(readFileSync(join(raw, sh.file)))
+      .resize(720, 1091, { fit: 'contain', background: '#0b0c0e' })
+      .webp({ quality: 80 })
+      .toFile(join(galDir, `${String(i++).padStart(2, '0')}.webp`));
+  }
+  writeMeta(outDir, accent);
+  console.log(`  ✓ ${slug} (store frames, gallery only) accent=${accent} galleries=${i - 1}`);
+}
+
 async function renderScreenshotProject(browser: Browser, slug: string, spec: ShotsYaml) {
+  if (spec.framed) return renderFramedProject(slug, spec);
   const raw = join(SRC, slug, 'raw');
   const outDir = join(OUT, slug);
   const galDir = join(outDir, 'gallery');

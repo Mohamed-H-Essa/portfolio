@@ -191,3 +191,10 @@ Created Jan 12, 2024
 - [ ] **Freelance:** CV says **Jun 2022 – Jul 2024**, LinkedIn says **Jan 2022 – Dec 2024**. Which range should the site use?
 - [ ] **Title:** CV "Flutter Developer", LinkedIn "Senior Mobile Engineer (Mobile & Platform)". The site currently says "Senior Mobile Engineer" on the Mobile track; keep?
 - [ ] **Years of experience:** the site's Mobile subtitle says "Five years shipping production Flutter apps"; the CV says "3+ years (2 freelance, 2 in-house)". Which should the site say? (It also feeds llms.txt and link previews.)
+
+## New projects (added 2026-10-08, session 3): please check
+- [ ] **Yafleet:** when did you build it (start/end month), and what stack (Flutter?)? It's placed at Aug 2025 (the Play listing's last update) with no stack listed.
+- [ ] **EHC Board:** git shows you made almost every commit. Should the role say "Flutter developer (sole mobile developer)" / "lead"? It currently says "Flutter developer".
+- [ ] **Bioot:** role written as "React Native developer: store readiness & releases" from your commits (SDK 54 upgrade, Play policy, App Store resubmission, signing, Facebook Login). Did you build more of the apps than that?
+- [ ] **Heaven Flowers:** placed at Jul 2025 (first App Store release). When did your work on it start?
+- [ ] **Medical Waste (MoH)** from your CV: your mobile commits are May 2026 in `~/work/medwaste`. Add it as a project? No screenshots/store link yet, so it would get a badge.

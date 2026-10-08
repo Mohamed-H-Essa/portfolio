@@ -1,0 +1,38 @@
+# Sources: Google Play listing (com.intrazero.majdiyafleet; last updated Aug 2025).
+# No code available. Start month and stack are unconfirmed (owner-todo); placed at
+# the listing's last update. No screenshots → the site draws a Badge.
+slug: yafleet
+kind: project
+worlds: [mobile]
+era: s3
+start: 2025-08
+end: 2025-08
+weight: { mobile: 1, cloud: 0, all: 1 }
+featured: false
+confidential: false
+code: M06
+short: { en: "Yafleet", de: "Yafleet", ar: "يافليت" }   # ≤14 chars
+title: { en: "Yafleet", de: "Yafleet", ar: "يافليت" }
+impact:
+  line:
+    en: "Turns travellers' spare luggage weight into shipping capacity"
+    de: "Macht freies Gepäckgewicht von Reisenden zu Versandkapazität"
+    ar: "يحوّل الوزن الفارغ في حقائب المسافرين إلى سعة شحن"
+problem:
+  en: "People who need to send something rarely know a traveller heading the same way, while travellers carry unused luggage weight they could earn from."
+  de: "Wer etwas verschicken will, kennt selten einen Reisenden in dieselbe Richtung, während Reisende ungenutztes Gepäckgewicht haben, mit dem sie etwas verdienen könnten."
+  ar: "نادرًا ما يعرف من يريد إرسال شيء مسافرًا متجهًا إلى الوجهة نفسها، بينما يحمل المسافرون وزنًا غير مستخدم في حقائبهم يمكنهم الربح منه."
+built:
+  en: "The mobile app that matches individual travellers with individual shippers in real time, based on their current locations, so travellers earn from spare luggage space and shippers save time and money."
+  de: "Die mobile App, die Reisende und Versender in Echtzeit anhand ihres Standorts zusammenbringt: Reisende verdienen an freiem Gepäckplatz, Versender sparen Zeit und Geld."
+  ar: "تطبيق الهاتف الذي يطابق المسافرين مع أصحاب الشحنات لحظيًا بحسب مواقعهم الحالية، فيربح المسافرون من المساحة الفارغة في حقائبهم ويوفّر أصحاب الشحنات الوقت والمال."
+result:
+  en: "Published on Google Play."
+  de: "Bei Google Play veröffentlicht."
+  ar: "نُشر على Google Play."
+stack: []
+links:
+  playStore: "https://play.google.com/store/apps/details?id=com.intrazero.majdiyafleet"
+connects: []
+assets: auto
+review: { de: true, ar: true }

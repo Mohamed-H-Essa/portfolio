@@ -1,0 +1,26 @@
+# Bioot — two apps: client (buyers) and Partners (developers / sales agents).
+# Raw iPhone captures copied from ~/work/bioot/appstore_screenshots. Skipped:
+# IMG_4996 (shows "Test Exam" demo text). Hero = the English client home.
+device: iphone
+accent: "#2f9478"   # brand teal (sampling picked the cyan glow)
+world: mobile
+title: Bioot
+code: M05
+impact: Two real-estate apps, buyers and sellers, with in-app calls and chat
+shots:
+  - file: "client/IMG_5039.png"     # client home (EN): Find. Compare. Connect. + AI advisor
+    role: hero
+  - file: "client/IMG_4999.png"     # search results with filters
+    role: gallery
+  - file: "client/IMG_5001.png"     # property detail
+    role: gallery
+  - file: "client/IMG_5003.png"     # in-app call
+    role: gallery
+  - file: "client/IMG_4997.png"     # AI real-estate advisor chat
+    role: gallery
+  - file: "partners/IMG_5024.PNG"   # Partners dashboard
+    role: gallery
+  - file: "partners/IMG_5026.PNG"   # Partners leads
+    role: gallery
+  - file: "partners/IMG_5031.PNG"   # Partners activity: calls + messages
+    role: gallery

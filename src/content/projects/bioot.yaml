@@ -1,0 +1,50 @@
+# Sources: Play (com.bioot.client) + App Store listings (Bioot Real Estate id6787982763,
+# released 2026-08-24; Bioot Partners id6787982982, released 2026-08-21; seller Intrazero);
+# ~/work/bioot README (two React Native / Expo apps, Arabic-first RTL) and the owner's
+# commits (2026-07 → 08: store readiness, SDK upgrade, signing, App Store resubmission).
+slug: bioot
+kind: project
+worlds: [mobile]
+era: s4
+start: 2026-07
+end: present
+weight: { mobile: 3, cloud: 0, all: 2 }
+featured: false
+confidential: false
+code: M05
+role:
+  en: "React Native developer: store readiness & releases"
+  de: "React-Native-Entwickler: Store-Reife & Releases"
+  ar: "مطوّر React Native: تجهيز المتاجر والإصدارات"
+short: { en: "Bioot", de: "Bioot", ar: "بيوت" }   # ≤14 chars
+title:
+  en: "Bioot — real-estate apps for buyers and partners"
+  de: "Bioot — Immobilien-Apps für Käufer und Partner"
+  ar: "بيوت — تطبيقات عقارية للمشترين والشركاء"
+impact:
+  line:
+    en: "Two real-estate apps, buyers and sellers, with in-app calls and chat"
+    de: "Zwei Immobilien-Apps für Käufer und Verkäufer, mit Anrufen und Chat in der App"
+    ar: "تطبيقان عقاريان للمشترين والبائعين، مع مكالمات ومحادثات داخل التطبيق"
+problem:
+  en: "In Egypt's property market, buyers want to search listings and reach the seller directly, without middlemen, and developers and sales agents need serious leads to land straight on their phones."
+  de: "Auf dem ägyptischen Immobilienmarkt wollen Käufer Angebote durchsuchen und Verkäufer direkt erreichen, ohne Vermittler, und Bauträger und Makler brauchen ernsthafte Anfragen direkt auf dem Handy."
+  ar: "في سوق العقارات المصري، يريد المشترون البحث في العروض والتواصل مع البائع مباشرة دون وسطاء، ويحتاج المطوّرون ومسوّقو العقارات إلى عملاء جادّين يصلونهم مباشرة على هواتفهم."
+built:
+  en: "Two React Native / Expo apps, Arabic-first with full RTL: Bioot for buyers (search, map, favourites, an AI advisor, in-app calls and chat) and Bioot Partners for developers (listings, leads, analytics). I took both through store readiness and release: Expo SDK 54 for Android's 16 KB pages, Play policy fixes, App Store resubmission, signing."
+  de: "Zwei React-Native-/Expo-Apps, Arabisch zuerst mit vollem RTL: Bioot für Käufer (Suche, Karte, Favoriten, KI-Berater, Anrufe und Chat) und Bioot Partners für Bauträger (Angebote, Leads, Analysen). Ich habe beide store-reif gemacht und veröffentlicht: Expo SDK 54 für 16-KB-Seiten, Play-Richtlinien, App-Store-Neueinreichung, Signierung."
+  ar: "تطبيقان بـ React Native / Expo بالعربية أولاً ودعم كامل للاتجاه من اليمين: بيوت للمشترين (بحث وخريطة ومفضلة ومستشار ذكي ومكالمات ومحادثات) وبيوت للشركاء للمطوّرين (عقارات وعملاء محتملون وتحليلات). تولّيت تجهيزهما للمتاجر ونشرهما: Expo SDK 54 لصفحات 16 كيلوبايت، وسياسات Play، وإعادة التقديم لـ App Store، والتوقيع."
+result:
+  en: "Both apps published on the App Store in August 2026, and Bioot on Google Play."
+  de: "Beide Apps im August 2026 im App Store veröffentlicht, Bioot auch bei Google Play."
+  ar: "نُشر التطبيقان على App Store في أغسطس 2026، وبيوت على Google Play."
+stack: [React Native, Expo, TypeScript, Socket.IO, NestJS]
+links:
+  appStore: "https://apps.apple.com/app/bioot-real-estate/id6787982763"
+  playStore: "https://play.google.com/store/apps/details?id=com.bioot.client"
+  extra:
+    - label: { en: "App Store — Partners", de: "App Store — Partners", ar: "App Store — الشركاء" }
+      href: "https://apps.apple.com/app/bioot-partners/id6787982982"
+connects: []
+assets: auto
+review: { de: true, ar: true }

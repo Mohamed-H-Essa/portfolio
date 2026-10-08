@@ -1,0 +1,41 @@
+# Sources: Google Play listing (com.intrazero.ehcboard), ~/work/sis git history
+# (2025-08 → 2026-04, ~all commits by the owner), pubspec (flutter_bloc).
+slug: ehc-board
+kind: project
+worlds: [mobile]
+era: s3
+start: 2025-08
+end: present
+weight: { mobile: 3, cloud: 0, all: 2 }
+featured: false
+confidential: false
+code: M03
+role: { en: "Flutter developer", de: "Flutter-Entwickler", ar: "مطوّر Flutter" }
+short: { en: "EHC Board", de: "EHC Board", ar: "البورد المصري" }   # ≤14 chars, used on the map
+title:
+  en: "EHC Board — Egyptian Health Council training"
+  de: "EHC Board — Weiterbildung des ägyptischen Gesundheitsrats"
+  ar: "البورد المصري — تدريب المجلس الصحي المصري"
+impact:
+  line:
+    en: "The official training app for the Egyptian Health Council and MOHP"
+    de: "Die offizielle Weiterbildungs-App des ägyptischen Gesundheitsrats und des Gesundheitsministeriums"
+    ar: "التطبيق الرسمي للتدريب في المجلس الصحي المصري ووزارة الصحة"
+problem:
+  en: "Medical trainees in the Egyptian Health Council and Ministry of Health programmes have to log their cases, procedures and milestones, and fill in the council's forms and surveys, wherever they are working."
+  de: "Ärztinnen und Ärzte in den Weiterbildungsprogrammen des Gesundheitsrats und des Ministeriums müssen Fälle, Eingriffe und Meilensteine dokumentieren und Formulare des Rats ausfüllen – dort, wo sie gerade arbeiten."
+  ar: "يحتاج المتدرّبون في برامج المجلس الصحي المصري ووزارة الصحة إلى تسجيل حالاتهم وإجراءاتهم ومراحل تدريبهم، وتعبئة نماذج المجلس واستبياناته أينما كانوا يعملون."
+built:
+  en: "A Flutter app with a trainee dashboard, a logbook with multi-step case entry, dynamic surveys and forms (many question types, attachments, multi-step), news and push notifications, in Arabic and English with RTL/LTR switching. One codebase runs in both EHC and MOHP modes."
+  de: "Eine Flutter-App mit Dashboard, Logbuch mit mehrstufiger Falleingabe, dynamischen Umfragen und Formularen (viele Fragetypen, Anhänge, mehrstufig), News und Push-Benachrichtigungen, auf Arabisch und Englisch mit RTL/LTR-Wechsel. Eine Codebasis für den EHC- und den MOHP-Modus."
+  ar: "تطبيق Flutter بلوحة متابعة للمتدرّب، وسجلّ عمل بإدخال حالات متعدد الخطوات، واستبيانات ونماذج ديناميكية (أنواع أسئلة متعددة ومرفقات وخطوات)، وأخبار وإشعارات فورية، بالعربية والإنجليزية مع تبديل الاتجاه. قاعدة كود واحدة تعمل بوضعَي المجلس الصحي ووزارة الصحة."
+result:
+  en: "Published on Google Play as the council's official training app."
+  de: "Bei Google Play als offizielle Weiterbildungs-App des Rats veröffentlicht."
+  ar: "نُشر على Google Play كتطبيق التدريب الرسمي للمجلس."
+stack: [Flutter, Dart, Bloc]
+links:
+  playStore: "https://play.google.com/store/apps/details?id=com.intrazero.ehcboard"
+connects: []
+assets: auto
+review: { de: true, ar: true }

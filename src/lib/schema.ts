@@ -47,7 +47,7 @@ export function websiteLd(locale: Locale) {
 /** A project page: a MobileApplication when it ships on a store, else a CreativeWork. */
 export function projectLd(p: Project, locale: Locale, canonical: string, image?: string) {
   const d = p.data;
-  const stores = [d.links?.appStore, d.links?.playStore].filter(Boolean) as string[];
+  const stores = [d.links?.appStore, d.links?.playStore, ...(d.links?.extra ?? []).map((x) => x.href)].filter(Boolean) as string[];
   const os = [d.links?.appStore && 'iOS', d.links?.playStore && 'Android'].filter(Boolean).join(', ');
   const description = [d.impact?.line, d.built].map((f) => (f ? loc(f, locale, d.slug) : '')).filter(Boolean).join(' — ');
   return {

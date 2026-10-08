@@ -53,7 +53,11 @@ export function llmsFullTxt(projects: Project[]): string {
   const block = (p: Project) => {
     const d = p.data;
     const f = (k: 'problem' | 'built' | 'result') => (d[k] ? loc(d[k], 'en') : '');
-    const links = Object.entries(d.links ?? {}).filter(([, v]) => v).map(([k, v]) => `- ${k}: ${v}`);
+    const { extra = [], ...main } = d.links ?? {};
+    const links = [
+      ...Object.entries(main).filter(([, v]) => v).map(([k, v]) => `- ${k}: ${v}`),
+      ...extra.map((x) => `- ${loc(x.label, 'en')}: ${x.href}`),
+    ];
     return `## ${loc(d.title, 'en')}
 
 - Page: ${site(url('en', 'all', 'p', d.slug))}

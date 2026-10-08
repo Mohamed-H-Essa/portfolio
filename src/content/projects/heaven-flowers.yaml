@@ -1,0 +1,39 @@
+# Sources: Google Play (com.intrazero.flowers) + App Store (id6743226370, first
+# released 2025-07-31, seller Intrazero) listings; owner's LinkedIn (Flutter).
+slug: heaven-flowers
+kind: project
+worlds: [mobile]
+era: s3
+start: 2025-07
+end: present
+weight: { mobile: 2, cloud: 0, all: 1 }
+featured: false
+confidential: false
+code: M04
+role: { en: "Flutter developer", de: "Flutter-Entwickler", ar: "مطوّر Flutter" }
+short: { en: "Heaven Flowers", de: "Heaven Flowers", ar: "هيفن فلاورز" }   # ≤14 chars
+title: { en: "Heaven Flowers", de: "Heaven Flowers", ar: "هيفن فلاورز" }
+impact:
+  line:
+    en: "A flower and gift marketplace, live on both stores"
+    de: "Ein Marktplatz für Blumen und Geschenke, in beiden Stores live"
+    ar: "سوق للزهور والهدايا، منشور على المتجرين"
+problem:
+  en: "People want to buy flowers and floral gifts from trusted sellers in a few taps, and to plan deliveries for a date and time ahead of the occasion."
+  de: "Kundinnen und Kunden wollen Blumen und Geschenke von vertrauenswürdigen Händlern mit wenigen Taps kaufen und die Lieferung für einen bestimmten Termin planen."
+  ar: "يريد الناس شراء الزهور والهدايا من بائعين موثوقين بلمسات قليلة، وجدولة التوصيل لموعد محدد قبل المناسبة."
+built:
+  en: "A Flutter marketplace app: browse and search bouquets and gifts, detailed product pages, cart and checkout, pre-orders with a delivery date and time, order tracking with push notifications, personalised recommendations, multiple languages, and a wholesale entry for florists and events."
+  de: "Eine Flutter-Marktplatz-App: Sträuße und Geschenke durchsuchen, Produktseiten, Warenkorb und Checkout, Vorbestellung mit Liefertermin, Sendungsverfolgung mit Push-Benachrichtigungen, persönliche Empfehlungen, mehrere Sprachen und ein Großhandelszugang für Floristen und Events."
+  ar: "تطبيق سوق بـ Flutter: تصفّح الباقات والهدايا والبحث فيها، وصفحات منتجات مفصّلة، وسلة ودفع، وطلب مسبق بموعد توصيل، وتتبّع الطلبات بإشعارات فورية، وتوصيات مخصّصة، ولغات متعددة، ومدخل للبيع بالجملة لمحلات الزهور والمناسبات."
+result:
+  en: "Live on the App Store since July 2025 and on Google Play."
+  de: "Seit Juli 2025 im App Store und bei Google Play live."
+  ar: "منشور على App Store منذ يوليو 2025 وعلى Google Play."
+stack: [Flutter, Dart]
+links:
+  appStore: "https://apps.apple.com/us/app/heaven-flower/id6743226370"
+  playStore: "https://play.google.com/store/apps/details?id=com.intrazero.flowers"
+connects: []
+assets: auto
+review: { de: true, ar: true }

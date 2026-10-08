@@ -1,0 +1,19 @@
+# EHC Board (Egyptian Health Council / MOHP training) — iPhone 1242x2688, clean real
+# screens (Arabic UI). Owner: OK to show (government app). Hero = the trainee dashboard.
+device: iphone
+accent: auto
+world: mobile
+title: EHC Board
+code: M03
+impact: The official training app for the Egyptian Health Council and MOHP
+shots:
+  - file: "unnamed.webp"        # dashboard: level, logbook progress, medical records
+    role: hero
+  - file: "unnamed (3).webp"    # logbook: logged cases (attendance, surgeries) with status
+    role: gallery
+  - file: "unnamed (2).webp"    # multi-step logbook entry wizard
+    role: gallery
+  - file: "unnamed (1).webp"    # medical records with completion per rotation
+    role: gallery
+  - file: "unnamed (4).webp"    # menu: meetings, forms, surveys, certificates, FAQs
+    role: gallery

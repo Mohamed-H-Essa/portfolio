@@ -21,6 +21,7 @@ const links = [
   d.links?.playStore && { href: d.links.playStore, label: t(locale, 'dossier.playStore') },
   d.links?.github && { href: d.links.github, label: t(locale, 'dossier.github') },
   d.links?.live && { href: d.links.live, label: t(locale, d.kind === 'cert' ? 'dossier.verify' : 'dossier.visit') },
+  ...(d.links?.extra ?? []).map((x) => ({ href: x.href, label: loc(x.label, locale, `${d.slug}.link`) })),
 ].filter(Boolean) as { href: string; label: string }[];
 ---
 

@@ -49,6 +49,8 @@ const projects = defineCollection({
         playStore: z.string().optional(),
         github: z.string().optional(),
         live: z.string().optional(),
+        // more store/listing links, e.g. a second app: [{ label: { en: "App Store — Partners" }, href }]
+        extra: z.array(z.object({ label: localized, href: z.string() })).optional(),
       })
       .partial()
       .optional(),
