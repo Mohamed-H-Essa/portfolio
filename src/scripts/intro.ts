@@ -5,6 +5,7 @@
 // confining the light, and a zoom-into-the-lobe hand-off to the map.
 import { point, confine, type Lobe } from '../lib/lemniscate';
 import { initField } from './intro-field';
+import { initSwipeBack } from './swipe-back';
 
 type Lang = 'en' | 'de' | 'ar';
 interface IntroJson { strings: Record<Lang, Record<string, string>>; base: string; labels: Record<Lang, string> }
@@ -249,6 +250,15 @@ export function initIntro(root: HTMLElement) {
     }
     raf = requestAnimationFrame(frame);
   };
+
+  // ---- swipe back: the world step → the language step (in place) ------------
+  initSwipeBack({
+    targets: [fig, root.querySelector<HTMLElement>('.intro__copy')!],
+    label: () => str(locale, 'intro.changeLang'),
+    enabled: () => root.dataset.step === 'world' && !root.classList.contains('is-leaving'),
+    onCommit: () => root.querySelector<HTMLElement>('[data-change-lang]')!.click(),
+    restore: true,
+  });
 
   // ---- background: develops once the loop is whole --------------------------
   initField(root.querySelector<HTMLCanvasElement>('[data-field]')!, fig, reduce);

@@ -390,6 +390,15 @@ export function initScene(stage: HTMLElement) {
   // start framed on the featured project (or ?p=<slug> when coming back from
   // a dossier), without animating the first frame
   const back = new URLSearchParams(location.search).get('p');
+  // coming back from a project: the map rises out of the depth it fell into
+  const arrive = () => {
+    if (reduce) return;
+    stage.classList.remove('is-return');
+    void stage.offsetWidth;
+    stage.classList.add('is-return');
+  };
+  if (back) arrive();
+  addEventListener('pageshow', (e) => { if (e.persisted) arrive(); });
   const first = back && json.panel[back] ? back : stage.dataset.start;
   if (first) {
     select(first, true);

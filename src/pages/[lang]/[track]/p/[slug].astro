@@ -185,7 +185,7 @@ const frames = [
       <span class="hud__next-arrow" aria-hidden="true">↓</span>
     </button>
   </div>
-  <script type="application/json" data-engine-json set:html={JSON.stringify({ next: t(lang, 'dossier.nextLabel'), back: t(lang, 'dossier.back'), labels: frames.map((f) => f.label) })} />
+  <script type="application/json" data-engine-json set:html={JSON.stringify({ next: t(lang, 'dossier.nextLabel'), map: t(lang, 'nav.map'), back: `${url(lang, track)}?p=${slug}`, labels: frames.map((f) => f.label) })} />
 </Base>
 
 <style>

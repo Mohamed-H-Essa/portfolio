@@ -90,5 +90,6 @@
   "dossier.story": "Geschichte",
   "dossier.details": "Details",
   "dossier.nextLabel": "Weiter",
-  "dossier.hint": "Scrollen, wischen oder ↑ ↓"
+  "dossier.hint": "Scrollen, wischen oder ↑ ↓",
+  "nav.map": "Karte"
 }

@@ -306,6 +306,12 @@ const ssrFocus = startCard ? { y: startCard.y, z: startCard.z + CARD_LIFT + 110 
   .stage.is-handoff .viewport { opacity: 0; transform: scale(1.05); filter: blur(4px); transition: opacity 700ms var(--ease), transform 900ms var(--ease-strong), filter 700ms var(--ease); }
   .stage.is-handoff :is(.panel, .credit, .rail, .controls, .hint, .dust) { opacity: 0; transition: opacity 300ms var(--ease); pointer-events: none; }
 
+  /* back from a project (swipe or link): the map comes forward out of the depth */
+  .stage.is-return .viewport { animation: map-return 900ms var(--ease-strong) both; }
+  .stage.is-return :is(.panel, .credit, .rail, .controls) { animation: map-return-ui 700ms var(--ease) 250ms both; }
+  @keyframes map-return { from { opacity: 0; transform: scale(0.9); filter: blur(6px); } }
+  @keyframes map-return-ui { from { opacity: 0; } }
+
   /* ======== planes ======== */
   .plane {
     --c: var(--origin);

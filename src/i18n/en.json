@@ -90,5 +90,6 @@
   "dossier.story": "Story",
   "dossier.details": "Details",
   "dossier.nextLabel": "Next",
-  "dossier.hint": "Scroll, swipe or use ↑ ↓"
+  "dossier.hint": "Scroll, swipe or use ↑ ↓",
+  "nav.map": "Map"
 }

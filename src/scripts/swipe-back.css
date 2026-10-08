@@ -1,0 +1,42 @@
+/* the swipe-back chip (swipe-back.ts): rises at the leading edge, its ring
+   fills toward the threshold, turns solid when letting go will go back */
+html { overscroll-behavior-x: none; } /* the browser's own swipe navigation would fight ours */
+
+.swipe-back {
+  --p: 0;
+  position: fixed;
+  z-index: 300;
+  inset-block-start: 50%;
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 6px 14px 6px 6px;
+  border-radius: 999px;
+  background: rgba(14, 14, 16, 0.78);
+  border: 1px solid var(--line);
+  backdrop-filter: blur(10px);
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  pointer-events: none;
+  opacity: 0;
+  translate: calc((var(--p) - 1) * 28px) -50%;
+  transition: background var(--dur) var(--ease), border-color var(--dur) var(--ease);
+}
+.swipe-back[data-side='left'] { left: 18px; }
+.swipe-back[data-side='right'] { right: 18px; flex-direction: row-reverse; padding: 6px 6px 6px 14px; translate: calc((1 - var(--p)) * 28px) -50%; }
+.swipe-back svg { inline-size: 34px; block-size: 34px; }
+.swipe-back circle { fill: none; stroke-width: 2; }
+.swipe-back__track { stroke: rgba(255, 255, 255, 0.14); }
+.swipe-back__ring {
+  stroke: var(--c, var(--origin));
+  stroke-dasharray: 1;
+  stroke-dashoffset: calc(1 - var(--p));
+  transform: rotate(-90deg);
+  transform-origin: 20px 20px;
+  stroke-linecap: round;
+}
+.swipe-back__arrow { fill: none; stroke: var(--ink); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.swipe-back.is-ready { background: color-mix(in srgb, var(--c, var(--origin)) 30%, #0e0e10); border-color: var(--c, var(--origin)); }
+:root[dir='rtl'] .swipe-back { font-family: var(--font-ar); letter-spacing: 0; font-size: 0.9rem; }

@@ -90,5 +90,6 @@
   "dossier.story": "القصة",
   "dossier.details": "التفاصيل",
   "dossier.nextLabel": "التالي",
-  "dossier.hint": "مرّر أو اسحب أو استخدم ↑ ↓"
+  "dossier.hint": "مرّر أو اسحب أو استخدم ↑ ↓",
+  "nav.map": "الخريطة"
 }

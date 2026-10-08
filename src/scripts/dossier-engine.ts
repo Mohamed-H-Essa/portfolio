@@ -3,6 +3,7 @@
 // like a game's camera moving between views. A frame taller than the screen
 // scrolls inside itself first and only then hands over to the next frame.
 // Runs only when the inline head script has set html.is-engine.
+import { initSwipeBack } from './swipe-back';
 
 const LOCK_MS = 950; // one transition; input is ignored meanwhile
 const QUIET_MS = 200; // a trackpad flick's inertia must stop before the next move
@@ -19,7 +20,7 @@ export function initEngine(root: HTMLElement) {
   const next = hud.querySelector<HTMLButtonElement>('[data-next]')!;
   const nextLabel = hud.querySelector<HTMLElement>('[data-next-label]')!;
   const count = hud.querySelector<HTMLElement>('[data-count]')!;
-  const json = JSON.parse(document.querySelector('[data-engine-json]')?.textContent || '{}') as { next: string; labels: string[] };
+  const json = JSON.parse(document.querySelector('[data-engine-json]')?.textContent || '{}') as { next: string; map: string; back: string; labels: string[] };
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   // the footer (contact) becomes the end of the last frame
@@ -140,6 +141,22 @@ export function initEngine(root: HTMLElement) {
   // ---- HUD -------------------------------------------------------------------
   ticks.forEach((t) => t.addEventListener('click', () => go(Number(t.dataset.go))));
   next.addEventListener('click', () => go(idx + 1));
+
+  // swipe back (horizontal) → the map, opened on this project. When we came
+  // from that map, step back in history instead, so its camera is where it was.
+  initSwipeBack({
+    targets: [root],
+    fade: [hud],
+    label: () => json.map,
+    ignore: '.gallery__strip',
+    onCommit: () => {
+      const back = new URL(json.back, location.href);
+      let ref: URL | null = null;
+      try { ref = document.referrer ? new URL(document.referrer) : null; } catch { /* none */ }
+      if (ref && ref.origin === back.origin && ref.pathname === back.pathname && history.length > 1) history.back();
+      else location.href = back.href;
+    },
+  });
 
   apply(idx);
   // after the landing, frames transition normally again
