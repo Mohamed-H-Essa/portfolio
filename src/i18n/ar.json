@@ -85,5 +85,10 @@
   "flow.upload.sub": "TestFlight · Play",
   "flow.submit": "الإرسال",
   "flow.submit.sub": "مراجعة المتجر",
-  "intro.changeLang": "تغيير اللغة"
+  "intro.changeLang": "تغيير اللغة",
+  "dossier.overview": "نظرة عامة",
+  "dossier.story": "القصة",
+  "dossier.details": "التفاصيل",
+  "dossier.nextLabel": "التالي",
+  "dossier.hint": "مرّر أو اسحب أو استخدم ↑ ↓"
 }

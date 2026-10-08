@@ -53,6 +53,8 @@ const panelData = Object.fromEntries(
         stack: d.stack,
         layer: d.worlds[0],
         cover: has ? assetUrl(d.slug, rtl ? 'cover-rtl' : 'cover') : '',
+        coverPortrait: has ? assetUrl(d.slug, 'cover-portrait') : '',
+        screens: hasScreens(d.slug),
         gallery: Array.from({ length: galleryCount(d.slug) }, (_, i) => galleryUrl(d.slug, i + 1)),
         href: url(locale, track, 'p', d.slug),
         appStore: d.links?.appStore ?? '',
@@ -153,7 +155,7 @@ const ssrFocus = startCard ? { y: startCard.y, z: startCard.z + CARD_LIFT + 110 
               data-z={c.z + CARD_LIFT}
               style={`transform:translate3d(${c.x}px,${c.y}px,${c.z + CARD_LIFT}px) rotateZ(calc(var(--yaw) * -1)) rotateX(calc(var(--pitch) * -1)) scale(calc(var(--card-k) / var(--zoom))) translate(-50%,-100%)`}
             >
-              <span class="card__img" style={`view-transition-name: art-${c.slug}`}>
+              <span class="card__img">
                 {hasScreens(c.slug) && hasAssets(c.slug) ? (
                   <img src={assetUrl(c.slug, 'thumb')} alt="" loading="lazy" decoding="async" draggable="false" />
                 ) : (
@@ -299,6 +301,10 @@ const ssrFocus = startCard ? { y: startCard.y, z: startCard.z + CARD_LIFT + 110 
   /* only cards take the pointer: a plane above a card sits in front of it in
      3D depth and would otherwise swallow hover/clicks on the card art */
   .world > :not(.card), .world > :not(.card) * { pointer-events: none; }
+
+  /* opening a project: the map dissolves behind the flying art (handoff.ts) */
+  .stage.is-handoff .viewport { opacity: 0; transform: scale(1.05); filter: blur(4px); transition: opacity 700ms var(--ease), transform 900ms var(--ease-strong), filter 700ms var(--ease); }
+  .stage.is-handoff :is(.panel, .credit, .rail, .controls, .hint, .dust) { opacity: 0; transition: opacity 300ms var(--ease); pointer-events: none; }
 
   /* ======== planes ======== */
   .plane {

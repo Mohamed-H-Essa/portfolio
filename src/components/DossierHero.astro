@@ -5,7 +5,7 @@
 // Arabic), so the copy always sits on clear ground. No art → a large Badge.
 import Badge from './Badge.astro';
 import { loc, t, url, type Locale, type Track } from '../i18n';
-import { hasAssets, assetUrl } from '../lib/assets';
+import { hasAssets, hasScreens, assetUrl } from '../lib/assets';
 import { yearSpan } from '../lib/dossier';
 import type { Project } from '../lib/content';
 
@@ -24,8 +24,8 @@ const links = [
 ].filter(Boolean) as { href: string; label: string }[];
 ---
 
-<header class:list={['hero', `hero--${layer}`, { 'hero--badge': !art }]}>
-  <div class="hero__art" style={`view-transition-name: art-${d.slug}`}>
+<header class:list={['hero', `hero--${layer}`, { 'hero--badge': !art, 'hero--diagram': art && !hasScreens(d.slug) }]}>
+  <div class="hero__art">
     {
       art ? (
         <picture>
@@ -89,6 +89,11 @@ const links = [
   .hero--cloud { --c: var(--cloud); }
   /* art keeps to the inline-end two thirds so wide (cloud) covers never run under the title */
   .hero__art { position: absolute; inset-block: 0; inset-inline: 34% 0; z-index: -1; color: var(--c); }
+  .hero__art picture { display: block; block-size: 100%; }
+  /* code/cloud diagram covers read at their natural 16:9, top-anchored (hero-rect.ts: diagram) */
+  @media (min-width: 761px) {
+    .hero--diagram .hero__art { inset-block-end: auto; aspect-ratio: 16 / 9; max-block-size: 100%; }
+  }
   .hero__art img { inline-size: 100%; block-size: 100%; object-fit: cover; object-position: right center; }
   :root[dir='rtl'] .hero__art img { object-position: left center; }
   /* ground the copy: fade from the copy side and the bottom into the page */

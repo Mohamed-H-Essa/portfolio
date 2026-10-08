@@ -1,4 +1,5 @@
 import { initPanelFx } from './panel-fx';
+import { handoff, prefetch, type HandoffTarget } from './handoff';
 
 // Camera + interaction for the layered 3D map (Scene.astro).
 // The scene's geometry is static CSS 3D from SSR; this only drives a handful of
@@ -7,7 +8,7 @@ import { initPanelFx } from './panel-fx';
 
 interface PanelItem {
   code: string; title: string; impact: string; role: string; years: string;
-  stack: string[]; layer: string; cover: string; gallery: string[]; href: string;
+  stack: string[]; layer: string; cover: string; coverPortrait: string; screens: boolean; gallery: string[]; href: string;
   appStore: string; playStore: string; live: string;
 }
 interface SceneJson {
@@ -241,7 +242,23 @@ export function initScene(stage: HTMLElement) {
     fillPanel(slug);
     const card = cards.find((c) => c.dataset.slug === slug);
     if (fly && card) flyTo(card);
+    prefetch(target(slug));
   };
+
+  // ---- opening a project: the hand-off ---------------------------------
+  const target = (slug: string): HandoffTarget => {
+    const d = json.panel[slug];
+    return { slug, href: d.href, cover: d.cover, coverPortrait: d.coverPortrait, rtl: cam0.rtl, diagram: !d.screens };
+  };
+  const plainClick = (e: MouseEvent) => !(e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0);
+  const panelArt = panel.querySelector<HTMLElement>('.panel__art')!;
+  panel.querySelectorAll<HTMLAnchorElement>('[data-p="href"]').forEach((a) =>
+    a.addEventListener('click', (e) => {
+      if (!selected || !plainClick(e)) return;
+      e.preventDefault();
+      handoff(target(selected), panelArt, stage);
+    })
+  );
 
   for (const card of cards) {
     card.addEventListener('click', (e) => {
@@ -250,6 +267,9 @@ export function initScene(stage: HTMLElement) {
         e.preventDefault(); // first click selects; second click opens
         select(card.dataset.slug!);
         touched();
+      } else if (plainClick(e)) {
+        e.preventDefault();
+        handoff(target(card.dataset.slug!), card.querySelector<HTMLElement>('.card__img')!, stage);
       }
     });
     card.addEventListener('pointerenter', () => !dragging && light(card.dataset.slug!));

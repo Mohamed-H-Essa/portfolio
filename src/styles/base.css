@@ -121,9 +121,8 @@ body.immersive {
 }
 
 /* Cross-document View Transitions (map ⇄ dossier): same-origin navigations
-   cross-fade, and an element sharing a view-transition-name (the map card art
-   and the dossier hero art, `art-<slug>`) morphs between pages. Browsers
-   without support just navigate. */
+   cross-fade (the map's own hand-off has already flown the art into place, so
+   the two frames match). Browsers without support just navigate. */
 @media (prefers-reduced-motion: no-preference) {
   @view-transition { navigation: auto; }
   ::view-transition-group(*) { animation-duration: 520ms; animation-timing-function: var(--ease-strong); }

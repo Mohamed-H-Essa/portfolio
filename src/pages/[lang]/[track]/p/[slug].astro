@@ -10,7 +10,8 @@ import NodeLink from '../../../../components/NodeLink.astro';
 import { LOCALES, TRACKS, loc, t, type Locale, type Track } from '../../../../i18n';
 import { loadProjects, type Project } from '../../../../lib/content';
 import { worldSequence, prevNext } from '../../../../lib/dossier';
-import { ogPath } from '../../../../lib/assets';
+import { ogPath, galleryCount } from '../../../../lib/assets';
+import '../../../../styles/engine.css';
 
 export async function getStaticPaths() {
   const all = await loadProjects();
@@ -41,6 +42,16 @@ const title = loc(d.title, lang, slug);
 const blocks = (['problem', 'built', 'result'] as const)
   .map((k) => ({ k, text: d[k] ? loc(d[k], lang, `${slug}.${k}`) : '' }))
   .filter((b) => b.text);
+const shots = galleryCount(slug);
+
+// the engine's frames, in order (each becomes one full-screen view)
+const frames = [
+  { id: 'overview', label: t(lang, 'dossier.overview') },
+  blocks.length > 0 && { id: 'story', label: t(lang, 'dossier.story') },
+  d.visual === 'release-flow' && { id: 'flow', label: t(lang, 'dossier.flow') },
+  shots > 0 && { id: 'gallery', label: t(lang, 'dossier.gallery') },
+  { id: 'details', label: t(lang, 'dossier.details') },
+].filter(Boolean) as { id: string; label: string }[];
 ---
 
 <Base
@@ -51,61 +62,112 @@ const blocks = (['problem', 'built', 'result'] as const)
   pathParts={[track, 'p', slug]}
   ogImage={ogPath(slug)}
 >
-  <article class="dossier" data-layer={d.worlds[0]}>
-    <DossierHero project={project} locale={lang} track={track} />
+  <script is:inline slot="head" define:vars={{ slug }}>
+    // engine mode is a progressive enhancement: without JS the dossier is a normal
+    // scrolling page. Coming from the map's hand-off, the hero art is already in
+    // place, so it must not animate in again.
+    document.documentElement.classList.add('is-engine');
+    try {
+      if (sessionStorage.getItem('handoff') === slug) document.documentElement.classList.add('is-handoff', 'is-landing');
+      sessionStorage.removeItem('handoff');
+    } catch (e) {}
+  </script>
+
+  <article class="dossier" data-layer={d.worlds[0]} data-engine data-slug={slug}>
+    <div class="frame frame--hero" data-frame id="f-overview">
+      <DossierHero project={project} locale={lang} track={track} />
+    </div>
 
     {
       blocks.length > 0 && (
-        <section class="pbr shell">
-          {blocks.map((b, i) => (
-            <div class="pbr__block">
-              <h2 class="label">
-                <span class="pbr__n">{String(i + 1).padStart(2, '0')}</span> {t(lang, `dossier.${b.k}`)}
-              </h2>
-              <p>{b.text}</p>
-            </div>
-          ))}
-        </section>
-      )
-    }
-
-    {d.visual === 'release-flow' && <PipelineFlow locale={lang} />}
-    <DossierGallery slug={slug} title={title} locale={lang} />
-
-    {
-      d.stack.length > 0 && (
-        <section class="stack shell" aria-labelledby="stack-h">
-          <h2 id="stack-h" class="label">{t(lang, 'dossier.stack')}</h2>
-          <ul class="chips">
-            {d.stack.map((s) => <li>{s}</li>)}
-          </ul>
-        </section>
+        <div class="frame" data-frame id="f-story">
+          <section class="pbr shell">
+            {blocks.map((b, i) => (
+              <div class="pbr__block">
+                <h2 class="label">
+                  <span class="pbr__n">{String(i + 1).padStart(2, '0')}</span> {t(lang, `dossier.${b.k}`)}
+                </h2>
+                <p>{b.text}</p>
+              </div>
+            ))}
+          </section>
+        </div>
       )
     }
 
     {
-      connected.length > 0 && (
-        <section class="related shell" aria-labelledby="rel-h">
-          <h2 id="rel-h" class="label">{t(lang, 'dossier.connected')}</h2>
-          <div class="related__grid">
-            {connected.map((p) => <NodeLink project={p} locale={lang} track={track} />)}
-          </div>
-        </section>
+      d.visual === 'release-flow' && (
+        <div class="frame" data-frame id="f-flow">
+          <PipelineFlow locale={lang} />
+        </div>
       )
     }
 
     {
-      nav.length > 0 && (
-        <nav class="pager shell" aria-label={`${t(lang, 'dossier.prev')} / ${t(lang, 'dossier.next')}`}>
-          {nav.map((n) => (
-            <div class:list={['pager__slot', `pager__slot--${n.rel}`]}>
-              <NodeLink project={n.p} locale={lang} track={track} rel={n.rel} />
-            </div>
-          ))}
-        </nav>
+      shots > 0 && (
+        <div class="frame frame--gallery" data-frame id="f-gallery">
+          <DossierGallery slug={slug} title={title} locale={lang} />
+        </div>
       )
     }
+
+    <div class="frame" data-frame id="f-details">
+      <div class="details">
+        {
+          d.stack.length > 0 && (
+            <section class="stack shell" aria-labelledby="stack-h">
+              <h2 id="stack-h" class="label">{t(lang, 'dossier.stack')}</h2>
+              <ul class="chips">
+                {d.stack.map((s) => <li>{s}</li>)}
+              </ul>
+            </section>
+          )
+        }
+
+        {
+          connected.length > 0 && (
+            <section class="related shell" aria-labelledby="rel-h">
+              <h2 id="rel-h" class="label">{t(lang, 'dossier.connected')}</h2>
+              <div class="related__grid">
+                {connected.map((p) => <NodeLink project={p} locale={lang} track={track} />)}
+              </div>
+            </section>
+          )
+        }
+
+        {
+          nav.length > 0 && (
+            <nav class="pager shell" aria-label={`${t(lang, 'dossier.prev')} / ${t(lang, 'dossier.next')}`}>
+              {nav.map((n) => (
+                <div class:list={['pager__slot', `pager__slot--${n.rel}`]}>
+                  <NodeLink project={n.p} locale={lang} track={track} rel={n.rel} />
+                </div>
+              ))}
+            </nav>
+          )
+        }
+      </div>
+    </div>
   </article>
+
+  {/* HUD: only shown in engine mode (engine.css) */}
+  <div class="hud" data-hud>
+    <ol class="hud__rail" aria-label={title}>
+      {frames.map((f, i) => (
+        <li>
+          <button type="button" class="hud__tick" data-go={i} aria-label={f.label}>
+            <span class="hud__label">{f.label}</span>
+          </button>
+        </li>
+      ))}
+    </ol>
+    <p class="hud__count label" aria-hidden="true"><span data-count>01</span> / {String(frames.length).padStart(2, '0')}</p>
+    <button type="button" class="hud__next" data-next>
+      <span class="hud__next-label" data-next-label>{frames[1] ? `${t(lang, 'dossier.nextLabel')}: ${frames[1].label}` : ''}</span>
+      <span class="hud__next-arrow" aria-hidden="true">↓</span>
+    </button>
+  </div>
+  <script type="application/json" data-engine-json set:html={JSON.stringify({ next: t(lang, 'dossier.nextLabel'), back: t(lang, 'dossier.back'), labels: frames.map((f) => f.label) })} />
 </Base>
 
 <style>
@@ -145,3 +207,8 @@ const blocks = (['problem', 'built', 'result'] as const)
     .pager__slot--next { grid-column: 1; }
   }
 </style>
+
+<script>
+  import { initEngine } from '../../../../scripts/dossier-engine';
+  document.querySelectorAll<HTMLElement>('[data-engine]').forEach(initEngine);
+</script>

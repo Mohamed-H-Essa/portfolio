@@ -1,0 +1,197 @@
+/* Dossier engine mode (html.is-engine, set by an inline script; without JS the
+   dossier is a normal scrolling page). The page never scrolls: frames are
+   stacked full-screen views and dossier-engine.ts moves between them with a
+   depth transition. A frame taller than the screen scrolls inside itself
+   first. The HUD (rail, counter, next cue) floats over everything. */
+
+html.is-engine,
+html.is-engine body { block-size: 100%; overflow: hidden; overscroll-behavior: none; }
+
+/* the site header floats over the frames, like on the map */
+html.is-engine .site-header {
+  position: fixed;
+  inset-inline: 0;
+  background: linear-gradient(180deg, rgba(8, 8, 8, 0.8), rgba(8, 8, 8, 0));
+  backdrop-filter: none;
+  border-block-end: none;
+}
+html.is-engine .site-header .site-header__inner { max-inline-size: none; } /* same as the map's */
+html.is-engine body > .site-footer { display: none; } /* the engine moves it into the last frame */
+
+html.is-engine .dossier { position: fixed; inset: 0; padding: 0; }
+html.is-engine .frame {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  align-content: center;
+  padding-block: 84px 104px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+  opacity: 0;
+  visibility: hidden;
+  transform: translate3d(0, 7vh, 0) scale(0.985);
+  filter: blur(6px);
+  transition:
+    opacity 650ms var(--ease),
+    transform 1000ms var(--ease-strong),
+    filter 700ms var(--ease),
+    visibility 0s linear 1000ms;
+}
+html.is-engine .frame::-webkit-scrollbar { display: none; }
+html.is-engine .frame[data-pos='before'] { transform: translate3d(0, -7vh, 0) scale(1.015); }
+html.is-engine .frame.is-active {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  filter: none;
+  transition:
+    opacity 800ms var(--ease) 120ms,
+    transform 1000ms var(--ease-strong),
+    filter 800ms var(--ease) 120ms,
+    visibility 0s;
+}
+html.is-engine .frame > * { inline-size: 100%; }
+
+/* before the engine script runs, the first frame is already on screen (no
+   blank first paint), and when landing from the map's hand-off the hero frame
+   is simply there: the art was flown into this exact place */
+html.is-engine .frame:first-child:not([data-pos]),
+html.is-landing .frame--hero.is-active {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  filter: none;
+  transition: none;
+}
+
+/* the hero frame is the whole screen; its art is placed by DossierHero's CSS
+   (and must match src/lib/hero-rect.ts, which the map's hand-off flies to) */
+html.is-engine .frame--hero { padding: 0; align-content: stretch; }
+html.is-engine .frame--hero .hero { block-size: 100%; min-block-size: 0; }
+html.is-engine .frame--hero .hero__copy { padding-block-end: 6.5rem; }
+html.is-engine .frame--hero.is-active .hero__art { animation: engine-art-in 1.7s var(--ease-out) both; }
+html.is-engine.is-handoff .frame--hero .hero__art { animation: none; } /* already in place */
+@keyframes engine-art-in { from { opacity: 0; transform: scale(1.06); } }
+
+/* items rise in, staggered (dossier-engine.ts marks them with data-rv + --i) */
+html.is-engine [data-rv] {
+  opacity: 0;
+  transform: translate3d(0, 16px, 0);
+  transition: opacity 700ms var(--ease), transform 900ms var(--ease-strong);
+}
+html.is-engine .frame.is-active [data-rv] {
+  opacity: 1;
+  transform: none;
+  transition-delay: calc(var(--i, 0) * 55ms + 220ms);
+}
+html.is-engine .frame .site-footer { margin-block-start: 2rem; border-block-start: 1px solid var(--line-2); }
+
+/* ---- HUD ---------------------------------------------------------------- */
+.hud { display: none; }
+html.is-engine .hud { display: block; }
+.hud__rail {
+  position: fixed;
+  z-index: 40;
+  inset-inline-end: calc(var(--gutter) - 10px);
+  inset-block-start: 50%;
+  translate: 0 -50%;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 2px;
+}
+.hud__tick {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  min-block-size: 30px;
+  min-inline-size: 44px;
+  padding-inline: 10px;
+  color: var(--ink-2);
+}
+.hud__tick::after {
+  content: '';
+  inline-size: 16px;
+  block-size: 2px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.28);
+  transition: inline-size var(--dur) var(--ease-strong), background var(--dur) var(--ease);
+}
+.hud__label {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  opacity: 0;
+  translate: 6px 0;
+  transition: opacity var(--dur) var(--ease), translate var(--dur) var(--ease);
+  white-space: nowrap;
+}
+:root[dir='rtl'] .hud__label { font-family: var(--font-ar); letter-spacing: 0; text-transform: none; font-size: 0.85rem; translate: -6px 0; }
+.hud__tick:hover .hud__label,
+.hud__tick:focus-visible .hud__label,
+.hud__tick.is-active .hud__label { opacity: 1; translate: 0 0; }
+.hud__tick.is-active { color: var(--ink); }
+.hud__tick.is-active::after { inline-size: 34px; background: var(--c, var(--origin)); }
+.hud__tick:hover::after { background: var(--ink); }
+
+.hud__count {
+  position: fixed;
+  z-index: 40;
+  inset-inline-start: var(--gutter);
+  inset-block-end: 26px;
+  color: var(--ink-3);
+}
+.hud__count [data-count] { color: var(--ink); }
+
+.hud__next {
+  position: fixed;
+  z-index: 40;
+  inset-block-end: 14px;
+  left: 50%;
+  translate: -50% 0;
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  min-block-size: 48px;
+  padding-inline: 1rem;
+  color: var(--ink-2);
+  transition: opacity var(--dur) var(--ease), color var(--dur-fast) var(--ease);
+}
+.hud__next:hover { color: var(--ink); }
+.hud__next[hidden] { display: none; }
+.hud__next-label { font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.12em; }
+:root[dir='rtl'] .hud__next-label { font-family: var(--font-ar); letter-spacing: 0; font-size: 0.85rem; }
+.hud__next-arrow { animation: hud-bob 2.2s var(--ease) infinite; }
+@keyframes hud-bob { 50% { transform: translateY(4px); } }
+
+/* the hero's world colour reaches the HUD */
+html.is-engine body:has(.dossier[data-layer='mobile']) { --c: var(--mobile); }
+html.is-engine body:has(.dossier[data-layer='cloud']) { --c: var(--cloud); }
+
+@media (max-width: 760px) {
+  html.is-engine .frame { padding-block: 72px 88px; align-content: start; }
+  html.is-engine .frame--hero { padding: 0; }
+  html.is-engine .frame--hero .hero { block-size: auto; min-block-size: 100%; }
+  html.is-engine .frame--hero .hero__copy { padding-block-end: 5.5rem; }
+  .hud__rail { inset-inline-end: 0; }
+  .hud__label { display: none; }
+  .hud__tick { min-inline-size: 36px; padding-inline: 8px; }
+  .hud__tick::after { inline-size: 10px; }
+  .hud__tick.is-active::after { inline-size: 20px; }
+  .hud__count { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.is-engine .frame,
+  html.is-engine .frame[data-pos='before'] { transform: none; filter: none; }
+}
+
+/* a frame is a whole screen: let the story read at screen scale */
+@media (min-width: 761px) {
+  html.is-engine .pbr { border-block-start: none; }
+  html.is-engine .pbr__block p { font-size: var(--fs-lead); line-height: 1.5; max-inline-size: 30ch; }
+}

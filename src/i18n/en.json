@@ -85,5 +85,10 @@
   "flow.upload.sub": "TestFlight · Play",
   "flow.submit": "Submit",
   "flow.submit.sub": "store review",
-  "intro.changeLang": "Change language"
+  "intro.changeLang": "Change language",
+  "dossier.overview": "Overview",
+  "dossier.story": "Story",
+  "dossier.details": "Details",
+  "dossier.nextLabel": "Next",
+  "dossier.hint": "Scroll, swipe or use ↑ ↓"
 }
