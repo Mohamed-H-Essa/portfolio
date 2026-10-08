@@ -107,7 +107,9 @@ const homeHref = url();
       <button class="menu-btn" aria-expanded="false" aria-controls="mobile-menu">
         <span class="visually-hidden">{t(locale, 'nav.menu')}</span>
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-          <path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <path class="mb-1" d="M3 6h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <path class="mb-2" d="M3 12h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <path class="mb-3" d="M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
         </svg>
       </button>
     </nav>
@@ -244,34 +246,61 @@ const homeHref = url();
   }
   .menu-btn {
     display: none;
+    place-items: center;
+    min-inline-size: 44px;
+    min-block-size: 44px;
     color: var(--ink);
-    padding: 0.3rem;
   }
   .noscript-langs {
     display: none;
     gap: 2px;
   }
 
+  /* phones: a full-screen sheet under the top bar, solid enough to read on
+     (the header itself is a see-through gradient on the map and project pages) */
   .mobile-menu {
-    padding: 1.25rem var(--gutter) 2rem;
+    position: fixed;
+    inset: 0;
+    z-index: -1; /* inside the header's stacking context: under its bar, over the page */
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 84px var(--gutter) max(2rem, env(safe-area-inset-bottom));
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
-    border-block-start: 1px solid var(--line-2);
+    gap: 1.75rem;
+    background: radial-gradient(90% 60% at 50% 0%, #111215, var(--bg) 70%) var(--bg); /* opaque: nothing shows through */
+    animation: menu-in 320ms var(--ease) both;
   }
   .mobile-menu[hidden] { display: none; }
+  @keyframes menu-in { from { opacity: 0; } }
+  .mobile-menu__group + .mobile-menu__group { border-block-start: 1px solid var(--line-2); padding-block-start: 1.5rem; }
+  .menu-btn path { transition: transform 260ms var(--ease), opacity 200ms var(--ease); transform-box: fill-box; transform-origin: center; }
+  .menu-btn[aria-expanded='true'] .mb-1 { transform: translateY(6px) rotate(45deg); }
+  .menu-btn[aria-expanded='true'] .mb-2 { opacity: 0; }
+  .menu-btn[aria-expanded='true'] .mb-3 { transform: translateY(-6px) rotate(-45deg); }
   .mobile-menu__group {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
   }
   .mobile-menu__group a {
-    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    min-block-size: 48px;
+    font-size: 1.25rem;
     color: var(--ink);
-    padding: 0.35rem 0;
   }
   .mobile-menu__group a.is-active {
     color: var(--accent);
+    font-weight: 600;
+  }
+  .mobile-menu__group a.is-active::after {
+    content: '';
+    inline-size: 6px;
+    block-size: 6px;
+    margin-inline-start: 0.6rem;
+    border-radius: 50%;
+    background: currentColor;
   }
 
   /* Phone: collapse inline switches into the menu */
@@ -292,9 +321,12 @@ const homeHref = url();
 <script>
   const btn = document.querySelector<HTMLButtonElement>('.menu-btn');
   const menu = document.getElementById('mobile-menu');
-  btn?.addEventListener('click', () => {
-    const open = btn.getAttribute('aria-expanded') === 'true';
-    btn.setAttribute('aria-expanded', String(!open));
-    if (menu) menu.hidden = open;
-  });
+  const set = (open: boolean) => {
+    btn?.setAttribute('aria-expanded', String(open));
+    if (menu) menu.hidden = !open;
+    document.documentElement.classList.toggle('is-menu', open); // pauses page gestures underneath
+  };
+  btn?.addEventListener('click', () => set(btn.getAttribute('aria-expanded') !== 'true'));
+  menu?.addEventListener('click', (e) => { if ((e.target as Element).closest('a')) set(false); });
+  addEventListener('keydown', (e) => { if (e.key === 'Escape' && btn?.getAttribute('aria-expanded') === 'true') set(false); });
 </script>

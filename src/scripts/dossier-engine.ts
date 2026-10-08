@@ -46,7 +46,7 @@ export function initEngine(root: HTMLElement) {
 
   let idx = Math.max(0, frames.findIndex((f) => `#${f.id}` === location.hash));
   let lastMove = 0;
-  const busy = () => html.classList.contains('is-lightbox'); // the screenshot viewer owns input
+  const busy = () => html.classList.contains('is-lightbox') || html.classList.contains('is-menu'); // the viewer / phone menu own input
 
   const apply = (from: number) => {
     frames.forEach((f, j) => {
