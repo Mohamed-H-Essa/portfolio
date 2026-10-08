@@ -284,6 +284,9 @@ const ssrFocus = startCard ? { y: startCard.y, z: startCard.z + CARD_LIFT + 110 
   /* RTL must not flip the 3D world; layout already mirrored time on x. */
   .world, .world * { direction: ltr; }
   .world > * { position: absolute; inset-inline-start: 0; inset-block-start: 0; }
+  /* only cards take the pointer: a plane above a card sits in front of it in
+     3D depth and would otherwise swallow hover/clicks on the card art */
+  .world > :not(.card), .world > :not(.card) * { pointer-events: none; }
 
   /* ======== planes ======== */
   .plane {
