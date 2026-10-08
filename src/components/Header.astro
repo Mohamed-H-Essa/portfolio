@@ -24,10 +24,15 @@ const langLinks = LOCALES.map((l) => ({
 // current page is a track page (first part is a track). Otherwise point at the
 // track home. Pages pass pathParts starting with the track for track-scoped pages.
 const onTrackPage = TRACKS.includes(pathParts[0] as Track);
+// On a project page the same project in another track looks identical, so the
+// switch opens that world's map with this project selected instead.
+const projectSlug = onTrackPage && pathParts[1] === 'p' ? String(pathParts[2]) : '';
 const trackLinks = TRACKS.map((tr) => ({
   code: tr,
   label: t(locale, `world.${tr}.name`),
-  href: onTrackPage ? url(locale, tr, ...pathParts.slice(1)) : url(locale, tr),
+  href: projectSlug
+    ? `${url(locale, tr)}?p=${projectSlug}`
+    : onTrackPage ? url(locale, tr, ...pathParts.slice(1)) : url(locale, tr),
   active: onTrackPage && tr === track,
 }));
 
