@@ -27,7 +27,7 @@ html.is-engine .frame {
   position: absolute;
   inset: 0;
   display: grid;
-  align-content: center;
+  align-content: safe center; /* a frame taller than the screen starts below the header, never under it */
   padding-block: 84px 104px;
   overflow-y: auto;
   overscroll-behavior: contain;
@@ -183,6 +183,9 @@ html.is-engine body:has(.dossier[data-layer='cloud']) { --c: var(--cloud); }
 @media (max-width: 760px) {
   html.is-engine .frame { padding-block: 72px 88px; align-content: start; }
   html.is-engine .frame--hero { padding: 0; }
+  /* block, not grid: the grid's stretched row held the hero at screen height and its
+     overflow:hidden cut off a long impact line, so the frame never scrolled */
+  html.is-engine .frame--hero { display: block; }
   html.is-engine .frame--hero .hero { block-size: auto; min-block-size: 100%; }
   html.is-engine .frame--hero .hero__copy { padding-block-end: 5.5rem; }
   .hud__rail { inset-inline-end: 0; }

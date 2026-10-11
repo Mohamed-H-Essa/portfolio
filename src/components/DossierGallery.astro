@@ -105,6 +105,14 @@ const rtl = locale === 'ar';
     background: var(--bg-2);
   }
   @media (max-width: 760px) { .gallery__strip img { block-size: min(64svh, 520px); } }
+  /* engine mode: the frame already pads the screen, and the strip must fit inside it, or the
+     frame overflows and the head (with its arrows) slides up under the floating header */
+  :global(html.is-engine) .gallery { padding-block: 1.5rem 0; }
+  :global(html.is-engine) .gallery__strip img { block-size: clamp(240px, 100svh - 324px, 600px); }
+  @media (max-width: 760px) {
+    :global(html.is-engine) .gallery { padding-block: 0; }
+    :global(html.is-engine) .gallery__strip img { block-size: clamp(240px, 100svh - 280px, 520px); }
+  }
 </style>
 
 <script>
