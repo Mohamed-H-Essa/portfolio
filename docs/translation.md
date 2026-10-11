@@ -8,7 +8,7 @@ actually use for this work, not a word-for-word copy of the English. UI strings 
 ## Never translate
 | What | Examples | Why |
 |---|---|---|
-| Product, app and company names | Qanony, ARATC, Bioot, Heaven Flowers, Intrazero, Credly | names; the stores show them this way |
+| Product, app and company names | Qanoni, ARATC, Bioot, Heaven Flowers, Intrazero, Credly | names; the stores show them this way |
 | Store names | App Store, Google Play, TestFlight | Apple's and Google's brand rules |
 | Technologies, services, tools | Flutter, React Native, Bloc, AWS Lambda, API Gateway, DynamoDB, GitHub Actions, MobSF, Cloudflare Workers | it's how developers write and search them, in every language |
 | Official certificate titles | AWS Certified Solutions Architect – Associate (SAA-C03) | the credential's legal name; translate the sentence around it |

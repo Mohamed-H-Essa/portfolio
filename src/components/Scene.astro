@@ -464,6 +464,16 @@ const ssrFocus = startCard ? { y: startCard.y, z: startCard.z + CARD_LIFT + 110 
     line-height: 1.3;
     color: var(--ink);
   }
+  /* a dark plate behind the label: the billboard stands in front of its plane, so the
+     plate hides the skills engraved behind it, whatever angle the camera projects them at */
+  .card__code,
+  .card__name {
+    padding: 2px 7px;
+    border-radius: 4px;
+    background: color-mix(in srgb, var(--bg) 82%, transparent);
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
+  }
   :root[dir='rtl'] .card__name { font-family: var(--font-ar); letter-spacing: 0; font-size: 15px; text-transform: none; }
   .card:hover .card__img,
   .card:focus-visible .card__img,

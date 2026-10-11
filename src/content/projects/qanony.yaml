@@ -9,8 +9,8 @@ featured: true
 confidential: false
 code: M01
 role: { en: "Flutter developer", de: "Flutter-Entwickler", ar: "مطوّر Flutter" }
-short: { en: "Qanony", de: "Qanony", ar: "قانوني" }   # ≤14 chars, used on the map
-title: { en: "Qanony", de: "Qanony", ar: "قانوني" }
+short: { en: "Qanoni", de: "Qanoni", ar: "قانوني" }   # ≤14 chars, used on the map
+title: { en: "Qanoni", de: "Qanoni", ar: "قانوني" }
 impact:
   line:
     en: "A bilingual legal-services app, live on both stores"

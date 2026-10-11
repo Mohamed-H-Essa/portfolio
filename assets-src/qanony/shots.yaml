@@ -1,11 +1,11 @@
-# Qanony — legal services, Arabic-first. iPhone (1177x2560). Source frames are
+# Qanoni — legal services, Arabic-first. iPhone (1177x2560). Source frames are
 # clean (real status bar, real demo data). Hero is the Arabic home dashboard
 # since Arabic is the product's primary listing.
 # Filenames map to the contact-sheet positions noted in comments.
 device: iphone
 accent: auto   # purple brand sampled from the hero
 world: mobile
-title: Qanony
+title: Qanoni
 code: M01
 impact: A bilingual legal-services app, live on both stores
 shots:
