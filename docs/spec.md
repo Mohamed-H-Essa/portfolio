@@ -32,7 +32,7 @@ Dark has three worlds joined by the triquetra. Mohamed's career maps onto that:
 | **Cloud** | cold cyan `#5DB8D6` | AWS, IaC, K8s, serverless, platform work, AWS SAA cert |
 | **Origin** (the knot) | pale white-gold `#EDE6D6` | Where the two meet: CI/CD & release engineering, code signing, mobile security hardening (MobSF, cert pinning), Node/Nest backends |
 
-The story the site tells: *"I build the apps, and I build what they run on."* The Origin world is what
+The story the site tells: *"I build apps, and what they run on."* The Origin world is what
 makes the move to DevOps believable: it's real work he already did.
 
 ## 3. Decisions (each one is final)

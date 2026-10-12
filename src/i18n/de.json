@@ -1,6 +1,6 @@
 {
   "site.title": "Mohamed Essa — Mobile & Cloud Engineer",
-  "site.tagline": "Ich baue die Apps – und das, worauf sie laufen.",
+  "site.tagline": "Ich baue Apps – und das, worauf sie laufen.",
   "nav.cv": "Lebenslauf",
   "nav.cvDownload": "Lebenslauf herunterladen",
   "nav.menu": "Menü",
@@ -22,7 +22,7 @@
   "track.cloud.hero": "Cloud & Platform Engineer",
   "track.cloud.sub": "AWS Certified Solutions Architect – Associate. Vom Ausliefern von Features zur Verantwortung für die Systeme dahinter.",
   "track.all.hero": "Mobile & Cloud Engineer",
-  "track.all.sub": "Ich baue die Apps – und das, worauf sie laufen.",
+  "track.all.sub": "Ich baue Apps – und das, worauf sie laufen.",
   "map.lane.mobile": "Mobile",
   "map.lane.origin": "Plattform",
   "map.lane.cloud": "Cloud",
