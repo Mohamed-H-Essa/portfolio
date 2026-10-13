@@ -8,18 +8,19 @@ export const FEATURES = {
 import type { Track } from '../i18n';
 
 // The owner keeps two real résumés in public/cv/ (static, committed, served as-is).
-// Mobile track → the mobile-engineer CV; cloud and the combined "all" track → the
-// cloud/DevOps CV. These are language-independent files; the UI label is localized.
+// The Flutter/mobile CV is the default everywhere (intro, "all", mobile); only a
+// visitor who explicitly picks the Cloud track gets the cloud/DevOps CV.
+// These are language-independent files; the UI label is localized.
 const CV_CLOUD = 'cv/Mohamed-Essa-Cloud-DevOps.pdf';
 const CV_MOBILE = 'cv/Mohamed-Essa-Mobile-Engineer.pdf';
 
 const CV_BY_TRACK: Record<Track, string> = {
   mobile: CV_MOBILE,
   cloud: CV_CLOUD,
-  all: CV_CLOUD,
+  all: CV_MOBILE,
 };
 
-/** Public path (relative, for the url() helper) of the CV PDF for a track. */
+/** Public path (relative, for the asset() helper) of the CV PDF for a track. */
 export function cvFile(track: Track): string {
-  return CV_BY_TRACK[track] ?? CV_CLOUD;
+  return CV_BY_TRACK[track] ?? CV_MOBILE;
 }
