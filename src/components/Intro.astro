@@ -7,9 +7,9 @@
 // The ∞ is a symbol, not a timeline, so it does not mirror in RTL.
 import '../styles/intro.css';
 import Sigil from './Sigil.astro';
-import { LOCALES, LOCALE_META, TRACKS, t, url, type Locale } from '../i18n';
+import { LOCALES, LOCALE_META, TRACKS, t, url, asset, type Locale } from '../i18n';
 import { pathD } from '../lib/lemniscate';
-import { FEATURES } from '../lib/features';
+import { FEATURES, cvFile } from '../lib/features';
 
 interface Props { locale: Locale; step: 'lang' | 'world' }
 const { locale, step } = Astro.props;
@@ -35,7 +35,7 @@ const tx = (k: string) => t(locale, k);
       <button type="button" class="sound-toggle" data-sound-toggle aria-pressed="true" aria-label={t(locale, 'nav.sound')} title={t(locale, 'nav.sound')}>
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10v4h3l4 3.5v-11L7 10H4z" /><path class="w w1" d="M14.5 9.5a3.5 3.5 0 0 1 0 5" /><path class="w w2" d="M17 7a7 7 0 0 1 0 10" /><path class="x" d="M15 9.5l5 5m0-5l-5 5" /></svg>
       </button>
-      {FEATURES.cv && <a class="intro__cv" href={url(locale, 'cv', 'all')} data-href="cv" data-t="nav.cv">{tx('nav.cv')}</a>}
+      {FEATURES.cv && <a class="intro__cv" href={asset(cvFile('all'))} download type="application/pdf" data-t="nav.cv">{tx('nav.cv')}</a>}
     </span>
   </div>
 

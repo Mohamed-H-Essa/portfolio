@@ -66,3 +66,13 @@ export function url(...parts: (string | number)[]): string {
   const joined = `${base.replace(/\/+$/, '')}/${path}`.replace(/\/{2,}/g, '/');
   return path === '' ? `${joined}` : `${joined}/`;
 }
+
+/**
+ * Base-aware path to a static file in public/ (no trailing slash — unlike url(),
+ * which is for directory routes). asset('cv/foo.pdf') -> `${BASE}cv/foo.pdf`.
+ */
+export function asset(path: string): string {
+  const base = import.meta.env.BASE_URL || '/';
+  const clean = path.replace(/^\/+/, '');
+  return `${base.replace(/\/+$/, '')}/${clean}`.replace(/\/{2,}/g, '/');
+}
