@@ -1,11 +1,13 @@
 import { initPanelFx } from './panel-fx';
 import { handoff, prefetch, type HandoffTarget } from './handoff';
 import { play } from './sound';
+import { LANE_W } from '../lib/scene';
 
 // Camera + interaction for the layered 3D map (Scene.astro).
 // The scene's geometry is static CSS 3D from SSR; this only drives a handful of
-// CSS variables on the stage (--fx --fz --yaw --pitch --zoom) every frame, plus
-// selection state, the info panel, the year rail and the dust canvas.
+// CSS variables on the stage (--fx --fy --fz --yaw --pitch --zoom) every frame,
+// plus selection state, the info panel, the year rail and the dust canvas.
+// x = across the lanes, y = time (down = later), z = up.
 
 interface PanelItem {
   code: string; title: string; impact: string; role: string; years: string;
@@ -15,7 +17,10 @@ interface PanelItem {
 interface SceneJson {
   panel: Record<string, PanelItem>;
   strings: { phases: Record<string, string> };
-  camera: { x: number; z: number; yaw: number; xRange: [number, number]; rtl: boolean };
+  camera: {
+    x: number; y: number; yaw: number; pitch: number;
+    xRange: [number, number]; yRange: [number, number]; lanes: number[]; rtl: boolean;
+  };
 }
 
 const clamp = (v: number, a: number, b: number) => Math.min(b, Math.max(a, v));
@@ -35,19 +40,27 @@ export function initScene(stage: HTMLElement) {
 
   // ---- camera state ---------------------------------------------------------
   const cam0 = json.camera;
-  const home = { fx: cam0.x, fy: 0, fz: 0, yaw: cam0.yaw, pitch: 54, zoomUser: 1 };
+  const home = { fx: cam0.x, fy: cam0.y, fz: 160, yaw: cam0.yaw, pitch: cam0.pitch, zoomUser: 1 };
   const cur = { ...home };
   const tgt = { ...home };
-  let fit = 0.78;
-  let vx = 0; // inertia (world px / frame) on x
-  let vz = 0;
+  let fit = 0.7;
+  let vx = 0; // inertia (world px / frame) across lanes
+  let vy = 0; // ...and along time
   const [xMin, xMax] = cam0.xRange;
-  // z reaches past the top layer so a lifted card on Mobile can be centred
-  const zMin = -620, zMax = 840;
+  const [yMin, yMax] = cam0.yRange;
+  const lanes = cam0.lanes;
+  // phones show one lane at a time (its neighbours peek in at the sides)
+  const narrow = () => stage.clientWidth <= 760;
+  const laneOf = (x: number) => lanes.reduce((b, c) => (Math.abs(c - x) < Math.abs(b - x) ? c : b), lanes[0]);
 
+  // Desktop: all lanes fit beside the panel. Phone: one lane fills ~70% of the width.
   const computeFit = () => {
-    const base = parseFloat(getComputedStyle(stage).getPropertyValue('--fit-zoom')) || 0.78;
-    fit = base * clamp(stage.clientHeight / 860, 0.72, 1.25);
+    const w = stage.clientWidth, h = stage.clientHeight;
+    const base = parseFloat(getComputedStyle(stage).getPropertyValue('--fit-zoom')) || 0.7;
+    const span = (lanes[lanes.length - 1] - lanes[0]) + LANE_W + 140;
+    fit = narrow()
+      ? clamp((w * 0.7) / LANE_W, 0.45, 0.8)
+      : Math.min(base * clamp(h / 860, 0.8, 1.25), Math.max(0.42, (w - 460) / span));
   };
   computeFit();
 
@@ -85,7 +98,7 @@ export function initScene(stage: HTMLElement) {
     moved = 0;
     orbit = e.shiftKey || e.button === 2;
     last = { x: e.clientX, y: e.clientY, t: performance.now() };
-    vx = vz = 0;
+    vx = vy = 0;
     touched();
   });
 
@@ -114,15 +127,16 @@ export function initScene(stage: HTMLElement) {
     const zoom = fit * cur.zoomUser;
     if (orbit) {
       tgt.yaw = cur.yaw = clamp(cur.yaw + dx * 0.18, -50, 50);
-      tgt.pitch = cur.pitch = clamp(cur.pitch + dy * 0.14, 28, 74);
+      tgt.pitch = cur.pitch = clamp(cur.pitch + dy * 0.14, 18, 64);
     } else {
+      // the floor is tilted away: a screen px down covers 1/cos(pitch) world px of time
       const ddx = -dx / (zoom * Math.max(0.35, Math.cos(cur.yaw * RAD)));
-      const ddz = dy / (zoom * Math.max(0.35, Math.sin(cur.pitch * RAD)));
+      const ddy = -dy / (zoom * Math.max(0.35, Math.cos(cur.pitch * RAD)));
       tgt.fx = cur.fx = clamp(cur.fx + ddx, xMin, xMax);
-      tgt.fz = cur.fz = clamp(cur.fz + ddz, zMin, zMax);
+      tgt.fy = cur.fy = clamp(cur.fy + ddy, yMin, yMax);
       const dt = Math.max(8, now - last.t) / 16.7;
       vx = ddx / dt;
-      vz = ddz / dt;
+      vy = ddy / dt;
     }
     last = { x: e.clientX, y: e.clientY, t: now };
     touched();
@@ -134,15 +148,21 @@ export function initScene(stage: HTMLElement) {
     if (pointers.size === 0) {
       dragging = false;
       viewport.classList.remove('is-grabbing');
-      if (reduce || performance.now() - last.t > 80) vx = vz = 0; // released while still: no fling
+      if (reduce || performance.now() - last.t > 80) vx = vy = 0; // released while still: no fling
+      // phones: settle on a lane, the one a sideways flick was heading for
+      if (narrow() && !orbit) {
+        tgt.fx = laneOf(cur.fx + vx * 14);
+        vx = 0;
+      }
     }
   };
   viewport.addEventListener('pointerup', end);
   viewport.addEventListener('pointercancel', end);
   viewport.addEventListener('contextmenu', (e) => e.preventDefault());
 
-  // Trackpads send deltaX; plain mice only deltaY. Mouse wheel → time,
-  // trackpad → x/z like a drag. Ctrl/⌘ (and trackpad pinch) → zoom.
+  // Trackpads send deltaX; plain mice only deltaY. Wheel / two-finger scroll
+  // down → later in time; trackpad sideways → across lanes. Ctrl/⌘ (and
+  // trackpad pinch) → zoom.
   let trackpad = false;
   viewport.addEventListener(
     'wheel',
@@ -156,12 +176,8 @@ export function initScene(stage: HTMLElement) {
         return;
       }
       const k = e.deltaMode === 1 ? 32 : 1;
-      if (trackpad) {
-        tgt.fx = clamp(tgt.fx + (e.deltaX * k) / zoom, xMin, xMax);
-        tgt.fz = clamp(tgt.fz - (e.deltaY * k) / zoom, zMin, zMax);
-      } else {
-        tgt.fx = clamp(tgt.fx + ((cam0.rtl ? -1 : 1) * e.deltaY * k) / zoom, xMin, xMax);
-      }
+      if (trackpad && !narrow()) tgt.fx = clamp(tgt.fx + (e.deltaX * k) / zoom, xMin, xMax);
+      tgt.fy = clamp(tgt.fy + (e.deltaY * k) / (zoom * Math.cos(cur.pitch * RAD)), yMin, yMax);
     },
     { passive: false }
   );
@@ -169,10 +185,10 @@ export function initScene(stage: HTMLElement) {
   viewport.addEventListener('keydown', (e) => {
     const step = 160 / (fit * cur.zoomUser);
     const m: Record<string, () => void> = {
-      ArrowLeft: () => (tgt.fx = clamp(tgt.fx - step, xMin, xMax)),
-      ArrowRight: () => (tgt.fx = clamp(tgt.fx + step, xMin, xMax)),
-      ArrowUp: () => (tgt.fz = clamp(tgt.fz + step * 0.6, zMin, zMax)),
-      ArrowDown: () => (tgt.fz = clamp(tgt.fz - step * 0.6, zMin, zMax)),
+      ArrowLeft: () => (tgt.fx = narrow() ? laneOf(tgt.fx - LANE_W) : clamp(tgt.fx - step, xMin, xMax)),
+      ArrowRight: () => (tgt.fx = narrow() ? laneOf(tgt.fx + LANE_W) : clamp(tgt.fx + step, xMin, xMax)),
+      ArrowUp: () => (tgt.fy = clamp(tgt.fy - step, yMin, yMax)),
+      ArrowDown: () => (tgt.fy = clamp(tgt.fy + step, yMin, yMax)),
       '+': () => (tgt.zoomUser = clamp(tgt.zoomUser * 1.2, 0.5, 2.4)),
       '=': () => (tgt.zoomUser = clamp(tgt.zoomUser * 1.2, 0.5, 2.4)),
       '-': () => (tgt.zoomUser = clamp(tgt.zoomUser / 1.2, 0.5, 2.4)),
@@ -225,15 +241,17 @@ export function initScene(stage: HTMLElement) {
   // Centre the whole card (not its foot) at the screen focus. The card is a
   // billboard standing on its anchor (x, y, z + lift) and rising cardH screen
   // px; world z maps to screen y by zoom·sin(pitch), so lift the focus by half
-  // the card's on-screen height expressed in world units.
+  // the card's on-screen height expressed in world units. Across the lanes:
+  // phones go to the card's lane; desktop keeps every lane in view unless zoomed in.
   const flyTo = (card: HTMLElement) => {
     const k = parseFloat(getComputedStyle(stage).getPropertyValue('--card-k')) || 1;
     const zoom = fit * tgt.zoomUser;
     const halfH = (card.offsetHeight * k) / 2;
-    tgt.fx = clamp(Number(card.dataset.x), xMin, xMax);
-    tgt.fy = Number(card.dataset.y);
-    tgt.fz = clamp(Number(card.dataset.z) + halfH / (zoom * Math.sin(tgt.pitch * RAD)), zMin, zMax);
-    vx = vz = 0;
+    const x = Number(card.dataset.x);
+    tgt.fx = narrow() ? laneOf(x) : tgt.zoomUser > 1.15 ? clamp(x, xMin, xMax) : home.fx;
+    tgt.fy = clamp(Number(card.dataset.y), yMin, yMax);
+    tgt.fz = Number(card.dataset.z) + halfH / (zoom * Math.sin(tgt.pitch * RAD));
+    vx = vy = 0;
   };
 
   const select = (slug: string, fly = true) => {
@@ -287,8 +305,9 @@ export function initScene(stage: HTMLElement) {
   // ---- year rail, controls, index ----------------------------------------
   for (const b of rail) {
     b.addEventListener('click', () => {
-      tgt.fx = clamp(Number(b.dataset.x), xMin, xMax);
-      vx = 0;
+      // the year line a little above centre, so that year's projects fill the view
+      tgt.fy = clamp(Number(b.dataset.y) + 220, yMin, yMax);
+      vy = 0;
       touched();
     });
   }
@@ -296,10 +315,10 @@ export function initScene(stage: HTMLElement) {
     let best: HTMLButtonElement | null = null;
     let bestD = Infinity;
     for (const b of rail) {
-      // the year whose start is at or before the focus (time-wise)
-      const x = Number(b.dataset.x);
-      const passed = cam0.rtl ? x >= cur.fx - 1 : x <= cur.fx + 1;
-      const d = Math.abs(cur.fx - x);
+      // the year whose start is at or before the focus
+      const y = Number(b.dataset.y);
+      const passed = y <= cur.fy + 1;
+      const d = Math.abs(cur.fy - y);
       if (passed && d < bestD) { bestD = d; best = b; }
     }
     for (const b of rail) b.classList.toggle('is-active', b === best);
@@ -313,7 +332,7 @@ export function initScene(stage: HTMLElement) {
   );
   stage.querySelector('[data-reset]')?.addEventListener('click', () => {
     Object.assign(tgt, home);
-    vx = vz = 0;
+    vx = vy = 0;
     if (json.panel[stage.dataset.start || '']) select(stage.dataset.start!);
   });
   const toggleIndex = (open: boolean) => {
@@ -348,7 +367,7 @@ export function initScene(stage: HTMLElement) {
     for (const m of motes) {
       if (!reduce) m.y += m.v * 16;
       const px = (((m.x * w - cur.fx * 0.05 * m.d - cur.yaw * 4 * m.d) % w) + w) % w;
-      const py = (((m.y * h + cur.fz * 0.04 * m.d) % h) + h) % h;
+      const py = (((m.y * h - cur.fy * 0.05 * m.d) % h) + h) % h;
       const a = 0.08 + 0.22 * m.d * (0.6 + 0.4 * Math.sin(t * 0.0006 + m.x * 40));
       ctx.fillStyle = `rgba(237,230,214,${a.toFixed(3)})`;
       ctx.beginPath();
@@ -362,11 +381,11 @@ export function initScene(stage: HTMLElement) {
   const tick = (t: number) => {
     if (!dragging && !reduce) {
       // fling
-      if (Math.abs(vx) > 0.05 || Math.abs(vz) > 0.05) {
+      if (Math.abs(vx) > 0.05 || Math.abs(vy) > 0.05) {
         tgt.fx = clamp(tgt.fx + vx, xMin, xMax);
-        tgt.fz = clamp(tgt.fz + vz, zMin, zMax);
+        tgt.fy = clamp(tgt.fy + vy, yMin, yMax);
         vx *= 0.92;
-        vz *= 0.92;
+        vy *= 0.92;
       }
     }
     const k = reduce ? 1 : dragging ? 1 : 0.1;
@@ -391,7 +410,11 @@ export function initScene(stage: HTMLElement) {
     cancelAnimationFrame(raf);
     if (!document.hidden) raf = requestAnimationFrame(tick);
   });
-  addEventListener('resize', () => { computeFit(); sizeCanvas(); });
+  addEventListener('resize', () => {
+    computeFit();
+    sizeCanvas();
+    if (narrow()) tgt.fx = laneOf(tgt.fx);
+  });
 
   // start framed on the featured project (or ?p=<slug> when coming back from
   // a dossier), without animating the first frame

@@ -1,11 +1,14 @@
-// Pure layout for the layered 3D map. Produces world-space coordinates (px)
-// for: three stacked planes (mobile / platform / cloud), project cards that
-// stand on their plane, beams between connected projects, skills engraved on
-// the planes near the projects that use them, and year gridlines.
+// Pure layout for the 3D map. Produces world-space coordinates (px) for:
+// three lanes lying side by side on one floor (mobile / platform / cloud),
+// project cards that stand on their lane, beams between connected projects,
+// skills engraved along the lane edges, and year lines across all lanes.
 //
-// Axes (world space, before the camera): x = time, y = depth across a plane,
-// z = up (layer height). The Scene component renders these with CSS 3D; the
-// camera script only moves the camera, never the layout. No DOM here — tested.
+// Axes (world space, before the camera): x = across the lanes, y = time
+// (older = smaller y = further away, so the past recedes and the present is
+// close), z = up. The Scene component renders these with CSS 3D; the camera
+// script only moves the camera, never the layout. No DOM here — tested.
+//
+// Time runs top → bottom in every language; RTL only mirrors the lane order.
 import type { Track } from '../i18n/config';
 
 export type Layer = 'mobile' | 'origin' | 'cloud'; // origin = the "Platform" layer
@@ -32,14 +35,14 @@ export interface SceneCard extends Vec3 {
 }
 export interface ScenePlane {
   layer: Layer;
-  z: number;
-  x0: number; // left edge
-  width: number;
-  y0: number; // back edge
-  depth: number;
-  /** x positions of the engraved layer name: from the start of time (left in
-   *  LTR, right in RTL), repeated along the plane so one is always on screen */
-  titleXs: number[];
+  x0: number; // inline edge of the lane (physical left)
+  width: number; // across the lane
+  y0: number; // top (the far, oldest end)
+  depth: number; // along time
+  /** lane centre on x (camera snaps here on phones) */
+  cx: number;
+  /** y positions of the engraved lane name, in stretches no card covers */
+  titleYs: number[];
 }
 export interface SceneBeam {
   from: string;
@@ -56,7 +59,7 @@ export interface SceneSkill extends Vec3 {
   layer: Layer;
   slugs: string[]; // projects that use it (for hover lighting)
 }
-export interface SceneYear { year: number; x: number }
+export interface SceneYear { year: number; y: number }
 
 export interface SceneLayout {
   planes: ScenePlane[];
@@ -64,39 +67,38 @@ export interface SceneLayout {
   beams: SceneBeam[];
   skills: SceneSkill[];
   years: SceneYear[];
-  /** camera clamp range for the focus x */
+  /** x of the year axis (beside the lanes, on the inline-start side) */
+  axisX: number;
+  /** camera clamp ranges for the focus */
   xRange: [number, number];
-  /** where the camera should start */
+  yRange: [number, number];
+  /** where the camera should start (x = middle of all lanes) */
   start: Vec3;
 }
 
 export const LAYERS: Layer[] = ['mobile', 'origin', 'cloud'];
-// The gap must exceed lift + a card's height in world units at the default zoom,
-// or the plane above slices through the top of every billboard.
-export const LAYER_Z: Record<Layer, number> = { mobile: 560, origin: 0, cloud: -560 };
-// A plane runs from y = -PLANE_BACK (back) to +PLANE_FRONT (front, toward the
-// camera). The last LANE_BAND of the front is the lane's label strip: name +
-// years, kept clear of cards and skills.
-export const PLANE_BACK = 230;
-export const PLANE_FRONT = 300;
-export const LANE_BAND = 70;
-export const PLANE_DEPTH = PLANE_BACK + PLANE_FRONT;
-export const CARD_LIFT = 46; // how high a card floats above its plane
-const MONTH_W = 34; // px per month on the time axis (one notch roomier than 30)
-const PAD_START = 520; // room before the first card for the engraved title
-const PAD_END = 360;
-const ROWS = [0, -130, 130]; // card rows across a plane's depth, in preference order
-const MIN_DX = 250; // cards in the same row closer than this get a different row
-/** Same-layer cards are nudged forward in time to at least this far apart on x,
- *  so billboards in different rows never stack fully on screen. Cards still
- *  print their real year; the nudge is at most a few months per crowded node. */
-export const MIN_SEP = 150;
-export const SKILL_BANDS = [-198, 196]; // back / front strips where skills are engraved
-const SKILL_CHAR_W = 12.5; // approx. advance per char of the engraved skill font
-const SKILL_GAP = 34;
-const YEAR_W = 12 * MONTH_W;
-const TITLE_HALF = 115; // approx. half-width of a lane name in the band
-const NAME_AT = 210; // a name's centre, after its year line (the year label sits right after the line)
+export const LANE_W = 380;
+export const LANE_GAP = 90;
+export const AXIS_GAP = 110; // year labels sit this far outside the first lane
+export const CARD_LIFT = 46; // how high a card floats above its lane
+const MONTH_H = 70; // px per month on the time axis
+const PAD_START = 420; // room before the first card for the lane names
+const PAD_END = 420;
+/** Cards zig-zag between two columns in a lane (offset from the lane centre). */
+export const COL = 90;
+/** Consecutive cards in a lane are at least this far apart in time (y), so
+ *  their dots never touch and reading order stays clear. */
+export const MIN_SEP = 120;
+/** Cards in the SAME column must be this far apart: a billboard rises from its
+ *  anchor and covers ~this much floor behind it at the default zoom. */
+export const MIN_DY = 340;
+/** Skills are engraved along both edges of a lane (offset from its centre). */
+export const SKILL_EDGE = 166;
+export const SKILL_CHAR_W = 12.5; // approx. advance per char of the engraved skill font
+export const SKILL_GAP = 34;
+const YEAR_H = 12 * MONTH_H;
+const TITLE_CLEAR_ABOVE = 90; // a lane name keeps this far below the card above it
+const TITLE_CLEAR_BELOW = 380; // ...and this far above the next card (its billboard covers it)
 
 function monthIndex(ym: string): number {
   const [y, m] = ym.split('-').map(Number);
@@ -114,7 +116,6 @@ export function beamGeometry(a: Vec3, b: Vec3): { length: number; rotZ: number; 
   return { length, rotZ, rotY };
 }
 
-
 export function layoutScene(
   input: SceneInput[],
   track: Track,
@@ -122,54 +123,63 @@ export function layoutScene(
 ): SceneLayout {
   const dir = opts.dir ?? 'ltr';
   if (!input.length) {
-    return { planes: [], cards: [], beams: [], skills: [], years: [], xRange: [0, 0], start: { x: 0, y: 0, z: 0 } };
+    return {
+      planes: [], cards: [], beams: [], skills: [], years: [], axisX: 0,
+      xRange: [0, 0], yRange: [0, 0], start: { x: 0, y: 0, z: 0 },
+    };
   }
+
+  // ---- lanes: side by side on x, mirrored in RTL -----------------------------
+  const order = dir === 'rtl' ? [...LAYERS].reverse() : LAYERS;
+  const laneX0 = (l: Layer) => order.indexOf(l) * (LANE_W + LANE_GAP);
+  const laneCx = (l: Layer) => laneX0(l) + LANE_W / 2;
+  const spanW = LAYERS.length * LANE_W + (LAYERS.length - 1) * LANE_GAP;
+  const axisX = dir === 'rtl' ? spanW + AXIS_GAP : -AXIS_GAP;
+  // the column on the inline-start side of a lane comes first in the zig-zag
+  const cols = dir === 'rtl' ? [COL, -COL] : [-COL, COL];
 
   const months = input.map((n) => monthIndex(n.start));
   const m0 = Math.min(...months);
   const m1 = Math.max(...months);
   // Start the timeline at January of the first year so year lines line up.
   const mStart = Math.floor(m0 / 12) * 12;
-  const xOfMonth = (m: number) => PAD_START + (m - mStart) * MONTH_W;
-  let xEnd = xOfMonth(m1) + PAD_END; // plane spans [0, xEnd]; grows if nudges pass it
-  const mirror = (x: number) => (dir === 'rtl' ? xEnd - x : x);
+  const yOfMonth = (m: number) => PAD_START + (m - mStart) * MONTH_H;
 
-  // ---- cards: true time on x, rows on y to avoid overlaps -----------------
+  // ---- cards: true time on y, zig-zag columns, nudged later only if crowded --
   const cards: SceneCard[] = [];
   for (const layer of LAYERS) {
     const inLayer = input
       .filter((n) => (n.worlds[0] ?? 'origin') === layer)
       .sort((a, b) => monthIndex(a.start) - monthIndex(b.start));
-    const rowLast: Record<number, number> = {};
-    let prevX = -Infinity;
+    const colLast = cols.map(() => -Infinity);
+    let prevY = -Infinity;
+    let prevCol = -1;
     for (const n of inLayer) {
-      const x = Math.max(xOfMonth(monthIndex(n.start)), prevX + MIN_SEP);
-      prevX = x;
-      let row = ROWS.find((r) => rowLast[r] === undefined || x - rowLast[r] >= MIN_DX);
-      if (row === undefined) {
-        // every row is crowded: take the one whose last card is furthest away
-        row = ROWS.reduce((best, r) => (x - rowLast[r] > x - rowLast[best] ? r : best), ROWS[0]);
-      }
-      rowLast[row] = x;
+      const base = Math.max(yOfMonth(monthIndex(n.start)), prevY + MIN_SEP);
+      // each column's earliest free y; take the earliest, alternating on a tie
+      const ys = cols.map((_, i) => Math.max(base, colLast[i] + MIN_DY));
+      let col = ys[0] < ys[1] ? 0 : ys[1] < ys[0] ? 1 : prevCol === 0 ? 1 : 0;
+      const y = ys[col];
+      colLast[col] = y;
+      prevY = y;
+      prevCol = col;
       cards.push({
         slug: n.slug,
         code: n.code,
         layer,
         year: Math.floor(monthIndex(n.start) / 12),
-        x,
-        y: row,
-        z: LAYER_Z[layer],
+        x: laneCx(layer) + cols[col],
+        y,
+        z: 0,
         dimmed: n.weight[track] === 0,
         featured: n.slug === opts.featured,
       });
     }
   }
-  xEnd = Math.max(xEnd, ...cards.map((c) => c.x + PAD_END));
-  const totalW = xEnd;
-  for (const c of cards) c.x = mirror(c.x);
+  const yEnd = Math.max(yOfMonth(m1), ...cards.map((c) => c.y)) + PAD_END;
   const bySlug = new Map(cards.map((c) => [c.slug, c]));
 
-  // ---- beams between connected projects (deduped) -------------------------
+  // ---- beams between connected projects (deduped), lying on the floor ------
   const beams: SceneBeam[] = [];
   const seen = new Set<string>();
   for (const n of input) {
@@ -181,16 +191,16 @@ export function layoutScene(
       const key = [n.slug, to].sort().join('|');
       if (seen.has(key)) continue;
       seen.add(key);
-      const pa = { x: a.x, y: a.y, z: a.z };
-      const pb = { x: b.x, y: b.y, z: b.z };
+      const pa = { x: a.x, y: a.y, z: 0 };
+      const pb = { x: b.x, y: b.y, z: 0 };
       beams.push({ from: n.slug, to, a: pa, b: pb, ...beamGeometry(pa, pb) });
     }
   }
 
-  // ---- skills engraved on the layer where they're used most ---------------
+  // ---- skills engraved along the edges of the lane that uses them most -----
   const skillUse = new Map<string, string[]>();
   for (const n of input) for (const s of n.stack) skillUse.set(s, [...(skillUse.get(s) ?? []), n.slug]);
-  type Want = { name: string; layer: Layer; x: number; w: number; slugs: string[] };
+  type Want = { name: string; layer: Layer; y: number; h: number; slugs: string[] };
   const wants: Want[] = [];
   for (const [name, slugs] of skillUse) {
     const used = slugs.map((s) => bySlug.get(s)!).filter(Boolean);
@@ -198,55 +208,64 @@ export function layoutScene(
     const tally: Record<Layer, number> = { mobile: 0, origin: 0, cloud: 0 };
     for (const c of used) tally[c.layer]++;
     const layer = LAYERS.reduce((best, l) => (tally[l] > tally[best] ? l : best), 'origin' as Layer);
-    const xs = used.filter((c) => c.layer === layer).map((c) => c.x);
-    const x = xs.reduce((s, v) => s + v, 0) / xs.length;
-    wants.push({ name, layer, x, w: name.length * SKILL_CHAR_W + SKILL_GAP, slugs });
+    const ys = used.filter((c) => c.layer === layer).map((c) => c.y);
+    const y = ys.reduce((s, v) => s + v, 0) / ys.length;
+    wants.push({ name, layer, y, h: name.length * SKILL_CHAR_W + SKILL_GAP, slugs });
   }
-  // 1-D packing per (layer, band): place in x order, push right on overlap,
-  // alternating bands so each skill stays as close to its projects as possible.
+  // 1-D packing per (lane, edge) along time: place in y order, push later on
+  // overlap, choosing the edge that keeps each skill closest to its projects.
   const skills: SceneSkill[] = [];
+  const edges = [-SKILL_EDGE, SKILL_EDGE];
   for (const layer of LAYERS) {
-    const ws = wants.filter((w) => w.layer === layer).sort((a, b) => a.x - b.x);
-    const bandEnd: number[] = SKILL_BANDS.map(() => -Infinity);
+    const ws = wants.filter((w) => w.layer === layer).sort((a, b) => a.y - b.y || a.name.localeCompare(b.name));
+    const edgeEnd = edges.map(() => -Infinity);
     for (const w of ws) {
-      let bestBand = 0;
-      let bestX = Infinity;
-      SKILL_BANDS.forEach((_, i) => {
-        const x = Math.max(w.x, bandEnd[i] + w.w / 2);
-        if (Math.abs(x - w.x) < Math.abs(bestX - w.x)) { bestX = x; bestBand = i; }
+      let best = 0;
+      let bestY = Infinity;
+      edges.forEach((_, i) => {
+        const y = Math.max(w.y, edgeEnd[i] + w.h / 2);
+        if (Math.abs(y - w.y) < Math.abs(bestY - w.y)) { bestY = y; best = i; }
       });
-      bandEnd[bestBand] = bestX + w.w / 2;
-      skills.push({ name: w.name, layer, slugs: w.slugs, x: bestX, y: SKILL_BANDS[bestBand], z: LAYER_Z[layer] });
+      edgeEnd[best] = bestY + w.h / 2;
+      skills.push({ name: w.name, layer, slugs: w.slugs, x: laneCx(layer) + edges[best], y: bestY, z: 0 });
     }
   }
-  // (skills were packed in already-mirrored space, so no further mirror)
 
-  // ---- planes + years ------------------------------------------------------
+  // ---- years + lane names --------------------------------------------------
+  const years: SceneYear[] = [];
+  for (let yr = Math.floor(m0 / 12); yr <= Math.floor(m1 / 12) + 1; yr++) {
+    const y = yOfMonth(yr * 12);
+    if (y <= yEnd) years.push({ year: yr, y });
+  }
+  // A lane name goes in the lead-in, then every half year wherever no card's
+  // billboard stands over it and it keeps clear of the year lines.
+  const titleYsFor = (layer: Layer) => {
+    const own = cards.filter((c) => c.layer === layer).map((c) => c.y);
+    const clear = (y: number) =>
+      own.every((cy) => y - cy >= TITLE_CLEAR_ABOVE || cy - y >= TITLE_CLEAR_BELOW) &&
+      years.every((yr) => Math.abs(yr.y - y) >= 60);
+    const out = [PAD_START / 2];
+    for (let y = PAD_START + YEAR_H / 4; y < yEnd - 80; y += YEAR_H / 2) {
+      if (clear(y) && y - out[out.length - 1] >= YEAR_H / 2 - 1) out.push(y);
+    }
+    return out;
+  };
+
   const planes: ScenePlane[] = LAYERS.map((layer) => ({
     layer,
-    z: LAYER_Z[layer],
-    x0: 0,
-    width: totalW,
-    y0: -PLANE_BACK,
-    depth: PLANE_DEPTH,
-    titleXs: [],
+    x0: laneX0(layer),
+    width: LANE_W,
+    y0: 0,
+    depth: yEnd,
+    cx: laneCx(layer),
+    titleYs: titleYsFor(layer),
   }));
-  const years: SceneYear[] = [];
-  const yearXs: number[] = []; // unmirrored
-  for (let y = Math.floor(m0 / 12); y <= Math.floor(m1 / 12) + 1; y++) {
-    const x = xOfMonth(y * 12);
-    if (x <= xEnd) { years.push({ year: y, x: mirror(x) }); yearXs.push(x); }
-  }
-  // lane names sit centred between year lines (so they never meet a year
-  // label): in the lead-in before the first year, then every other year
-  const names = [PAD_START / 2];
-  yearXs.forEach((x, i) => { if (i % 2 === 1 && x + YEAR_W - TITLE_HALF <= xEnd) names.push(x + NAME_AT); });
-  for (const pl of planes) pl.titleXs = names.map(mirror);
 
-  const xs = cards.map((c) => c.x);
-  const xRange: [number, number] = [Math.min(...xs) - 200, Math.max(...xs) + 200];
+  const cys = cards.map((c) => c.y);
+  const xRange: [number, number] = [laneCx(order[0]) - 60, laneCx(order[order.length - 1]) + 60];
+  const yRange: [number, number] = [Math.min(...cys) - 260, Math.max(...cys) + 160];
   const feat = cards.find((c) => c.featured) ?? cards.find((c) => !c.dimmed) ?? cards[0];
-  const start = { x: feat.x, y: 0, z: 0 };
+  const start = { x: spanW / 2, y: feat.y, z: 0 };
 
-  return { planes, cards, beams, skills, years, xRange, start };
+  return { planes, cards, beams, skills, years, axisX, xRange, yRange, start };
 }

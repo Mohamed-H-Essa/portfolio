@@ -3,7 +3,7 @@
 // SSR renders the full scene with CSS 3D at the default camera, so it shows
 // (and every card is a working link) without JavaScript. scene-camera.ts adds
 // drag / orbit / zoom / fly-to / selection on top.
-import { layoutScene, PLANE_DEPTH, CARD_LIFT, type SceneInput, type Layer } from '../lib/scene';
+import { layoutScene, CARD_LIFT, type SceneInput, type Layer } from '../lib/scene';
 import { loc, t, url, dir as dirOf, type Locale, type Track } from '../i18n';
 import { hasAssets, hasScreens, assetUrl, galleryCount, galleryUrl } from '../lib/assets';
 import Badge from './Badge.astro';
@@ -74,37 +74,40 @@ const strings = {
 };
 const startSlug = L.cards.find((c) => c.featured)?.slug ?? L.cards.find((c) => !c.dimmed)?.slug ?? L.cards[0]?.slug;
 const startCard = L.cards.find((c) => c.slug === startSlug);
-const camera = { x: L.start.x, z: 0, yaw: rtl ? 14 : -14, xRange: L.xRange, rtl };
+const lanes = L.planes.map((p) => p.cx).sort((a, b) => a - b);
+// the rail jumps to years that hold projects (the floor still draws the closing year line)
+const lastYear = Math.max(...L.cards.map((c) => c.year));
+const railYears = L.years.filter((y) => y.year <= lastYear);
+const camera = { x: L.start.x, y: L.start.y, yaw: rtl ? 5 : -5, pitch: 40, xRange: L.xRange, yRange: L.yRange, lanes, rtl };
 // No-JS framing: aim at the start card, raised ~half a card so it sits centred.
-const ssrFocus = startCard ? { y: startCard.y, z: startCard.z + CARD_LIFT + 110 } : { y: 0, z: 0 };
+const ssrFocus = { y: startCard?.y ?? 0, z: CARD_LIFT + 110 };
 ---
 
 <section
   class="stage"
   data-scene
   data-start={startSlug}
-  style={`--fx:${camera.x};--fy:${ssrFocus.y};--fz:${ssrFocus.z};--yaw:${camera.yaw}deg;--pitch:54deg;--zoom:var(--fit-zoom);`}
+  style={`--fx:${camera.x};--fy:${ssrFocus.y};--fz:${ssrFocus.z};--yaw:${camera.yaw}deg;--pitch:${camera.pitch}deg;--zoom:var(--fit-zoom);`}
 >
   <canvas class="dust" aria-hidden="true"></canvas>
 
   <div class="viewport" tabindex="0" aria-label={t(locale, 'map.layers')} aria-roledescription="3D map">
     <div class="world">
-      {/* planes: flat glass with grid, year lines, engraved layer name and skills */}
+      {/* lanes: strips of glass side by side on one floor; time runs down them */}
       {
         L.planes.map((pl) => (
           <div
             class="plane"
             data-layer={pl.layer}
-            style={`width:${pl.width}px;height:${pl.depth}px;transform:translate3d(${pl.x0}px,${pl.y0}px,${pl.z}px)`}
+            style={`width:${pl.width}px;height:${pl.depth}px;transform:translate3d(${pl.x0}px,${pl.y0}px,0)`}
           >
-            <span class="plane__band" />
-            {pl.titleXs.map((tx) => (
-              <span class="plane__title" style={`left:${tx - pl.x0}px`}>{layerName(pl.layer)}</span>
+            {pl.titleYs.map((ty) => (
+              <span class="plane__title" style={`top:${ty - pl.y0}px`}>{layerName(pl.layer)}</span>
             ))}
             {L.years.map((y) => (
               <>
-                <span class="plane__year" style={`left:${y.x - pl.x0}px`} />
-                <span class="plane__yearlabel" style={`left:${y.x - pl.x0}px`}>{y.year}</span>
+                <span class="plane__year" style={`top:${y.y - pl.y0}px`} />
+                <span class="plane__yearlabel" style={`top:${y.y - pl.y0}px`}>{y.year}</span>
               </>
             ))}
             {L.skills
@@ -121,6 +124,11 @@ const ssrFocus = startCard ? { y: startCard.y, z: startCard.z + CARD_LIFT + 110 
           </div>
         ))
       }
+
+      {/* the year axis beside the lanes */}
+      <div class="axis" style={`height:${L.planes[0]?.depth ?? 0}px;transform:translate3d(${L.axisX}px,0,0)`}>
+        {L.years.map((y) => <span class="axis__year" style={`top:${y.y}px`}>{y.year}</span>)}
+      </div>
 
       {/* beams between connected projects (world space, can cross layers) */}
       {
@@ -186,8 +194,8 @@ const ssrFocus = startCard ? { y: startCard.y, z: startCard.z + CARD_LIFT + 110 
 
   <nav class="rail" aria-label="Years">
     {
-      L.years.map((y) => (
-        <button class="rail__year" data-x={y.x} data-year={y.year}>
+      railYears.map((y) => (
+        <button class="rail__year" data-y={y.y} data-year={y.year}>
           <span class="rail__n">{y.year}</span>
           <span class="rail__phase">{strings.phases[y.year]}</span>
         </button>
@@ -258,7 +266,7 @@ const ssrFocus = startCard ? { y: startCard.y, z: startCard.z + CARD_LIFT + 110 
   /* ======== stage: the whole viewport ======== */
   .stage {
     --card-k: 1;
-    --fit-zoom: 0.78;
+    --fit-zoom: 0.7;
     --ox: -170px; /* focus sits beside the panel (half its width + gutter) */
     --oy: 10px;
     --flip: 1; /* RTL puts the panel on the left, so the offset flips */
@@ -267,7 +275,7 @@ const ssrFocus = startCard ? { y: startCard.y, z: startCard.z + CARD_LIFT + 110 
     overflow: hidden;
     background: radial-gradient(90% 70% at 50% 45%, #0f1012 0%, var(--bg) 70%);
     color: var(--ink);
-    touch-action: pan-y; /* phones: vertical swipes still reach the page; JS handles horizontal */
+    touch-action: none; /* the map owns every gesture: vertical swipes move through time */
   }
   .dust { position: absolute; inset: 0; inline-size: 100%; block-size: 100%; pointer-events: none; }
 
@@ -313,36 +321,30 @@ const ssrFocus = startCard ? { y: startCard.y, z: startCard.z + CARD_LIFT + 110 
   @keyframes map-return { from { opacity: 0; transform: scale(0.9); filter: blur(6px); } }
   @keyframes map-return-ui { from { opacity: 0; } }
 
-  /* ======== planes ======== */
+  /* ======== lanes ======== */
   .plane {
     --c: var(--origin);
     border-radius: 22px;
     background:
-      repeating-linear-gradient(90deg, rgba(255,255,255,.028) 0 1px, transparent 1px 120px),
-      repeating-linear-gradient(0deg, rgba(255,255,255,.028) 0 1px, transparent 1px 120px),
-      linear-gradient(180deg, color-mix(in srgb, var(--c) 7%, transparent), color-mix(in srgb, var(--c) 3%, transparent));
-    border: 1px solid color-mix(in srgb, var(--c) 20%, transparent);
+      repeating-linear-gradient(90deg, rgba(255,255,255,.026) 0 1px, transparent 1px 95px),
+      repeating-linear-gradient(0deg, rgba(255,255,255,.026) 0 1px, transparent 1px 140px),
+      linear-gradient(90deg, color-mix(in srgb, var(--c) 10%, transparent), color-mix(in srgb, var(--c) 4%, transparent) 30%, color-mix(in srgb, var(--c) 4%, transparent) 70%, color-mix(in srgb, var(--c) 10%, transparent));
+    border: 1px solid color-mix(in srgb, var(--c) 16%, transparent);
+    border-inline-width: 2px;
+    border-inline-color: color-mix(in srgb, var(--c) 50%, transparent);
     box-shadow: 0 0 120px color-mix(in srgb, var(--c) 6%, transparent) inset;
-    -webkit-mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
-    mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
+    /* the far past and the open future fade out */
+    -webkit-mask-image: linear-gradient(180deg, transparent, #000 6%, #000 92%, transparent);
+    mask-image: linear-gradient(180deg, transparent, #000 6%, #000 92%, transparent);
     transition: opacity var(--dur-slow) var(--ease);
   }
   .plane[data-layer='origin'] { --c: color-mix(in srgb, var(--origin) 70%, #000); } /* pale colour: tint less */
   .plane[data-layer='mobile'] { --c: var(--mobile); }
   .plane[data-layer='cloud'] { --c: var(--cloud); }
-  /* the lane's label strip along the front edge: colour fading into the plane */
-  .plane__band {
-    position: absolute;
-    inset-inline: 0;
-    inset-block-end: 0;
-    block-size: 70px;
-    background: linear-gradient(to top, color-mix(in srgb, var(--c) 24%, transparent), color-mix(in srgb, var(--c) 6%, transparent) 70%, transparent);
-    border-block-end: 1.5px solid color-mix(in srgb, var(--c) 55%, transparent);
-  }
   .plane__title {
     position: absolute;
-    inset-block-end: 18px;
-    transform: translateX(-50%);
+    left: 50%;
+    transform: translate(-50%, -50%);
     font-family: var(--font-display);
     font-weight: 600;
     font-size: 30px;
@@ -357,25 +359,41 @@ const ssrFocus = startCard ? { y: startCard.y, z: startCard.z + CARD_LIFT + 110 
   :root[dir='rtl'] .plane__title { font-family: var(--font-ar); font-size: 34px; letter-spacing: 0; text-transform: none; }
   .plane__year {
     position: absolute;
-    inset-block: 0;
-    inline-size: 1.5px;
-    background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.16) 60%, rgba(255,255,255,.34));
+    left: 0;
+    right: 0;
+    block-size: 1.5px;
+    background: linear-gradient(90deg, rgba(255,255,255,.3), rgba(255,255,255,.12) 50%, rgba(255,255,255,.3));
   }
+  /* phones see one lane at a time, so each lane carries its own year labels */
   .plane__yearlabel {
+    display: none;
     position: absolute;
-    inset-block-end: 20px;
-    transform: translateX(12px);
+    left: 44px; /* clear of the skills engraved along the lane edge */
+    transform: translateY(calc(-100% - 8px));
     font-family: var(--font-mono);
-    font-size: 24px;
+    font-size: 26px;
     line-height: 1;
-    letter-spacing: 0.12em;
+    letter-spacing: 0.1em;
     color: rgba(255,255,255,.62);
   }
-  /* RTL time runs right→left: the year label sits after its line, i.e. to its left */
-  :root[dir='rtl'] .plane__yearlabel { transform: translateX(calc(-100% - 12px)); }
+  :root[dir='rtl'] .plane__yearlabel { left: auto; right: 44px; }
+  /* the year axis: big engraved years beside the first lane, on each year line */
+  .axis { inline-size: 0; }
+  .axis__year {
+    position: absolute;
+    left: 0;
+    transform: translate(-50%, -50%);
+    font-family: var(--font-mono);
+    font-size: 30px;
+    line-height: 1;
+    letter-spacing: 0.1em;
+    color: rgba(255,255,255,.66);
+    white-space: nowrap;
+  }
   .skill {
     position: absolute;
-    transform: translate(-50%, -50%);
+    /* engraved along the lane edge, reading down the time axis */
+    transform: translate(-50%, -50%) rotate(90deg);
     font-family: var(--font-mono);
     font-size: 20px;
     letter-spacing: 0.08em;
@@ -515,23 +533,28 @@ const ssrFocus = startCard ? { y: startCard.y, z: startCard.z + CARD_LIFT + 110 
   .hint--touch { display: none; }
   @media (hover: none) { .hint--fine { display: none; } .hint--touch { display: inline; } }
 
+  /* the year rail stands on the inline-start edge, like the time axis it drives */
   .rail {
     position: absolute;
-    inset-block-end: 22px;
-    inset-inline-start: 50%;
-    transform: translateX(-50%);
+    inset-inline-start: var(--gutter);
+    inset-block-start: 41%; /* above centre: clear of the credit and the phone sheet */
+    transform: translateY(-50%);
     display: flex;
+    flex-direction: column;
     gap: 4px;
     padding: 4px;
     border: 1px solid var(--line-2);
-    border-radius: 999px;
+    border-radius: 26px;
     background: color-mix(in srgb, var(--bg) 70%, transparent);
     backdrop-filter: blur(10px);
   }
   .rail__year {
     display: grid;
-    padding: 6px 14px;
-    border-radius: 999px;
+    justify-items: center;
+    min-block-size: 44px;
+    align-content: center;
+    padding: 6px 12px;
+    border-radius: 22px;
     color: var(--ink-3);
     transition: color var(--dur-fast) var(--ease), background var(--dur-fast) var(--ease);
   }
@@ -672,7 +695,7 @@ const ssrFocus = startCard ? { y: startCard.y, z: startCard.z + CARD_LIFT + 110 
   /* ======== phones ======== */
   @media (max-width: 760px) {
     /* cards keep constant screen size, so zooming the world in spreads them apart */
-    .stage { --fit-zoom: 0.64; --card-k: 0.72; --ox: 0px; --oy: -30px; }
+    .stage { --fit-zoom: 0.62; --card-k: 0.72; --ox: 0px; --oy: -40px; }
     .credit { inset-block-start: 70px; inset-block-end: auto; max-inline-size: 80vw; }
     .credit__sub { display: none; }
     .hint { display: none; }
@@ -690,7 +713,11 @@ const ssrFocus = startCard ? { y: startCard.y, z: startCard.z + CARD_LIFT + 110 
     .panel__body { padding: 0.75rem 0.85rem; gap: 0.3rem; }
     .panel__title { font-size: 1.05rem; }
     .panel__impact { font-size: 0.82rem; }
-    .rail { inset-block-end: 14px; inset-inline-start: 10px; transform: none; max-inline-size: calc(100vw - 150px); overflow-x: auto; }
+    .axis { display: none; }
+    .plane__yearlabel { display: block; }
+    .rail { inset-inline-start: 6px; padding: 3px; }
+    .rail__year { padding: 4px 6px; }
+    .rail__n { font-size: 10.5px; letter-spacing: 0.04em; }
     .rail__phase { display: none; }
     .controls { inset-block-end: 14px; inset-inline-end: 10px; }
     .controls [data-zoom] { display: none; }
