@@ -5,7 +5,7 @@
 import Base from '../../../layouts/Base.astro';
 import Scene from '../../../components/Scene.astro';
 import { LOCALES, TRACKS, isLocale, isTrack, type Locale, type Track } from '../../../i18n';
-import { loadProjects, featuredForTrack, skillsForTrack } from '../../../lib/content';
+import { loadProjects, newestForTrack, skillsForTrack } from '../../../lib/content';
 import { personLd } from '../../../lib/schema';
 
 export function getStaticPaths() {
@@ -19,7 +19,8 @@ const locale: Locale = lang;
 const tr: Track = track;
 
 const projects = await loadProjects();
-const featured = await featuredForTrack(tr);
+// the map opens on the track's newest project (the owner's choice, 2026-10-30)
+const featured = await newestForTrack(tr);
 const skills = await skillsForTrack(tr, 20);
 ---
 

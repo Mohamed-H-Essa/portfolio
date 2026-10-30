@@ -60,6 +60,16 @@ export async function featuredForTrack(track: Track): Promise<Project | undefine
   })[0];
 }
 
+/** Where a track's map opens: its newest project (by start month; the same month →
+ *  the heavier one). A timeline reads from now backwards, so the latest work is the
+ *  first thing a visitor sees. Off-track (weight 0) projects never open a track. */
+export async function newestForTrack(track: Track): Promise<Project | undefined> {
+  const all = await loadProjects();
+  return all
+    .filter((p) => p.data.weight[track] > 0)
+    .sort((a, b) => (a.data.start !== b.data.start ? (a.data.start < b.data.start ? 1 : -1) : b.data.weight[track] - a.data.weight[track]))[0];
+}
+
 /** Is this node dimmed (off-world) on the given track? */
 export function isDimmed(p: Project, track: Track): boolean {
   return p.data.weight[track] === 0;

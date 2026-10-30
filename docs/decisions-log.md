@@ -21,3 +21,8 @@ is ~170 world px on screen) and a crowded group is spread *around* its members' 
 into the future; each project's dot sits on its true month with a floor line to its card; every other year is
 tinted on the floor and year labels are bigger; a year with no project gets no label or rail entry (no empty 2027);
 the title block has a soft shadow so the floor recedes under it. Overlap probe: none at 1440/1280/390/320, en + ar.
+
+## 2026-10-30 — The map opens on each track's newest project
+Owner: "why does it always start at Qanoni". The map used to open on the highest-weight `featured` node (Qanoni on
+Mobile, HOPE on Cloud/Both), mid-timeline. Now `newestForTrack()` (lib/content.ts) picks the newest on-track project
+(Leem on Mobile and Both, German Sync on Cloud), so the timeline reads from now backwards. `?p=<slug>` still wins.
