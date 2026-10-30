@@ -98,5 +98,6 @@
   "visual.sync-demo": "So synchronisiert es",
   "visual.arch-flow": "So läuft es",
   "visual.cert": "Der Nachweis",
-  "visual.hardening": "Angriffe & Abwehr"
+  "visual.hardening": "Angriffe & Abwehr",
+  "visual.release-chaos": "Release & Chaos-Tag"
 }

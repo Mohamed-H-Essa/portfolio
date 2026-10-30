@@ -11,6 +11,7 @@ import SyncDemo from '../../../../components/demo/SyncDemo.astro';
 import ArchFlow from '../../../../components/demo/ArchFlow.astro';
 import CertCard from '../../../../components/demo/CertCard.astro';
 import Hardening from '../../../../components/demo/Hardening.astro';
+import ReleaseChaos from '../../../../components/demo/ReleaseChaos.astro';
 import NodeLink from '../../../../components/NodeLink.astro';
 import { LOCALES, TRACKS, loc, t, type Locale, type Track } from '../../../../i18n';
 import { loadProjects, type Project } from '../../../../lib/content';
@@ -128,6 +129,7 @@ const frames = [
           {d.visual === 'arch-flow' && <ArchFlow locale={lang} />}
           {d.visual === 'cert' && <CertCard locale={lang} verify={d.links?.live} />}
           {d.visual === 'hardening' && <Hardening locale={lang} />}
+          {d.visual === 'release-chaos' && <ReleaseChaos locale={lang} />}
         </div>
       )
     }

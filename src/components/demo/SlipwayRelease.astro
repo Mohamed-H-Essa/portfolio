@@ -1,0 +1,165 @@
+---
+// Slipway: one release, step by step, with the real terminal lines of `make release`
+// (2026-10-30). A slow tour lights each step; hover / tap pins one. "Try an unsigned
+// image" replays `make unsigned`: the image skips the pipeline and Kyverno refuses it.
+// Without JS: every step with its explanation, as a list.
+import { type Locale } from '../../i18n';
+
+interface Props { locale: Locale }
+const { locale } = Astro.props;
+type Step = [name: string, sub: string, what: string, term?: string];
+const TERM: (string | undefined)[] = [
+  '==> build localhost:5001/shortener:ea9f0bb-115911\nlocalhost:5001/shortener:ea9f0bb-115911  34.2MB',
+  '==> scan (Trivy: fail on fixable HIGH/CRITICAL)\nno fixable HIGH/CRITICAL vulnerabilities',
+  '==> SBOM (Syft, SPDX JSON)\n43 packages → .local/sbom-ea9f0bb-115911.spdx.json',
+  '==> sign\n==> attest the SBOM',
+  'git commit -q -m "release: shortener ea9f0bb-115911"\npublished 5950950',
+  undefined,
+  undefined,
+  'release: ea9f0bb-115911 rolled out 35s after publish\nrelease: client view during the rollout: requests=2299 failed=0',
+];
+const UNSIGNED = '$ make unsigned\npushed an unsigned image: slipway-registry:5000/unsigned:1.37\ntrying to run it in namespace shortener...\n  …\nrefused by Kyverno (verify-platform-images), as it should be';
+const T = {
+  en: {
+    h: 'A release, step by step', try: 'Try an unsigned image', back: 'Back to a signed release',
+    skipped: 'skipped', refused: 'refused', never: 'never runs',
+    refusal: 'Refused at admission: the image has no signature and no SBOM attestation. Nothing else about the pod is wrong.',
+    steps: [
+      ['Build', 'Go → distroless image', 'make release builds the Go service into a small image that runs as non-root (34.2 MB), tagged with the commit and the time.'],
+      ['Scan', 'Trivy', 'Trivy stops the release on any fixable HIGH or CRITICAL vulnerability. It blocked the very first image (a HIGH CVE in golang.org/x/net) until the module was updated.'],
+      ['SBOM', 'Syft · SPDX', 'Syft writes down every package in the image as an SPDX bill of materials.'],
+      ['Sign', 'cosign', 'cosign signs the image and attaches the SBOM as a signed attestation.'],
+      ['Commit', 'Git', 'The new tag is committed and pushed to the Git server next to the cluster. Git is the only way a change gets in.'],
+      ['Sync', 'Argo CD', 'Argo CD sees the commit and applies it. A change made by hand in the cluster is put back (self-heal).'],
+      ['Admit', 'Kyverno', 'Kyverno checks the signature and the SBOM attestation against the release key, then pins the tag to the verified digest. No signature, no pod.'],
+      ['Roll out', 'under load', 'A rolling update that never drops below full capacity, with graceful draining. At 50 requests a second, no request failed.'],
+    ] as Step[],
+  },
+  de: {
+    h: 'Ein Release, Schritt für Schritt', try: 'Ein unsigniertes Image probieren', back: 'Zurück zum signierten Release',
+    skipped: 'übersprungen', refused: 'abgelehnt', never: 'läuft nie',
+    refusal: 'Bei der Zulassung abgelehnt: Das Image hat keine Signatur und keine SBOM-Attestierung. Sonst ist an dem Pod nichts falsch.',
+    steps: [
+      ['Build', 'Go → Distroless-Image', 'make release baut den Go-Dienst in ein kleines Image, das ohne Root läuft (34,2 MB), getaggt mit Commit und Uhrzeit.'],
+      ['Scan', 'Trivy', 'Trivy stoppt das Release bei jeder behebbaren HIGH- oder CRITICAL-Schwachstelle. Schon das allererste Image blieb hängen (eine HIGH-CVE in golang.org/x/net), bis das Modul aktualisiert war.'],
+      ['SBOM', 'Syft · SPDX', 'Syft schreibt jedes Paket im Image als SPDX-Stückliste auf.'],
+      ['Signieren', 'cosign', 'cosign signiert das Image und hängt die SBOM als signierte Attestierung an.'],
+      ['Commit', 'Git', 'Der neue Tag wird committet und auf den Git-Server neben dem Cluster gepusht. Nur über Git kommt eine Änderung hinein.'],
+      ['Sync', 'Argo CD', 'Argo CD sieht den Commit und wendet ihn an. Eine Änderung von Hand im Cluster wird zurückgesetzt (Self-Heal).'],
+      ['Zulassen', 'Kyverno', 'Kyverno prüft Signatur und SBOM-Attestierung gegen den Release-Schlüssel und pinnt den Tag auf den geprüften Digest. Ohne Signatur kein Pod.'],
+      ['Ausrollen', 'unter Last', 'Ein Rolling Update, das nie unter die volle Kapazität fällt, mit sauberem Draining. Bei 50 Anfragen pro Sekunde schlug keine fehl.'],
+    ] as Step[],
+  },
+  ar: {
+    h: 'إصدار واحد، خطوة بخطوة', try: 'جرّب صورة غير موقّعة', back: 'العودة إلى إصدار موقّع',
+    skipped: 'تُخطّيت', refused: 'رُفضت', never: 'لا تعمل أبدًا',
+    refusal: 'رُفضت عند القبول: الصورة بلا توقيع وبلا إفادة لقائمة المكوّنات، ولا عيب آخر في الـPod.',
+    steps: [
+      ['البناء', 'من Go إلى صورة distroless', 'يبني make release خدمة Go في صورة صغيرة تعمل دون صلاحيات الجذر (34.2 MB)، موسومة بالـcommit والوقت.'],
+      ['الفحص', 'Trivy', 'يوقف Trivy الإصدار عند أي ثغرة قابلة للإصلاح بدرجة HIGH أو CRITICAL، وقد أوقف أول صورة على الإطلاق (ثغرة HIGH في golang.org/x/net) حتى حُدّثت الوحدة.'],
+      ['SBOM', 'Syft · SPDX', 'يدوّن Syft كل حزمة في الصورة في قائمة مكوّنات بصيغة SPDX.'],
+      ['التوقيع', 'cosign', 'يوقّع cosign الصورة ويُرفق قائمة المكوّنات كإفادة موقّعة.'],
+      ['الالتزام', 'Git', 'يُسجَّل الوسم الجديد في commit ويُدفع إلى خادم Git بجوار العنقود؛ فلا يدخل أي تغيير إلا عبر Git.'],
+      ['المزامنة', 'Argo CD', 'يرى Argo CD الـcommit فيطبّقه، وأي تعديل يدوي داخل العنقود يُعاد كما كان (الإصلاح الذاتي).'],
+      ['القبول', 'Kyverno', 'يتحقق Kyverno من التوقيع ومن إفادة قائمة المكوّنات بمفتاح الإصدار، ثم يثبّت الوسم على البصمة (digest) المتحقَّق منها. لا توقيع، لا Pod.'],
+      ['النشر', 'تحت الحمل', 'تحديث متدرّج لا ينزل أبدًا عن السعة الكاملة، مع تصريف هادئ للطلبات. وعند 50 طلبًا في الثانية لم يفشل أي طلب.'],
+    ] as Step[],
+  },
+}[locale];
+---
+
+<div class="rf" data-rf>
+  <h3 class="rf__h">{T.h}</h3>
+  <ol class="rf__steps" style={`--n:${T.steps.length}`}>
+    {T.steps.map(([name, sub, what], i) => (
+      <li class="rf__step" data-i={i}>
+        <button type="button" class="rf__node" aria-describedby={`rf-d${i}`}>
+          <span class="rf__n">{String(i + 1).padStart(2, '0')}</span>
+          <span class="rf__name">{name}</span>
+          <span class="rf__sub">{sub}</span>
+          <span class="rf__flag" data-skip>{T.skipped}</span>
+          <span class="rf__flag rf__flag--no" data-refuse>{T.refused}</span>
+          <span class="rf__flag" data-never>{T.never}</span>
+        </button>
+        <div class="rf__what" id={`rf-d${i}`}>
+          <p>{what}</p>
+          {TERM[i] && <pre class="rf__term" dir="ltr">{TERM[i]}</pre>}
+          {i === 6 && <div class="rf__no"><p>{T.refusal}</p><pre class="rf__term" dir="ltr">{UNSIGNED}</pre></div>}
+        </div>
+      </li>
+    ))}
+  </ol>
+  <button type="button" class="demo-btn rf__try" data-try aria-pressed="false" hidden data-on={T.back} data-off={T.try}>{T.try}</button>
+</div>
+
+<style>
+  .rf__h { font-size: 1.05rem; margin-block-end: 1rem; color: var(--ink-2); font-weight: 500; }
+  .rf__steps { list-style: none; padding: 0; display: grid; gap: 0.9rem; }
+  .rf__node { display: grid; gap: 0.15rem; inline-size: 100%; padding: 0.75rem 0.85rem; border-radius: 14px; border: 1px solid var(--line-2); background: linear-gradient(180deg, #101317, #0b0d10); color: var(--ink); text-align: start; min-block-size: 44px; transition: border-color var(--dur) var(--ease), opacity var(--dur) var(--ease), box-shadow var(--dur) var(--ease); }
+  .rf__n { font-family: var(--font-mono); font-size: 0.68rem; color: var(--p); }
+  .rf__name { font-weight: 600; }
+  .rf__sub { font-family: var(--font-mono); font-size: 0.7rem; color: var(--ink-3); }
+  .rf__flag { display: none; font-family: var(--font-mono); font-size: 0.68rem; color: var(--ink-3); }
+  .rf__flag--no { color: #f87171; }
+  .rf__what { color: var(--ink-2); font-size: 0.92rem; line-height: 1.55; padding-block-start: 0.5rem; }
+  .rf__term { margin-block-start: 0.6rem; padding: 0.7rem 0.85rem; border-radius: 10px; background: #0a0b0d; border: 1px solid var(--line-2); font-family: var(--font-mono); font-size: 0.72rem; line-height: 1.55; color: #cfd2d6; white-space: pre-wrap; overflow-wrap: anywhere; text-align: left; }
+  .rf__no { display: none; }
+  .rf__try { margin-block-start: 1.2rem; }
+
+  /* with JS: a row of steps over one shared explanation (wide) or an accordion (narrow) */
+  .rf.is-live .rf__what { display: none; }
+  .rf.is-live .rf__step.is-on .rf__what { display: block; animation: demo-in 380ms var(--ease) both; }
+  .rf.is-live .rf__step.is-on .rf__node { border-color: var(--p); box-shadow: 0 0 0 4px color-mix(in srgb, var(--p) 12%, transparent), 0 0 28px color-mix(in srgb, var(--p) 18%, transparent); }
+  .rf.is-live .rf__step.is-past .rf__node { border-color: color-mix(in srgb, var(--p) 45%, transparent); }
+  @media (min-width: 900px) {
+    .rf.is-live .rf__steps { grid-template-columns: repeat(var(--n), minmax(0, 1fr)); gap: 0.5rem; position: relative; }
+    .rf.is-live .rf__step { display: contents; }
+    .rf.is-live .rf__node { grid-row: 1; block-size: 100%; align-content: start; }
+    .rf.is-live .rf__what { grid-row: 2; grid-column: 1 / -1; min-block-size: 9.5rem; padding-block-start: 1.1rem; max-inline-size: 72ch; }
+  }
+
+  /* an unsigned image: it skips scan, SBOM and signing; Kyverno refuses it */
+  .rf.is-unsigned [data-i='1'] .rf__node, .rf.is-unsigned [data-i='2'] .rf__node, .rf.is-unsigned [data-i='3'] .rf__node, .rf.is-unsigned [data-i='7'] .rf__node { opacity: 0.35; }
+  .rf.is-unsigned [data-i='1'] [data-skip], .rf.is-unsigned [data-i='2'] [data-skip], .rf.is-unsigned [data-i='3'] [data-skip] { display: block; }
+  .rf.is-unsigned [data-i='7'] [data-never] { display: block; }
+  .rf.is-unsigned [data-i='6'] [data-refuse] { display: block; }
+  .rf.is-unsigned [data-i='6'] .rf__node { border-color: #f87171 !important; box-shadow: 0 0 0 4px rgba(248, 113, 113, 0.14), 0 0 28px rgba(248, 113, 113, 0.2) !important; }
+  .rf.is-unsigned [data-i='6'] .rf__what > p, .rf.is-unsigned [data-i='6'] .rf__what > .rf__term { display: none; }
+  .rf.is-unsigned [data-i='6'] .rf__no { display: block; }
+  .rf.is-unsigned [data-i='6'] .rf__no p { color: var(--ink); }
+  @media (prefers-reduced-motion: reduce) { .rf.is-live .rf__step.is-on .rf__what { animation: none; } }
+</style>
+
+<script>
+  // a slow tour through the steps while visible; hover / tap pins one; the unsigned switch
+  document.querySelectorAll<HTMLElement>('[data-rf]').forEach((root) => {
+    const steps = Array.from(root.querySelectorAll<HTMLElement>('.rf__step'));
+    const tryBtn = root.querySelector<HTMLButtonElement>('[data-try]')!;
+    const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let at = 0, timer = 0;
+    root.classList.add('is-live');
+    tryBtn.hidden = false;
+    const show = (k: number) => { at = k; steps.forEach((s, j) => { s.classList.toggle('is-on', j === k); s.classList.toggle('is-past', j < k); }); };
+    const stop = () => { window.clearInterval(timer); timer = -1; };
+    const unsigned = () => root.classList.contains('is-unsigned');
+    const next = () => show(unsigned() ? 6 : (at + 1) % steps.length);
+    show(0);
+    new IntersectionObserver((es) => {
+      if (es.some((e) => e.isIntersecting) && !timer && !still) timer = window.setInterval(next, 2600);
+    }, { threshold: 0.35 }).observe(root);
+    steps.forEach((s, k) => {
+      const b = s.querySelector<HTMLButtonElement>('.rf__node')!;
+      b.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse') { stop(); show(k); } });
+      b.addEventListener('click', () => { stop(); show(k); });
+      b.addEventListener('focus', () => { stop(); show(k); });
+    });
+    tryBtn.addEventListener('click', () => {
+      stop();
+      const on = !unsigned();
+      root.classList.toggle('is-unsigned', on);
+      tryBtn.setAttribute('aria-pressed', String(on));
+      tryBtn.textContent = on ? tryBtn.dataset.on! : tryBtn.dataset.off!;
+      show(on ? 6 : 0);
+    });
+  });
+</script>

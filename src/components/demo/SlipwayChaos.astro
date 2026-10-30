@@ -1,0 +1,133 @@
+---
+// Slipway's chaos day: what was broken on purpose, under k6 load, and what was measured.
+// The strip is real: every 10 s of chaos-day run 1 as a bar, red = the share of requests
+// that failed (slipway-data.ts). Hover / tap an experiment to light its window. The strip
+// runs with time (mirrored in RTL). Without JS: the strip and the five cards, static.
+import { type Locale } from '../../i18n';
+import { RUN1, EVENTS, VERDICT, N, type ChaosEvent } from './slipway-data';
+
+interface Props { locale: Locale }
+const { locale } = Astro.props;
+type Card = [name: string, injected: string, measured: string];
+const T = {
+  en: {
+    h: 'Chaos day, under load',
+    lead: 'k6 sent 50 requests a second through the gateway the whole time. Each bar is 10 seconds of run 1; red is the share that failed.',
+    alt: `Run 1, ${RUN1.start} to ${RUN1.end}: no failures except during the node loss, when about half of the requests failed for six minutes.`,
+    verdict: { held: 'held', broke: 'broke · fixed', pending: 'run 2' },
+    note: 'Prometheus and Alertmanager ran on the control-plane node on purpose, so the evidence survived the node loss.',
+    cards: {
+      release: ['Release', 'make release under load', 'live 35 s after publish · 0 of 2,299 requests failed'],
+      'pod-kill': ['Pod kill', 'a pod deleted with no grace period', '4/4 ready again in 12 s · 0 of 1,111 failed'],
+      'node-loss': ['Node loss', 'docker stop a worker node', `run 1: 48.4 % failed for 6 min 3 s; the gateway's controller and Kyverno's webhook were on that node · fixed the same day · run 2: ${N.nodeLossRun2}`],
+      'db-failover': ['Database failover', 'kill the Postgres primary', `new primary after ${N.dbNewPrimary} · ${N.dbFailed}`],
+      'bad-release': ['Bad release', 'half the redirects answer 500, shipped through Git', `paged after ${N.pageAfter} · git revert, clean after ${N.recoverAfter}`],
+    } as Record<ChaosEvent, Card>,
+  },
+  de: {
+    h: 'Chaos-Tag, unter Last',
+    lead: 'k6 schickte die ganze Zeit 50 Anfragen pro Sekunde durch das Gateway. Jeder Balken sind 10 Sekunden von Lauf 1; rot ist der Anteil, der fehlschlug.',
+    alt: `Lauf 1, ${RUN1.start} bis ${RUN1.end}: keine Fehler außer beim Knotenausfall, als sechs Minuten lang etwa die Hälfte der Anfragen fehlschlug.`,
+    verdict: { held: 'gehalten', broke: 'gebrochen · behoben', pending: 'Lauf 2' },
+    note: 'Prometheus und Alertmanager liefen absichtlich auf dem Control-Plane-Knoten, damit die Belege den Knotenausfall überstehen.',
+    cards: {
+      release: ['Release', 'make release unter Last', '35 s nach dem Publish live · 0 von 2.299 Anfragen fehlgeschlagen'],
+      'pod-kill': ['Pod-Kill', 'ein Pod ohne Gnadenfrist gelöscht', 'nach 12 s wieder 4/4 bereit · 0 von 1.111 fehlgeschlagen'],
+      'node-loss': ['Knotenausfall', 'docker stop auf einen Worker', `Lauf 1: 48,4 % fehlgeschlagen, 6 min 3 s lang; Controller des Gateways und Webhook von Kyverno lagen auf diesem Knoten · am selben Tag behoben · Lauf 2: ${N.nodeLossRun2}`],
+      'db-failover': ['Datenbank-Failover', 'den Postgres-Primary beenden', `neuer Primary nach ${N.dbNewPrimary} · ${N.dbFailed}`],
+      'bad-release': ['Fehlerhaftes Release', 'die Hälfte der Redirects antwortet 500, ausgeliefert über Git', `Alarm nach ${N.pageAfter} · git revert, sauber nach ${N.recoverAfter}`],
+    } as Record<ChaosEvent, Card>,
+  },
+  ar: {
+    h: 'يوم الفوضى، تحت الحمل',
+    lead: 'أرسل k6 خمسين طلبًا في الثانية عبر البوابة طوال الوقت. كل عمود يمثّل 10 ثوانٍ من الجولة الأولى، والأحمر نسبة الطلبات التي فشلت.',
+    alt: `الجولة الأولى، من ${RUN1.start} إلى ${RUN1.end}: لا أخطاء إلا أثناء فقدان العقدة، حين فشل نحو نصف الطلبات مدة ست دقائق.`,
+    verdict: { held: 'صمد', broke: 'انكسر · أُصلح', pending: 'الجولة 2' },
+    note: 'عمل Prometheus وAlertmanager عمدًا على عقدة التحكم، فبقيت الأدلة محفوظة بعد فقدان العقدة.',
+    cards: {
+      release: ['إصدار', 'make release تحت الحمل', 'يعمل بعد 35 ثانية من النشر · 0 من 2,299 طلبًا فشل'],
+      'pod-kill': ['قتل Pod', 'حذف Pod دون مهلة إنهاء', 'عادت 4/4 جاهزة خلال 12 ثانية · 0 من 1,111 فشل'],
+      'node-loss': ['فقدان عقدة', 'docker stop لعقدة عاملة', `الجولة 1: فشل 48.4 % من الطلبات مدة 6 دقائق و3 ثوانٍ؛ كان متحكّم البوابة وwebhook الخاص بـKyverno على تلك العقدة · أُصلح في اليوم نفسه · الجولة 2: ${N.nodeLossRun2}`],
+      'db-failover': ['تبديل قاعدة البيانات', 'إنهاء النسخة الرئيسية من Postgres', `نسخة رئيسية جديدة بعد ${N.dbNewPrimary} · ${N.dbFailed}`],
+      'bad-release': ['إصدار معيب', 'نصف عمليات التحويل تُرجع 500، عبر Git', `انطلق التنبيه بعد ${N.pageAfter} · git revert، ونظيف بعد ${N.recoverAfter}`],
+    } as Record<ChaosEvent, Card>,
+  },
+}[locale];
+const total = RUN1.failedPct.length * RUN1.bin;
+const pct = (s: number) => `${((s / total) * 100).toFixed(2)}%`;
+---
+
+<div class="cd" data-cd>
+  <h3 class="cd__h">{T.h}</h3>
+  <p class="cd__lead">{T.lead}</p>
+  <div class="cd__strip" role="img" aria-label={T.alt}>
+    {RUN1.failedPct.map((f) => <span class="cd__bar" style={`--f:${f}`} />)}
+    {EVENTS.map((e) => {
+      const w = RUN1.windows[e];
+      return w && <span class="cd__win" data-ev={e} style={`inset-inline-start:${pct(w[0])};inline-size:${pct(w[1] - w[0])}`}><span>{T.cards[e][0]}</span></span>;
+    })}
+  </div>
+  <p class="cd__axis" aria-hidden="true"><span dir="ltr">{RUN1.start}</span><span dir="ltr">{RUN1.end}</span></p>
+  <ol class="cd__cards">
+    {EVENTS.map((e) => (
+      <li class="cd__card" data-ev={e} data-v={VERDICT[e]} tabindex="0">
+        <p class="cd__top"><span class="cd__name">{T.cards[e][0]}</span><span class="demo-pill">{T.verdict[VERDICT[e]]}</span></p>
+        <p class="cd__inj">{T.cards[e][1]}</p>
+        <p class="cd__got">{T.cards[e][2]}</p>
+      </li>
+    ))}
+  </ol>
+  <p class="cd__note">{T.note}</p>
+</div>
+
+<style>
+  .cd__h { font-size: 1.05rem; color: var(--ink-2); font-weight: 500; }
+  .cd__lead { color: var(--ink-3); font-size: 0.88rem; margin-block: 0.3rem 1.2rem; max-inline-size: 70ch; }
+  .cd__strip { position: relative; display: flex; align-items: flex-end; gap: 1px; block-size: 84px; padding-block-start: 22px; border-block-end: 1px solid var(--line-2); }
+  .cd__bar { flex: 1; block-size: 100%; background: linear-gradient(to top, #f87171 calc(var(--f) * 1%), color-mix(in srgb, var(--p) 32%, transparent) calc(var(--f) * 1%)); border-radius: 1px; transform-origin: bottom; }
+  .cd.is-ready .cd__bar { transform: scaleY(0); }
+  .cd.is-in .cd__bar { transform: none; transition: transform 700ms var(--ease-out); }
+  .cd__win { position: absolute; inset-block: 0 -1px; border-inline: 1px dashed color-mix(in srgb, var(--ink) 30%, transparent); background: color-mix(in srgb, var(--ink) 4%, transparent); pointer-events: none; transition: background var(--dur) var(--ease), border-color var(--dur) var(--ease); }
+  .cd__win span { position: absolute; inset-block-start: 2px; inset-inline-start: 4px; font-family: var(--font-mono); font-size: 0.64rem; color: var(--ink-3); white-space: nowrap; }
+  .cd__win.is-on { background: color-mix(in srgb, var(--p) 14%, transparent); border-color: var(--p); }
+  .cd__win.is-on span { color: var(--ink); }
+  .cd__axis { display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 0.68rem; color: var(--ink-3); margin-block: 0.35rem 1.3rem; }
+  .cd__cards { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0.6rem; }
+  .cd__card { padding: 0.8rem 0.9rem; border-radius: 14px; border: 1px solid var(--line-2); background: linear-gradient(180deg, #101317, #0b0d10); display: grid; gap: 0.35rem; align-content: start; outline: none; transition: border-color var(--dur) var(--ease); }
+  .cd__card:hover, .cd__card:focus-visible, .cd__card.is-on { border-color: var(--p); }
+  .cd__card[data-v='broke'] { border-color: color-mix(in srgb, #f87171 45%, transparent); }
+  .cd__card[data-v='broke'] .demo-pill { border-color: color-mix(in srgb, #f87171 50%, transparent); color: #f87171; }
+  .cd__card[data-v='held'] .demo-pill { border-color: color-mix(in srgb, #4ade80 45%, transparent); color: #4ade80; }
+  .cd__top { display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+  .cd__name { font-weight: 600; }
+  .cd__inj { font-family: var(--font-mono); font-size: 0.7rem; color: var(--ink-3); }
+  .cd__got { font-size: 0.86rem; line-height: 1.5; color: var(--ink-2); overflow-wrap: anywhere; }
+  .cd__note { margin-block-start: 1.1rem; font-family: var(--font-mono); font-size: 0.72rem; color: var(--ink-3); }
+  @media (max-width: 1100px) { .cd__cards { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 560px) { .cd__cards { grid-template-columns: 1fr; } .cd__win span { display: none; } .cd__win.is-on span { display: block; } }
+  @media (prefers-reduced-motion: reduce) { .cd.is-ready .cd__bar, .cd.is-in .cd__bar { transform: none; transition: none; } }
+</style>
+
+<script>
+  // bars rise when the strip comes into view; an experiment card lights its window
+  document.querySelectorAll<HTMLElement>('[data-cd]').forEach((root) => {
+    if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      root.classList.add('is-ready');
+      new IntersectionObserver((es, io) => {
+        if (es.some((e) => e.isIntersecting)) { root.classList.add('is-in'); io.disconnect(); }
+      }, { threshold: 0.3 }).observe(root);
+    }
+    const cards = Array.from(root.querySelectorAll<HTMLElement>('.cd__card'));
+    const wins = Array.from(root.querySelectorAll<HTMLElement>('.cd__win'));
+    const light = (ev: string | null) => {
+      cards.forEach((c) => c.classList.toggle('is-on', c.dataset.ev === ev));
+      wins.forEach((w) => w.classList.toggle('is-on', w.dataset.ev === ev));
+    };
+    cards.forEach((c) => {
+      c.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse') light(c.dataset.ev!); });
+      c.addEventListener('focus', () => light(c.dataset.ev!));
+      c.addEventListener('click', () => light(c.classList.contains('is-on') ? null : c.dataset.ev!));
+    });
+    root.addEventListener('pointerleave', (e) => { if (e.pointerType === 'mouse') light(null); });
+  });
+</script>

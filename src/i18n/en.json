@@ -98,5 +98,6 @@
   "visual.sync-demo": "How it syncs",
   "visual.arch-flow": "How it runs",
   "visual.cert": "The credential",
-  "visual.hardening": "Threats & defences"
+  "visual.hardening": "Threats & defences",
+  "visual.release-chaos": "Release & chaos day"
 }

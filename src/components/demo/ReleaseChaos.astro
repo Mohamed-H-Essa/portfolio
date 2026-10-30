@@ -1,0 +1,71 @@
+---
+// Slipway's project page: how a change ships (SlipwayRelease) and what happened when it
+// was broken on purpose (SlipwayChaos), as two tabs. Without JS both show, one after
+// the other, each with its own heading.
+import '../../styles/demo.css';
+import { type Locale } from '../../i18n';
+import SlipwayRelease from './SlipwayRelease.astro';
+import SlipwayChaos from './SlipwayChaos.astro';
+
+interface Props { locale: Locale }
+const { locale } = Astro.props;
+const T = {
+  en: { kicker: 'Release & chaos day', title: 'How a change ships, and what happened when I broke it on purpose', tabs: ['A release', 'Chaos day'] },
+  de: { kicker: 'Release & Chaos-Tag', title: 'Wie eine Änderung live geht, und was passierte, als ich die Plattform absichtlich kaputt machte', tabs: ['Ein Release', 'Chaos-Tag'] },
+  ar: { kicker: 'الإصدار ويوم الفوضى', title: 'كيف يصل التغيير إلى التشغيل، وماذا حدث حين كسرتُ المنصة عمدًا', tabs: ['إصدار', 'يوم الفوضى'] },
+}[locale];
+---
+
+<section class="demo rc shell" aria-labelledby="rc-h" data-rc>
+  <div class="demo__head">
+    <div>
+      <p class="label">{T.kicker}</p>
+      <h2 class="demo__title" id="rc-h">{T.title}</h2>
+    </div>
+    <div class="rc__tabs" role="tablist" aria-labelledby="rc-h" hidden>
+      {T.tabs.map((label, i) => (
+        <button type="button" role="tab" class="rc__tab" id={`rc-t${i}`} aria-controls={`rc-p${i}`} aria-selected={i === 0 ? 'true' : 'false'} tabindex={i === 0 ? 0 : -1}>{label}</button>
+      ))}
+    </div>
+  </div>
+  <div class="rc__panel" id="rc-p0" role="tabpanel" aria-labelledby="rc-t0"><SlipwayRelease locale={locale} /></div>
+  <div class="rc__panel" id="rc-p1" role="tabpanel" aria-labelledby="rc-t1"><SlipwayChaos locale={locale} /></div>
+</section>
+
+<style>
+  .rc__panel + .rc__panel { margin-block-start: 2.5rem; }
+  .rc.is-live .rc__panel + .rc__panel { margin-block-start: 0; }
+  .rc.is-live .rc__panel[hidden] { display: none; }
+  .rc__tabs { display: inline-flex; padding: 4px; gap: 4px; border-radius: 999px; border: 1px solid var(--line); }
+  .rc__tabs[hidden] { display: none; }
+  .rc__tab { min-block-size: 44px; padding-inline: 1.1rem; border-radius: 999px; color: var(--ink-2); font-size: 0.9rem; transition: background var(--dur) var(--ease), color var(--dur) var(--ease); }
+  .rc__tab[aria-selected='true'] { background: var(--p); color: #0b0b0c; font-weight: 600; }
+  .rc__tab:focus-visible { outline: 2px solid var(--p); outline-offset: 2px; }
+  /* the tab names say what each panel is; its own heading is for the no-JS page */
+  .rc.is-live :global(.rf__h), .rc.is-live :global(.cd__h) { position: absolute; inline-size: 1px; block-size: 1px; overflow: hidden; clip-path: inset(50%); }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-rc]').forEach((root) => {
+    const tabs = Array.from(root.querySelectorAll<HTMLButtonElement>('[role="tab"]'));
+    const panels = Array.from(root.querySelectorAll<HTMLElement>('[role="tabpanel"]'));
+    const pick = (k: number, focus = false) => {
+      tabs.forEach((t, j) => { t.setAttribute('aria-selected', String(j === k)); t.tabIndex = j === k ? 0 : -1; });
+      panels.forEach((p, j) => (p.hidden = j !== k));
+      if (focus) tabs[k].focus();
+    };
+    root.classList.add('is-live');
+    root.querySelector<HTMLElement>('[role="tablist"]')!.hidden = false;
+    pick(0);
+    tabs.forEach((t, k) => {
+      t.addEventListener('click', () => pick(k));
+      t.addEventListener('keydown', (e) => {
+        const d = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
+        if (!d) return;
+        e.preventDefault();
+        const rtl = getComputedStyle(root).direction === 'rtl' ? -1 : 1;
+        pick((k + d * rtl + tabs.length) % tabs.length, true);
+      });
+    });
+  });
+</script>

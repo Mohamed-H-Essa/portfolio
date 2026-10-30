@@ -61,7 +61,7 @@ const projects = defineCollection({
     variantCaptions: z.array(localizedOpt).optional(),
     assets: z.union([z.literal('auto'), z.string()]).default('auto'),
     // an extra built-in diagram on the dossier (e.g. the release pipeline flow)
-    visual: z.enum(['release-flow', 'offline-queue', 'sync-demo', 'arch-flow', 'cert', 'hardening']).optional(),
+    visual: z.enum(['release-flow', 'offline-queue', 'sync-demo', 'arch-flow', 'cert', 'hardening', 'release-chaos']).optional(),
     review: z.object({ de: z.boolean(), ar: z.boolean() }).partial().optional(),
   }),
 });
