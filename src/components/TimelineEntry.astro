@@ -1,0 +1,94 @@
+---
+// One project on the timeline (Timeline.astro). Three sizes, from lib/timeline.ts:
+// l = the cover art with the words over its empty side, m = a thumbnail beside the
+// words, s = one quiet line (a project that belongs to another track).
+// Every entry is a plain link; scripts/timeline.ts adds the fly-in to the project page.
+import Badge from './Badge.astro';
+import { loc, t, url, dir as dirOf, LOCALE_META, type Locale, type Track } from '../i18n';
+import { hasAssets, hasScreens, assetUrl, projectAccent } from '../lib/assets';
+import { dateRange, type Tier } from '../lib/timeline';
+import type { Project } from '../lib/content';
+
+interface Props {
+  p: Project;
+  tier: Tier;
+  locale: Locale;
+  track: Track;
+  eager?: boolean; // the first card is above the fold
+}
+const { p, tier, locale, track, eager = false } = Astro.props;
+const d = p.data;
+const rtl = dirOf(locale) === 'rtl';
+const intl = LOCALE_META[locale].htmlLang === 'ar' ? 'ar-u-nu-latn' : LOCALE_META[locale].htmlLang;
+
+const title = loc(d.title, locale, d.slug);
+const impact = d.impact?.line ? loc(d.impact.line, locale, d.slug) : '';
+const role = d.role ? loc(d.role, locale, d.slug) : '';
+const date = dateRange(d.start, d.end, intl, t(locale, 'tl.now'));
+const lane = d.worlds[0];
+const laneName = t(locale, `map.lane.${lane}`);
+const href = url(locale, track, 'p', d.slug);
+const accent = projectAccent(d.slug) ?? `var(--${lane})`;
+
+const has = hasAssets(d.slug);
+const screens = hasScreens(d.slug);
+const cover = has ? assetUrl(d.slug, rtl ? 'cover-rtl' : 'cover') : '';
+const cover2x = has ? assetUrl(d.slug, rtl ? 'cover-rtl-2x' : 'cover-2x') : '';
+const portrait = has ? assetUrl(d.slug, 'cover-portrait') : '';
+const portrait2x = has ? assetUrl(d.slug, 'cover-portrait-2x') : '';
+const thumb = has && screens ? assetUrl(d.slug, 'thumb') : '';
+const loading = eager ? 'eager' : 'lazy';
+---
+
+<li
+  class={`entry entry--${tier}`}
+  data-slug={d.slug}
+  data-lane={lane}
+  data-connects={d.connects.join(' ')}
+  style={`--pa: ${accent}`}
+>
+  <span class="entry__dot" aria-hidden="true"></span>
+  {
+    tier === 's' ? (
+      <a class="tl-row" href={href}>
+        <span class="tl-row__lane">{laneName}</span>
+        <span class="tl-row__title">{title}</span>
+        <span class="tl-row__date">{date}</span>
+      </a>
+    ) : (
+      <a
+        class={`tl-card tl-card--${tier}`}
+        href={href}
+        data-card
+        data-cover={cover}
+        data-cover-portrait={portrait}
+        data-diagram={has && !screens ? '1' : ''}
+      >
+        <span class="tl-card__art" data-art>
+          {tier === 'l' ? (
+            <picture>
+              <source media="(max-width: 760px)" srcset={`${portrait} 1x, ${portrait2x} 2x`} />
+              <img src={cover} srcset={`${cover} 1x, ${cover2x} 2x`} alt="" width="1600" height="900" loading={loading} decoding="async" />
+            </picture>
+          ) : thumb ? (
+            <img src={thumb} alt="" width="480" height="600" loading={loading} decoding="async" />
+          ) : (
+            <span class="tl-card__badge"><Badge slug={d.slug} title={d.title.en} kind={d.kind} /></span>
+          )}
+        </span>
+        <span class="tl-card__body">
+          <span class="tl-card__meta">
+            <span class="tl-card__lane">{laneName}</span>
+            <span>{date}</span>
+          </span>
+          <h3 class="tl-card__title">{title}</h3>
+          {role && <span class="tl-card__role">{role}</span>}
+          {impact && <span class="tl-card__impact">{impact}</span>}
+          {tier === 'l' && d.stack.length > 0 && (
+            <span class="tl-card__stack">{d.stack.slice(0, 4).map((s) => <span>{s}</span>)}</span>
+          )}
+        </span>
+      </a>
+    )
+  }
+</li>

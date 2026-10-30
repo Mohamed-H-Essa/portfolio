@@ -63,7 +63,7 @@
   "intro.lang": "Choose your language",
   "intro.world": "Where do you want to start?",
   "intro.again": "Last visit",
-  "dossier.back": "Back to the map",
+  "dossier.back": "Back to the timeline",
   "dossier.cert": "Certification",
   "dossier.verify": "Verify credential",
   "dossier.flow": "From commit to store",
@@ -82,12 +82,15 @@
   "dossier.story": "The project",
   "dossier.details": "Details",
   "dossier.nextLabel": "Next",
-  "nav.map": "Map",
+  "nav.map": "Timeline",
   "dossier.enlarge": "Enlarge screenshot",
   "dossier.close": "Close",
   "site.name": "Mohamed Essa",
   "nav.sound": "Sound",
   "intro.enter": "Enter",
   "intro.soundNote": "Best with sound",
-  "intro.silent": "Continue without sound"
+  "intro.silent": "Continue without sound",
+  "tl.now": "now",
+  "tl.count": "{n} projects since {y}",
+  "tl.label": "Projects, newest first"
 }

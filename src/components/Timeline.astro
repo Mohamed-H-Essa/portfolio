@@ -1,0 +1,85 @@
+---
+// The track page: who this is, then every project on one vertical line, newest
+// first, grouped by year. A normal scrolling page that reads fully without JS;
+// scripts/timeline.ts adds the light that follows the reader down the line, the
+// threads between connected projects, ?p=<slug> and the fly-in to a project.
+import TimelineEntry from './TimelineEntry.astro';
+import { buildTimeline, phaseOf, type TimelineInput } from '../lib/timeline';
+import { hasAssets } from '../lib/assets';
+import { cvFile } from '../lib/features';
+import { t, asset, type Locale, type Track } from '../i18n';
+import type { Project } from '../lib/content';
+import '../styles/timeline.css';
+
+interface Props {
+  projects: Project[];
+  featured?: Project;
+  locale: Locale;
+  track: Track;
+}
+const { projects, featured, locale, track } = Astro.props;
+
+type Item = TimelineInput & { p: Project };
+const items: Item[] = projects.map((p) => ({
+  slug: p.data.slug,
+  start: p.data.start,
+  end: p.data.end,
+  weight: p.data.weight,
+  hasArt: hasAssets(p.data.slug),
+  p,
+}));
+const years = buildTimeline(items, track, featured?.data.slug);
+
+// "12 projects since 2024": what this track is about, not the quiet rows
+const onTrack = items.filter((i) => i.weight[track] > 0);
+const since = Math.min(...onTrack.map((i) => Number(i.start.slice(0, 4))));
+const count = t(locale, 'tl.count').replace('{n}', String(onTrack.length)).replace('{y}', String(since));
+const lanes = (['mobile', 'origin', 'cloud'] as const).filter((l) => onTrack.some((i) => i.p.data.worlds[0] === l));
+const first = years[0]?.entries[0]?.item.slug;
+---
+
+<div class="tl-page" data-timeline>
+  <section class="tl-hero">
+    <p class="tl-hero__name">Mohamed Essa</p>
+    <h1 class="tl-hero__role">{t(locale, `track.${track}.hero`)}</h1>
+    <p class="tl-hero__sub">{t(locale, `track.${track}.sub`)}</p>
+    <div class="tl-hero__row">
+      <a class="tl-cv" href={asset(cvFile(track))} download type="application/pdf">
+        {t(locale, 'nav.cvDownload')}
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      </a>
+      <p class="tl-hero__count">{count}</p>
+      <ul class="tl-legend" aria-label={t(locale, 'map.layers')}>
+        {lanes.map((l) => <li data-lane={l}>{t(locale, `map.lane.${l}`)}</li>)}
+      </ul>
+    </div>
+  </section>
+
+  <div class="tl" aria-label={t(locale, 'tl.label')}>
+    <div class="tl__line" aria-hidden="true"><span class="tl__light"></span></div>
+    <svg class="tl__threads" aria-hidden="true"></svg>
+    {
+      years.map((y) => (
+        <section class="yr" data-year={y.year} aria-labelledby={`yr-${y.year}`}>
+          <header class="yr__head">
+            <h2 class="yr__num" id={`yr-${y.year}`}>{y.year}</h2>
+            <p class="yr__phase">{t(locale, `phase.${phaseOf(y.year)}`)}</p>
+          </header>
+          <ol class="yr__list">
+            {y.entries.map((e) => (
+              <TimelineEntry p={e.item.p} tier={e.tier} locale={locale} track={track} eager={e.item.slug === first} />
+            ))}
+          </ol>
+        </section>
+      ))
+    }
+  </div>
+</div>
+
+<script>
+  import { initTimeline } from '../scripts/timeline';
+  const root = document.querySelector<HTMLElement>('[data-timeline]');
+  if (root) initTimeline(root);
+</script>

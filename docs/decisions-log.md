@@ -13,3 +13,13 @@ Append-only. Date · decision · why · who approved.
 - 2026-10-08 · Map → dossier opens with a JS hand-off (the card art flies to the exact hero rect, the map dissolves, then navigate) instead of a View-Transitions morph · must work in every browser (Firefox has no cross-document VT) and be seamless · owner
 - 2026-10-08 · No custom domain: the owner no longer has mecodes.live (never use it). Site defaults to GitHub Pages `https://mohamed-h-essa.github.io` (`SITE_URL` overrides); contact email is mhosnytech@gmail.com · owner's answer in owner-todo · owner
 - 2026-10-08 · Interface sound added (spec §5 had excluded it): synthesised with Web Audio (no files), silent until the first click/key, very low level, speaker toggle remembered per visitor · owner asked for subtle, tactile sound that follows the animation · owner
+
+## 2026-10-30 — Track page: a scrolling vertical timeline instead of the 3D map (branch `feat/timeline`, for review)
+After the UI/UX audit (15 projects: the horizontal map overlapped cards, pushed dates up to a year late, hid most
+mobile work on "Both", and needed a camera to read), the owner asked for a cleaner, clearer timeline and approved
+trying a normal scrolling page. `Timeline.astro` + `TimelineEntry.astro` (`lib/timeline.ts`, tested;
+`styles/timeline.css`; `scripts/timeline.ts`): newest first, grouped by year; three sizes by track weight (cover card,
+thumbnail card, quiet row for off-track work); a light from the ∞ intro runs down the line and follows the reader;
+threads join connected projects; `?p=` and the fly-in to project pages still work; complete without JS.
+`Scene.astro` and the vertical 3D map (`feat/vertical-map`) are kept but unused here. This reverses HANDOFF's
+"the track page IS a full-viewport canvas" once merged.

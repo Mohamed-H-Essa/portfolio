@@ -98,7 +98,9 @@ const homeHref = url();
       )}
 
       <noscript>
-        <!-- Without JS the hamburger can't open; expose language links inline. -->
+        <!-- Without JS the hamburger can't open; expose language links inline,
+             and let the bar wrap onto a second row rather than overflow a phone. -->
+        <style is:inline>.menu-btn{display:none!important}.site-header__nav{flex-wrap:wrap;justify-content:flex-end;min-inline-size:0}</style>
         <span class="noscript-langs">
           {langLinks.map((l) => <a href={l.href} lang={l.code} class:list={['switch__opt', { 'is-active': l.active }]}>{l.code.toUpperCase()}</a>)}
         </span>
@@ -203,7 +205,12 @@ const homeHref = url();
   }
   .brand__name {
     color: var(--ink);
+    white-space: nowrap;
   }
+  /* small phones: the logo alone (the page itself says the name); Arabic's CV
+     label is longer, so it needs the room sooner */
+  @media (max-width: 360px) { .brand__name { display: none; } }
+  @media (max-width: 430px) { :global([dir='rtl']) .brand__name { display: none; } }
   .site-header__nav {
     display: flex;
     align-items: center;
@@ -235,6 +242,7 @@ const homeHref = url();
     color: var(--ink);
   }
   .cv-btn {
+    white-space: nowrap;
     display: inline-flex;
     align-items: center;
     gap: 0.4rem;

@@ -1,9 +1,8 @@
 ---
-// Track home: the page IS the layered 3D map (Scene). No hero block, no list
-// below — the role title floats as a credit, projects live on the map, and the
-// Index overlay gives a plain list for keyboard / screen readers / scanners.
+// Track home: who this is, then every project on one vertical timeline, newest
+// first (Timeline). A normal scrolling page; the 3D map (Scene) is no longer used.
 import Base from '../../../layouts/Base.astro';
-import Scene from '../../../components/Scene.astro';
+import Timeline from '../../../components/Timeline.astro';
 import { LOCALES, TRACKS, isLocale, isTrack, type Locale, type Track } from '../../../i18n';
 import { loadProjects, featuredForTrack, skillsForTrack } from '../../../lib/content';
 import { personLd } from '../../../lib/schema';
@@ -23,6 +22,6 @@ const featured = await featuredForTrack(tr);
 const skills = await skillsForTrack(tr, 20);
 ---
 
-<Base locale={locale} track={tr} pathParts={[tr]} immersive jsonLd={[personLd(locale, skills)]}>
-  <Scene projects={projects} featured={featured} locale={locale} track={tr} />
+<Base locale={locale} track={tr} pathParts={[tr]} jsonLd={[personLd(locale, skills)]}>
+  <Timeline projects={projects} featured={featured} locale={locale} track={tr} />
 </Base>

@@ -63,7 +63,7 @@
   "intro.lang": "Sprache wählen",
   "intro.world": "Womit beginnen?",
   "intro.again": "Zuletzt besucht",
-  "dossier.back": "Zurück zur Karte",
+  "dossier.back": "Zurück zur Zeitleiste",
   "dossier.cert": "Zertifizierung",
   "dossier.verify": "Zertifikat verifizieren",
   "dossier.flow": "Vom Commit in den Store",
@@ -82,12 +82,15 @@
   "dossier.story": "Das Projekt",
   "dossier.details": "Details",
   "dossier.nextLabel": "Weiter",
-  "nav.map": "Karte",
+  "nav.map": "Zeitleiste",
   "dossier.enlarge": "Screenshot vergrößern",
   "dossier.close": "Schließen",
   "site.name": "Mohamed Essa",
   "nav.sound": "Ton",
   "intro.enter": "Eintreten",
   "intro.soundNote": "Am besten mit Ton",
-  "intro.silent": "Ohne Ton fortfahren"
+  "intro.silent": "Ohne Ton fortfahren",
+  "tl.now": "heute",
+  "tl.count": "{n} Projekte seit {y}",
+  "tl.label": "Projekte, die neuesten zuerst"
 }

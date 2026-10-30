@@ -63,7 +63,7 @@
   "intro.lang": "اختر لغتك",
   "intro.world": "من أين تودّ أن تبدأ؟",
   "intro.again": "آخر زيارة",
-  "dossier.back": "العودة إلى الخريطة",
+  "dossier.back": "العودة إلى الخط الزمني",
   "dossier.cert": "شهادة احترافية",
   "dossier.verify": "التحقق من الشهادة",
   "dossier.flow": "من الكود إلى المتجر",
@@ -82,12 +82,15 @@
   "dossier.story": "عن المشروع",
   "dossier.details": "التفاصيل",
   "dossier.nextLabel": "التالي",
-  "nav.map": "الخريطة",
+  "nav.map": "الخط الزمني",
   "dossier.enlarge": "تكبير لقطة الشاشة",
   "dossier.close": "إغلاق",
   "site.name": "محمد عيسى",
   "nav.sound": "الصوت",
   "intro.enter": "ادخل",
   "intro.soundNote": "التجربة أفضل مع الصوت",
-  "intro.silent": "المتابعة دون صوت"
+  "intro.silent": "المتابعة دون صوت",
+  "tl.now": "الآن",
+  "tl.count": "{n} من المشاريع منذ {y}",
+  "tl.label": "المشاريع، الأحدث أولًا"
 }

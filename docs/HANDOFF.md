@@ -1,6 +1,8 @@
 # HANDOFF — read this first (2026-10-08, end of session 3; session 4 notes below)
 
 ## Session 4 (2026-10) — done
+- **Branch `feat/timeline` (for owner review):** the track page becomes a scrolling vertical timeline
+  (see decisions-log 2026-10-30). Not merged; `main` still has the horizontal 3D map.
 - CVs: `public/cv/*.pdf` served; the CV button downloads per track (`cvFile()` in `lib/features.ts`): the mobile CV
   everywhere, the DevOps CV only on the Cloud track. Replace the PDFs in place to update them.
 - Vertical map (time runs down, layers become lanes) lives on branch `feat/vertical-map`, **awaiting owner review**;
