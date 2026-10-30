@@ -1,5 +1,17 @@
 # HANDOFF — read this first (2026-10-08, end of session 3; session 4 notes below)
 
+## Session 5b (2026-10-30) — Slipway follow-up (committed locally, **not pushed**)
+- Waiting for chaos-day run 2: every open measurement is `{{NUMBER: …}}` (list + where each appears:
+  `docs/pr/slipway.md` §11). Fill them, `node docs/pr/slipway-carousel/render.mjs`, `npm run check && npm run build`,
+  then push to `main` (deploys).
+- New: `slipway` node (C04) + cover (`assets-src/slipway/diagram.yaml`); visual `release-chaos`
+  (`components/demo/ReleaseChaos.astro` → `SlipwayRelease` + `SlipwayChaos`, data in `slipway-data.ts`: run-1 k6
+  strip, verdicts, the run-2 placeholders). HOPE 2025-08 / German Sync 2026-06 dates from repo evidence;
+  release-pipeline connects to six apps (CI/CD fan on the map).
+- CVs now render from HTML: `assets-src/cv/*.html` → `npm run cv` → `public/cv/*.pdf` (same filenames, page counts
+  checked). Originals in `.cache/cv-backup/`. Owner questions about the DevOps CV's other claims: `owner-todo.md` "CV".
+- PR kit: `docs/pr/slipway.md`, carousel + social preview in `docs/pr/slipway-carousel/`.
+
 ## Session 5 (2026-10-30) — state for the next agent
 - **Live on `main` (deployed):** canvas spacing (true-date dots, ≥196px between cards, year tints, no empty 2027),
   each track opens on its newest project (`newestForTrack`), gallery language/theme switches (`variants` in

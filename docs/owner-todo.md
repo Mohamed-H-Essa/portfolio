@@ -229,3 +229,15 @@ Processed `drive-download-20261024…zip` (flowers, itutor, masr_alkher, motary,
       AWS SAA stays 2026-06, the certificate date.)
 - [ ] CI/CD links (2026-10-30): release-pipeline connects to aratc, motary, qanony, ehc-board, misr-el-kheir, leem; confirm
       which apps used which tool (Codemagic / Fastlane / GitHub Actions).
+
+## CV (2026-10-30)
+- [ ] **The Cloud/DevOps CV still carries claims I can't back with evidence.** I only replaced the
+      k8s-platform-bootstrap entry (it said "120+ GitHub stars" and "EKS in under 12 minutes"; the repo had 8 stars and
+      was never applied to AWS) with Slipway. The July 2026 career audit (Claude desktop session, `consistency-report.md`)
+      flagged the rest: the "DevOps & Platform Engineer, Aug 2022 – Jul 2024" role (your Intrazero start is 2024, as a
+      mobile engineer), the Intrazero metrics (MTTD −60 %, defects −35 %, 45 → 4 min deploys), and three projects
+      (Serverless URL Shortener's "sub-20 ms p99 at 10,000+ req/day", Containerised API Platform, Dev-Container CLI).
+      Your tailored CVs from 27–28 Oct (Bayzat, CEQUENS, VOIS) describe the role truthfully. Want the served DevOps CV
+      rebuilt on that base (source now in `assets-src/cv/cloud-devops.html`, `npm run cv`)?
+- [ ] Where were the 27–28 Oct tailored CVs made? They're LibreOffice exports (a .docx somewhere else, e.g. claude.ai);
+      if you send the .docx, I'll keep it next to the HTML sources.
