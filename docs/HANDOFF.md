@@ -1,5 +1,21 @@
 # HANDOFF — read this first (2026-10-08, end of session 3; session 4 notes below)
 
+## Session 5 (2026-10-30) — state for the next agent
+- **Live on `main` (deployed):** canvas spacing (true-date dots, ≥196px between cards, year tints, no empty 2027),
+  each track opens on its newest project (`newestForTrack`), gallery language/theme switches (`variants` in
+  shots.yaml → `gallery/v/<key>/`, `variants.json`; Leem en/ar × light/dark, Qanoni en/ar), per-project demo
+  frames (`src/components/demo/*`, `visual:` enum in `content.config.ts`: offline-queue, sync-demo, arch-flow,
+  cert, hardening), captions under every screenshot (`captions` / `variantCaptions` in content yaml), phone
+  header fixes, Leem (M10), shared links → intro first (`Base.astro` guard + `?next=`), `docs/growth-plan.md`.
+- Rejected by the owner: the scrolling timeline (`feat/timeline`) and the vertical 3D map (`feat/vertical-map`):
+  keep the horizontal canvas (memory: feedback-keep-3d-canvas). Both branches are still on GitHub.
+- **In progress elsewhere:** the owner's flagship DevOps project ("Slipway", `~/work/k8s_platform_bootstrap`),
+  see that repo's `docs/HANDOFF.md` §5G for what must be added here afterwards: a project node + visual,
+  the Cloud/DevOps CV update (`public/cv/*.pdf`, keep filenames), a PR kit (`docs/pr/slipway.md`), an interview
+  guide, then build + deploy.
+- tmux (session `dark`, window `claude_work`): pane `%143` runs `astro preview` on :4321 (serves `dist/`),
+  `%130` general commands, `%254` platform work. Screenshots for checks: scripts in `.cache/tl/` (gitignored).
+
 ## Session 4 (2026-10) — done
 - CVs: `public/cv/*.pdf` served; the CV button downloads per track (`cvFile()` in `lib/features.ts`): the mobile CV
   everywhere, the DevOps CV only on the Cloud track. Replace the PDFs in place to update them.
