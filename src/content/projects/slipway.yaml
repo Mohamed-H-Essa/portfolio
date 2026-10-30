@@ -1,0 +1,52 @@
+# Slipway: the owner's flagship platform/DevOps project (repo k8s_platform_bootstrap).
+# Facts only from that repo's README, docs/ and the chaos-day evidence (.local/chaos/).
+# {{NUMBER: …}} = measured value not final yet (see docs/pr/slipway.md, "Open numbers").
+slug: slipway
+kind: project
+worlds: [cloud, origin]
+era: s4
+start: 2026-03            # repo's first commit 2026-03-03 (the rebuild into Slipway is 2026-10); owner to confirm
+end: present
+weight: { mobile: 1, cloud: 3, all: 3 }
+featured: true
+confidential: false
+code: C04
+role:
+  en: "Platform engineering, solo (open source)"
+  de: "Platform Engineering, allein (Open Source)"
+  ar: "هندسة المنصات، عمل فردي (مفتوح المصدر)"
+short: { en: "Slipway", de: "Slipway", ar: "Slipway" }
+title:
+  en: "Slipway — a GitOps platform on a laptop"
+  de: "Slipway — eine GitOps-Plattform auf dem Laptop"
+  ar: "Slipway — منصة GitOps على حاسوب محمول"
+impact:
+  line:
+    en: "One command builds a production-style Kubernetes platform from Git; a chaos day breaks it under load and measures the recovery"
+    de: "Ein Befehl baut eine produktionsnahe Kubernetes-Plattform aus Git; ein Chaos-Tag bricht sie unter Last und misst die Erholung"
+    ar: "أمر واحد يبني منصة Kubernetes بأسلوب بيئات الإنتاج من Git؛ ثم يكسرها يوم فوضى تحت الحمل ويقيس التعافي"
+  metric:
+    value: "0"
+    label:
+      en: "failed requests in two releases under load"
+      de: "fehlgeschlagene Anfragen bei zwei Releases unter Last"
+      ar: "طلبات فاشلة خلال إصدارين تحت الحمل"
+problem:
+  en: "Platform skills are hard to prove without a cloud bill. A cluster, GitOps, signed images, SLOs and database failover only count when they run, break and recover. The goal: a production-style platform anyone can bring up on a laptop with one command, and measured evidence of how it fails."
+  de: "Plattform-Können lässt sich ohne Cloud-Rechnung schwer zeigen. Cluster, GitOps, signierte Images, SLOs und Datenbank-Failover zählen erst, wenn sie laufen, brechen und sich erholen. Das Ziel: eine produktionsnahe Plattform, die jeder mit einem Befehl auf dem Laptop startet, und gemessene Belege, wie sie ausfällt."
+  ar: "يصعب إثبات مهارات المنصات دون فاتورة سحابة. فالعنقود وGitOps والصور الموقّعة وأهداف مستوى الخدمة (SLO) وتبديل قاعدة البيانات عند العطل لا قيمة لها إلا حين تعمل وتتعطّل وتتعافى. الهدف: منصة بأسلوب بيئات الإنتاج يشغّلها أي شخص على حاسوبه بأمر واحد، مع أدلة مقيسة على طريقة تعطّلها."
+built:
+  en: "Terraform creates a three-node kind cluster, a registry, image caches, a Git server and Argo CD; Argo CD installs the rest from Git in sync waves: Envoy Gateway, Kyverno, Prometheus, Grafana, Loki, Tempo with OpenTelemetry, CloudNativePG. Releases are scanned (Trivy), get an SBOM (Syft) and are signed (cosign); Kyverno admits only signed images. A Go service carries two SLOs."
+  de: "Terraform erstellt einen kind-Cluster mit drei Knoten, eine Registry, Image-Caches, einen Git-Server und Argo CD; Argo CD installiert den Rest aus Git in Sync-Wellen: Envoy Gateway, Kyverno, Prometheus, Grafana, Loki, Tempo mit OpenTelemetry, CloudNativePG. Releases werden gescannt (Trivy), bekommen eine SBOM (Syft) und werden signiert (cosign); Kyverno lässt nur signierte Images zu. Ein Go-Dienst trägt zwei SLOs."
+  ar: "ينشئ Terraform عنقود kind من ثلاث عقد وسجلًّا للصور وذاكرات تخزين مؤقت للصور وخادم Git وArgo CD؛ ثم يثبّت Argo CD الباقي من Git على موجات متتالية: Envoy Gateway وKyverno وPrometheus وGrafana وLoki وTempo مع OpenTelemetry وCloudNativePG. كل إصدار يُفحص (Trivy) ويحصل على قائمة مكوّنات SBOM (Syft) ويُوقَّع (cosign)، ولا يسمح Kyverno إلا بالصور الموقّعة. وتعمل عليها خدمة بلغة Go لها هدفا مستوى خدمة."
+result:
+  en: "Two releases under load: 0 failed requests; a crashed pod was replaced in 12 s with none. The chaos day found a real gap: losing a node failed 48 % of requests for 6 minutes. Fixed the same day; after the fixes: {{NUMBER: node loss after the fixes, run 2}}. The AWS (EKS) version is written in Terraform and validated offline, never applied."
+  de: "Zwei Releases unter Last: 0 fehlgeschlagene Anfragen; ein abgestürzter Pod war nach 12 s ersetzt, ohne Fehler. Der Chaos-Tag fand eine echte Lücke: Der Verlust eines Knotens ließ 6 Minuten lang 48 % der Anfragen scheitern. Noch am selben Tag behoben; danach: {{NUMBER: node loss after the fixes, run 2}}. Die AWS-Version (EKS) ist in Terraform geschrieben und offline geprüft, nie angewendet."
+  ar: "إصداران تحت الحمل دون أي طلب فاشل، وحاوية (Pod) انهارت فاستُبدلت خلال 12 ثانية دون أخطاء. وكشف يوم الفوضى ثغرة حقيقية: فقدان عقدة أفشل 48 % من الطلبات مدة 6 دقائق. أُصلحت في اليوم نفسه، وبعد الإصلاح: {{NUMBER: node loss after the fixes, run 2}}. ونسخة AWS (EKS) مكتوبة بـTerraform ومُتحقَّق منها دون اتصال، ولم تُطبَّق قط."
+stack: [Kubernetes, Terraform, Argo CD, Helm, Envoy Gateway, Kyverno, cosign, Trivy, Prometheus, Grafana, OpenTelemetry, CloudNativePG, Go, k6, GitHub Actions, AWS EKS]
+links:
+  github: "https://github.com/Mohamed-H-Essa/k8s_platform_bootstrap"
+connects: [aws-saa, release-pipeline]
+visual: release-chaos
+assets: auto
+review: { de: true, ar: true }

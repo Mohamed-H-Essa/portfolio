@@ -1,0 +1,24 @@
+# Slipway: code/cloud project (no screenshots). Renders the cover-cloud template:
+# a terminal snippet layered over a flow diagram. The snippet is real output of
+# `make release` on 2026-10-30 (chaos-day run 1, .local/chaos/20261030-115711/release.log
+# in k8s_platform_bootstrap), shortened: the Trivy table and cosign chatter are cut.
+world: cloud
+accent: "#5db8d6"
+title: slipway — make release
+code: |
+  $ make release
+  ==> build localhost:5001/shortener:ea9f0bb-115911
+  localhost:5001/shortener:ea9f0bb-115911  34.2MB
+  ==> scan (Trivy: fail on fixable HIGH/CRITICAL)
+  no fixable HIGH/CRITICAL vulnerabilities
+  ==> push
+  slipway-registry:5000/shortener@sha256:5d218c994b63…
+  ==> SBOM (Syft, SPDX JSON)
+  43 packages → .local/sbom-ea9f0bb-115911.spdx.json
+  ==> sign
+  ==> attest the SBOM
+  ==> done: ea9f0bb-115911
+  published 5950950
+diagram:
+  nodes: ["make release", "Git server", "Argo CD", "Kyverno gate"]
+  edges: [[0, 1], [1, 2], [2, 3]]
