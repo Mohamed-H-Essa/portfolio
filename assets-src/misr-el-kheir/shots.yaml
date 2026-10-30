@@ -1,0 +1,17 @@
+# Misr El Kheir — case research for the foundation's debtors programme (GitLab
+# `gharemeen`), Arabic UI, iPhone 1200x2609 from the owner's Drive pack (2026-09).
+# Names, phones and national IDs on screen are sequential demo data.
+# Left out: splash, and 04_case_data (near-duplicate of 03).
+device: iphone
+accent: "#34b292"   # the foundation's green (#00785c) lifted to glow on black; auto picks the yellow button
+world: mobile
+title: Misr El Kheir
+code: M08
+impact: Case research for Misr El Kheir's debtors programme
+shots:
+  - file: "03_assigned_cases.webp"   # a debtor's case file, with Edit / Family members
+    role: hero
+  - file: "02_dashboard.webp"        # assigned / unassigned / total cases
+    role: gallery
+  - file: "05_form.webp"             # multi-step case form: housing
+    role: gallery

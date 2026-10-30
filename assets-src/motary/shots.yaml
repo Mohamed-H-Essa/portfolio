@@ -1,0 +1,20 @@
+# Motary — auto-parts marketplace (Arabic UI), iPhone 1200x2609 from the owner's
+# Drive pack (2026-09). Product art in the app is the demo tiles the backend serves
+# ("FILTERS", "BRAKES"); no test text. Splash left out.
+device: iphone
+accent: auto
+world: mobile
+title: Motary
+code: M07
+impact: An auto-parts marketplace for Oman, for buyers and sellers
+shots:
+  - file: "02_home.webp"                 # buyer home: search, top sellers, categories, suggested parts
+    role: hero
+  - file: "03_product_details.webp"      # part page: price, rating, description / compatibility
+    role: gallery
+  - file: "04_cart.webp"                 # cart with quantities and total
+    role: gallery
+  - file: "05_seller_home.webp"          # seller: this month's orders by status
+    role: gallery
+  - file: "06_seller_add_product.webp"   # seller: multi-step add-product form
+    role: gallery

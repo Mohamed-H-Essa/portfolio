@@ -178,7 +178,7 @@ Created Jan 12, 2024
 
 ## assets (added 2026-10-08 by the asset pipeline)
 - [ ] aratc: the home hero still shows "QA Private Session Course / Notification Trainer" demo text in one card (in-screen, can't mask). Recapture home with real/neutral course data for a cleaner hero? Current output is still good.
-- [ ] heaven-flowers: the screenshots you gave are pre-made store frames (phone already in a purple branded frame). They're fine as a gallery, but for the tilted hero/thumb I'd want raw in-app screens (no frame). Can you grab 4-5 raw captures (release mode, banner off)? Otherwise I'll use the framed ones as-is.
+- [x] heaven-flowers: *(answered by the Drive pack, 2026-10-30: raw screens now used; see below)* the screenshots you gave are pre-made store frames (phone already in a purple branded frame). They're fine as a gallery, but for the tilted hero/thumb I'd want raw in-app screens (no frame). Can you grab 4-5 raw captures (release mode, banner off)? Otherwise I'll use the framed ones as-is.
 - [ ] ehc-board (Egyptian Board health app): I have 5 clean screens — want me to add it as a project node + generate assets? (It's a government health app; you said all screenshots are OK to show.)
 - [ ] bioot (two real-estate apps): no screenshots yet. Send captures, or should I render a cloud/diagram-style cover from the repo instead?
 
@@ -198,3 +198,19 @@ Created Jan 12, 2024
 - [ ] **Bioot:** role written as "React Native developer: store readiness & releases" from your commits (SDK 54 upgrade, Play policy, App Store resubmission, signing, Facebook Login). Did you build more of the apps than that?
 - [ ] **Heaven Flowers:** placed at Jul 2025 (first App Store release). When did your work on it start?
 - [ ] **Medical Waste (MoH)** from your CV: your mobile commits are May 2026 in `~/work/medwaste`. Add it as a project? No screenshots/store link yet, so it would get a badge.
+
+## Drive screenshot pack (added 2026-10-30)
+Processed `drive-download-20261024…zip` (flowers, itutor, masr_alkher, motary, qanony, yafleet). New project nodes:
+**Motary (M07)**, **Misr El Kheir (M08)**, **iTutor (M09)**. Facts come from the git history; please check:
+- [ ] **Motary:** store links (Play / App Store), and is it still live? You made the most commits (Oct–Dec 2024, the
+      seller's catalogue: listings, add/edit product with images). Role says "Flutter developer"; should it say lead?
+- [ ] **iTutor:** public store links? Your commits (author `mhosny`, Sep–Oct 2026) are on the React Native app; are
+      any of the "iTutor Dev" commits yours too? The page says you worked on it *with the team*.
+- [ ] **Misr El Kheir** (GitLab `gharemeen`): your only commit there is the offline queue for family members (Oct 2025),
+      so the card says "Flutter developer (offline sync)". Did you do more (another repo or name)? Store link?
+- [ ] **Heaven Flowers:** the new raw screens are 740 px wide (guideline ≥ 1000), so the 2× images are a little soft.
+      Full-resolution captures would fix it. The home greeting showed a tester's name: painted out.
+- [ ] **Yafleet:** the demo shipments use "600 × 400" placeholder pictures. Painted out on the home screen; the
+      shipment-detail screen (one big placeholder) is left out. Recapture with real package photos to show it.
+- [ ] **Qanony:** only the service-details screen was added. The pack's other screens show test entries ("cc", "dd"),
+      uploaded personal files, and a real profile (name, email, phone). Recapture with demo data if you want them.

@@ -35,6 +35,8 @@ interface ShotSpec {
   role: 'hero' | 'gallery';
   caption?: Record<string, string>;
   masks?: Mask[];
+  /** keep the screen's own status bar (see clean.ts) */
+  keepStatusBar?: boolean;
 }
 interface ShotsYaml {
   device?: string;
@@ -108,7 +110,7 @@ async function renderScreenshotProject(browser: Browser, slug: string, spec: Sho
   const gallerySpecs = spec.shots.filter((s) => s.role === 'gallery');
 
   const cleanOf = async (sp: ShotSpec) =>
-    cleanScreenshot(readFileSync(join(raw, sp.file)), sp.masks ?? []);
+    cleanScreenshot(readFileSync(join(raw, sp.file)), sp.masks ?? [], { keepStatusBar: sp.keepStatusBar });
 
   const heroClean = await cleanOf(heroSpec);
   const hero = await toScreen(heroClean);

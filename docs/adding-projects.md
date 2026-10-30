@@ -118,15 +118,16 @@ Commit: `feat(content): <slug>`.
 Ticked when the content node exists. ❓ = needs a fact or permission from the owner first.
 
 - [x] Qanony · ARATC · Release pipeline · App security · HOPE glove · German Sync · AWS SAA
+- [x] From the Drive pack (2026-10-30): **Motary**, **Misr El Kheir** (GitLab `gharemeen`), **iTutor**; raw screens for
+      **Heaven Flowers** and **Yafleet** (store links / role questions in `owner-todo.md`)
 - [ ] **Medical Waste Management System** (Ministry of Health, 600+ facilities, multi-level approvals), screenshots ❓
 - [ ] **UNICEF child-protection case management** (offline-first delayed sync, dynamic forms), screenshots ❓
 - [ ] **Form-orchestration engine** / `flutter_form_engine` (public repo): a natural Platform node
-- [ ] **Motary** and **Al-Diplomacy** e-commerce (UAE / Oman): store links ❓
+- [ ] **Al-Diplomacy** e-commerce (UAE): store links ❓ (Motary is in)
 - [ ] **Nilefy** open source (118 commits, encryption module, export/import, REST connector): a Platform/Cloud node with a
       GitHub link; strong backend signal
 - [ ] **wfm** (Riverpod 2, Dio/Retrofit, Hive, biometrics, FCM) and **star_wars_land** (Clean Architecture reference,
       30 test files, CI): public repos
-- [ ] **Heaven Flowers** (screens are store frames ❓), **EHC Board** (5 clean screens ready), **Bioot** (two apps, no
-      screens ❓), **Yafleet** (no code ❓)
+- [x] **Heaven Flowers**, **EHC Board**, **Bioot**, **Yafleet** (Yafleet: no code ❓)
 - [ ] Older timeline: **Freelance** role node, **IEEE Flutter** (committee head 2020, instructor), **EGPI simulator**, **Al3wn**
 - [ ] Dates disagree between sources: see `docs/owner-todo.md` ("CV vs LinkedIn dates")

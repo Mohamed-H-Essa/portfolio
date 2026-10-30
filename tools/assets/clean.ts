@@ -12,6 +12,8 @@ export interface Mask {
   y: number;
   w: number;
   h: number;
+  /** patch colour; defaults to the screen's top-edge colour */
+  fill?: string;
 }
 
 /** Build a clean status-bar SVG overlay sized to the screenshot. */
@@ -44,7 +46,11 @@ function statusBarSvg(w: number, barH: number, bg: string, light: boolean): Buff
 </svg>`);
 }
 
-export async function cleanScreenshot(input: Buffer, masks: Mask[] = []): Promise<Buffer> {
+export async function cleanScreenshot(
+  input: Buffer,
+  masks: Mask[] = [],
+  opts: { keepStatusBar?: boolean } = {}
+): Promise<Buffer> {
   const img = sharp(input).rotate(); // honour EXIF
   const meta = await img.metadata();
   const w = meta.width!;
@@ -53,8 +59,9 @@ export async function cleanScreenshot(input: Buffer, masks: Mask[] = []): Promis
 
   const composites: OverlayOptions[] = [];
 
-  // 1. clean status bar (phones only)
-  if (dev.statusFrac > 0) {
+  // 1. clean status bar (phones only). `keepStatusBar` skips it for a screen whose
+  //    content starts higher than the repainted strip (it would clip that row).
+  if (dev.statusFrac > 0 && !opts.keepStatusBar) {
     const barH = Math.round(h * dev.statusFrac);
     const bg = await topEdgeColor(input);
     const bar = statusBarSvg(w, barH, bg, isLight(bg));
@@ -68,7 +75,7 @@ export async function cleanScreenshot(input: Buffer, masks: Mask[] = []): Promis
     const fill = await topEdgeColor(input);
     for (const m of masks) {
       const rect = Buffer.from(
-        `<svg width="${m.w}" height="${m.h}" xmlns="http://www.w3.org/2000/svg"><rect width="${m.w}" height="${m.h}" fill="${fill}"/></svg>`
+        `<svg width="${m.w}" height="${m.h}" xmlns="http://www.w3.org/2000/svg"><rect width="${m.w}" height="${m.h}" fill="${m.fill ?? fill}"/></svg>`
       );
       composites.push({ input: rect, top: m.y, left: m.x });
     }
