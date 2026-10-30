@@ -1,8 +1,10 @@
+# German Sync: repo ~/Documents/study_material_tk1 (german/interactive_july). start 2026-06: its first
+# commit is 2026-06-01 (was 2026-07). Owner to confirm the exact month (docs/owner-todo.md, "Timeline dates").
 slug: german-study
 kind: project
 worlds: [cloud, origin]
 era: s4
-start: 2026-07
+start: 2026-06
 end: present
 weight: { mobile: 0, cloud: 2, all: 2 }
 featured: false

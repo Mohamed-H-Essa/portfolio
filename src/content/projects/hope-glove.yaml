@@ -1,8 +1,10 @@
+# HOPE: repo ~/work/hope_project. start 2025-08: its oldest files (flutter_app) are dated Aug 2025;
+# the first commit is 2026-04-01. Owner to confirm the exact month (docs/owner-todo.md, "Timeline dates").
 slug: hope-glove
 kind: project
 worlds: [cloud, origin, mobile]
 era: s4
-start: 2026-04
+start: 2025-08
 end: 2026-05
 weight: { mobile: 2, cloud: 3, all: 3 }
 featured: true

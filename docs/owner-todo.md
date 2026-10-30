@@ -221,3 +221,9 @@ Processed `drive-download-20261024…zip` (flowers, itutor, masr_alkher, motary,
       Store / TestFlight link once it's public? Screens are from the simulator (demo tenant "Aurora University"); the demo
       catalogue's abstracts are lorem ipsum, visible on the search and article screens. Real-looking abstracts would help.
       All 24 captures (en/ar × light/dark × 6 screens) are in `assets-src/leem/raw/`.
+
+## Timeline dates (2026-10-30)
+- [ ] HOPE 2025-08, German Sync 2026-06, Slipway 2026-03 were set from repo evidence; give the exact start months and I'll
+      update them. (Evidence: HOPE's oldest files in `~/work/hope_project` are from Aug 2025, first commit Apr 2026;
+      German Sync's first commit is 2026-06-01; Slipway's repo `k8s_platform_bootstrap` first commit is 2026-03-03.
+      AWS SAA stays 2026-06, the certificate date.)
