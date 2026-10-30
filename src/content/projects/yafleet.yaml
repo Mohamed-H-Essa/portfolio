@@ -34,5 +34,11 @@ stack: []
 links:
   playStore: "https://play.google.com/store/apps/details?id=com.intrazero.majdiyafleet"
 connects: []
+# under each screenshot, in gallery order (assets-src/yafleet/shots.yaml)
+captions:
+  - { en: "Home: shipments on your route", de: "Start: Sendungen auf deiner Route", ar: "الرئيسية: شحنات على طريقك" }
+  - { en: "Add a trip: how you travel", de: "Reise anlegen: wie du reist", ar: "إضافة رحلة: وسيلة السفر" }
+  - { en: "Add a shipment: pickup and delivery", de: "Sendung anlegen: Abholung und Zustellung", ar: "إضافة شحنة: الاستلام والتسليم" }
+  - { en: "Chat between traveller and sender", de: "Chat zwischen Reisendem und Versender", ar: "محادثة بين المسافر والمرسل" }
 assets: auto
 review: { de: true, ar: true }

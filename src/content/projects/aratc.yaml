@@ -33,5 +33,12 @@ links:
   playStore: "https://play.google.com/store/apps/details?id=com.intrazero.aratcapp"
   appStore: "https://apps.apple.com/us/app/aratc/id1640463270"
 connects: [release-pipeline]
+# under each screenshot, in gallery order (assets-src/aratc/shots.yaml)
+captions:
+  - { en: "Home", de: "Startseite", ar: "الرئيسية" }
+  - { en: "Onboarding", de: "Onboarding", ar: "التعريف بالتطبيق" }
+  - { en: "My learning and progress", de: "Mein Lernen und Fortschritt", ar: "تعلّمي وتقدّمي" }
+  - { en: "Course details", de: "Kursdetails", ar: "تفاصيل الدورة" }
+  - { en: "Search results", de: "Suchergebnisse", ar: "نتائج البحث" }
 assets: auto
 review: { de: true, ar: true }

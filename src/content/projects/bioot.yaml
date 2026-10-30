@@ -46,5 +46,15 @@ links:
     - label: { en: "App Store — Partners", de: "App Store — Partners", ar: "App Store — الشركاء" }
       href: "https://apps.apple.com/app/bioot-partners/id6787982982"
 connects: []
+# under each screenshot, in gallery order (assets-src/bioot/shots.yaml)
+captions:
+  - { en: "Client app: home", de: "Kunden-App: Start", ar: "تطبيق العملاء: الرئيسية" }
+  - { en: "Client app: search with filters", de: "Kunden-App: Suche mit Filtern", ar: "تطبيق العملاء: البحث والتصفية" }
+  - { en: "Client app: a property", de: "Kunden-App: eine Immobilie", ar: "تطبيق العملاء: عقار" }
+  - { en: "Client app: a call inside the app", de: "Kunden-App: Anruf in der App", ar: "تطبيق العملاء: مكالمة داخل التطبيق" }
+  - { en: "Client app: AI advisor chat", de: "Kunden-App: KI-Berater", ar: "تطبيق العملاء: المستشار الذكي" }
+  - { en: "Partners app: dashboard", de: "Partner-App: Dashboard", ar: "تطبيق الشركاء: لوحة المتابعة" }
+  - { en: "Partners app: leads", de: "Partner-App: Leads", ar: "تطبيق الشركاء: العملاء المحتملون" }
+  - { en: "Partners app: calls and messages", de: "Partner-App: Anrufe und Nachrichten", ar: "تطبيق الشركاء: المكالمات والرسائل" }
 assets: auto
 review: { de: true, ar: true }

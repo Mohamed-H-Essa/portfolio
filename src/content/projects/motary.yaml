@@ -40,5 +40,12 @@ result:
 stack: [Flutter, Dart, Bloc, Firebase, get_it]
 links: {}
 connects: []
+# under each screenshot, in gallery order (assets-src/motary/shots.yaml)
+captions:
+  - { en: "Buyer: home, sellers and categories", de: "Käufer: Start, Händler und Kategorien", ar: "المشتري: الرئيسية والبائعون والفئات" }
+  - { en: "Buyer: a part, with compatibility", de: "Käufer: ein Teil mit Kompatibilität", ar: "المشتري: قطعة مع التوافق" }
+  - { en: "Buyer: cart", de: "Käufer: Warenkorb", ar: "المشتري: السلة" }
+  - { en: "Seller: this month’s orders", de: "Händler: Bestellungen des Monats", ar: "البائع: طلبات هذا الشهر" }
+  - { en: "Seller: add a product, step by step", de: "Händler: Produkt Schritt für Schritt anlegen", ar: "البائع: إضافة منتج خطوة بخطوة" }
 assets: auto
 review: { de: true, ar: true }

@@ -55,6 +55,10 @@ const projects = defineCollection({
       .partial()
       .optional(),
     connects: z.array(z.string()).default([]),
+    // a line under each gallery screenshot, in gallery order; variantCaptions for
+    // the screens a gallery switch shows (shots.yaml variants)
+    captions: z.array(localizedOpt).optional(),
+    variantCaptions: z.array(localizedOpt).optional(),
     assets: z.union([z.literal('auto'), z.string()]).default('auto'),
     // an extra built-in diagram on the dossier (e.g. the release pipeline flow)
     visual: z.enum(['release-flow', 'offline-queue', 'sync-demo', 'arch-flow', 'cert', 'hardening']).optional(),

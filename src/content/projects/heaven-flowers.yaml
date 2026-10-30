@@ -35,5 +35,10 @@ links:
   appStore: "https://apps.apple.com/us/app/heaven-flower/id6743226370"
   playStore: "https://play.google.com/store/apps/details?id=com.intrazero.flowers"
 connects: []
+# under each screenshot, in gallery order (assets-src/heaven-flowers/shots.yaml)
+captions:
+  - { en: "A product: calla lilies", de: "Ein Produkt: Calla", ar: "منتج: زهرة الكالا" }
+  - { en: "Home: categories and picks for you", de: "Start: Kategorien und Empfehlungen", ar: "الرئيسية: الفئات والمقترحات" }
+  - { en: "Cart", de: "Warenkorb", ar: "السلة" }
 assets: auto
 review: { de: true, ar: true }

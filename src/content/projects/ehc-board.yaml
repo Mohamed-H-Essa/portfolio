@@ -37,5 +37,12 @@ stack: [Flutter, Dart, Bloc]
 links:
   playStore: "https://play.google.com/store/apps/details?id=com.intrazero.ehcboard"
 connects: []
+# under each screenshot, in gallery order (assets-src/ehc-board/shots.yaml)
+captions:
+  - { en: "Trainee dashboard", de: "Dashboard für Weiterbildende", ar: "لوحة المتدرّب" }
+  - { en: "Logbook: logged cases and their status", de: "Logbuch: Fälle und ihr Status", ar: "سجل العمل: الحالات وحالتها" }
+  - { en: "Logging a case, step by step", de: "Einen Fall Schritt für Schritt erfassen", ar: "تسجيل حالة خطوة بخطوة" }
+  - { en: "Medical records by rotation", de: "Medizinische Nachweise je Rotation", ar: "السجلات الطبية لكل دورة تدريبية" }
+  - { en: "Meetings, forms, surveys, certificates", de: "Meetings, Formulare, Umfragen, Zertifikate", ar: "الاجتماعات والنماذج والاستبيانات والشهادات" }
 assets: auto
 review: { de: true, ar: true }

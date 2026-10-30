@@ -42,5 +42,11 @@ result:
 stack: [React Native, Expo, TypeScript, Zustand, TanStack Query, i18next]
 links: {}
 connects: []
+# under each screenshot, in gallery order (assets-src/itutor/shots.yaml)
+captions:
+  - { en: "Voice room: talk it through", de: "Voice-Raum: im Gespräch lernen", ar: "غرفة الصوت: تعلّم بالحوار" }
+  - { en: "Generated library: summaries, quizzes, mind maps", de: "Erzeugte Bibliothek: Zusammenfassungen, Quiz, Mindmaps", ar: "المكتبة المولّدة: ملخصات واختبارات وخرائط ذهنية" }
+  - { en: "Tools: flashcards, podcast script, web search", de: "Werkzeuge: Karteikarten, Podcast-Skript, Websuche", ar: "الأدوات: بطاقات ونص بودكاست وبحث في الويب" }
+  - { en: "Chat about an uploaded image", de: "Chat zu einem hochgeladenen Bild", ar: "محادثة حول صورة مرفوعة" }
 assets: auto
 review: { de: true, ar: true }

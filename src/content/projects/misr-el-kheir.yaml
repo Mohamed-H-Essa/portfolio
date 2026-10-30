@@ -44,5 +44,10 @@ stack: [Flutter, Dart, Bloc, SQLite]
 links: {}
 connects: []
 visual: offline-queue
+# under each screenshot, in gallery order (assets-src/misr-el-kheir/shots.yaml)
+captions:
+  - { en: "A debtor’s case file", de: "Die Fallakte eines Schuldners", ar: "ملف حالة الغارم" }
+  - { en: "Dashboard: assigned and unassigned cases", de: "Dashboard: zugewiesene und offene Fälle", ar: "لوحة البيانات: الحالات المخصصة وغير المخصصة" }
+  - { en: "Case form: housing, step by step", de: "Fallformular: Wohnsituation, Schritt für Schritt", ar: "نموذج الحالة: السكن خطوة بخطوة" }
 assets: auto
 review: { de: true, ar: true }

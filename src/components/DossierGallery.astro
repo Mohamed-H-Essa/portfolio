@@ -2,11 +2,19 @@
 // Screenshot gallery: a horizontal scroll-snap strip. Works with touch,
 // trackpad and keyboard (the strip is focusable) without JS; the arrow buttons
 // are a small enhancement for mouse-wheel users.
-import { t, type Locale } from '../i18n';
+import { t, loc, type Locale, type Localized } from '../i18n';
 import { galleryCount, galleryUrl, galleryVariants, variantBase } from '../lib/assets';
 
-interface Props { slug: string; title: string; locale: Locale }
-const { slug, title, locale } = Astro.props;
+interface Props {
+  slug: string;
+  title: string;
+  locale: Locale;
+  /** a line under each screenshot, in gallery order (content `captions`) */
+  captions?: Localized[];
+  /** the same for the screens of a switchable gallery (content `variantCaptions`) */
+  variantCaptions?: Localized[];
+}
+const { slug, title, locale, captions, variantCaptions } = Astro.props;
 const rtl = locale === 'ar';
 
 // Variants: the same screens in another language / theme, switchable (gallery-variants.ts).
@@ -21,6 +29,8 @@ const n = V ? V.count : galleryCount(slug);
 const nn = (i: number) => String(i + 1).padStart(2, '0');
 const lo = (i: number) => (V ? `${vbase}/${key}/${nn(i)}.webp` : galleryUrl(slug, i + 1));
 const hi = (i: number) => (V ? `${vbase}/${key}/${nn(i)}-2x.webp` : galleryUrl(slug, i + 1, true));
+const caps = (V ? variantCaptions : captions) ?? [];
+const cap = (i: number) => (caps[i] ? loc(caps[i], locale, `${slug}.caption`) : '');
 const NATIVE: Record<string, string> = { en: 'English', ar: 'العربية', de: 'Deutsch' };
 const label = (axis: string, v: string) => (axis === 'lang' ? NATIVE[v] ?? v : t(locale, `gallery.${v}`));
 ---
@@ -53,9 +63,10 @@ const label = (axis: string, v: string) => (axis === 'lang' ? NATIVE[v] ?? v : t
         {Array.from({ length: n }, (_, i) => (
           <li>
             {/* a link to the sharp 2× image: works without JS; lightbox.ts opens the full-screen viewer */}
-            <a class="gallery__shot" href={hi(i)} data-n={i} aria-label={`${t(locale, 'dossier.enlarge')} ${i + 1}/${n}`}>
-              <img src={lo(i)} alt={`${title} — ${i + 1}/${n}`} width="720" height="1091" loading="lazy" decoding="async" />
+            <a class="gallery__shot" href={hi(i)} data-n={i} aria-label={`${t(locale, 'dossier.enlarge')} ${i + 1}/${n}${cap(i) ? `: ${cap(i)}` : ''}`}>
+              <img src={lo(i)} alt={cap(i) ? `${title} — ${cap(i)}` : `${title} — ${i + 1}/${n}`} width="720" height="1091" loading="lazy" decoding="async" />
             </a>
+            {cap(i) && <p class="gallery__cap"><span class="gallery__n">{nn(i)}</span>{cap(i)}</p>}
           </li>
         ))}
       </ul>
@@ -111,6 +122,9 @@ const label = (axis: string, v: string) => (axis === 'lang' ? NATIVE[v] ?? v : t
     outline-offset: -2px;
   }
   .gallery__strip li { flex: none; scroll-snap-align: start; }
+  /* the caption: what this screen shows, sized to the shot above it */
+  .gallery__cap { display: flex; gap: 0.6rem; align-items: baseline; max-inline-size: calc(clamp(340px, 62svh, 600px) * 720 / 1091); margin-block-start: 0.8rem; font-size: 0.92rem; line-height: 1.35; color: var(--ink-2); }
+  .gallery__n { font-family: var(--font-mono); font-size: 0.7rem; color: var(--p, var(--origin)); }
   /* JS carousel (gallery-marquee.ts): no native scroll, every item shifts together */
   .gallery__strip:global(.is-marquee) { overflow: hidden; scroll-snap-type: none; cursor: grab; }
   .gallery__strip:global(.is-marquee) > li { translate: var(--mx, 0px) 0; }
@@ -157,10 +171,12 @@ const label = (axis: string, v: string) => (axis === 'lang' ? NATIVE[v] ?? v : t
   /* engine mode: the frame already pads the screen, and the strip must fit inside it, or the
      frame overflows and the head (with its arrows) slides up under the floating header */
   :global(html.is-engine) .gallery { padding-block: 1.5rem 0; }
-  :global(html.is-engine) .gallery__strip img { block-size: clamp(240px, 100svh - 324px, 600px); }
+  :global(html.is-engine) .gallery__strip img { block-size: clamp(240px, 100svh - 360px, 600px); }
+  :global(html.is-engine) .gallery__cap { max-inline-size: calc(clamp(240px, 100svh - 360px, 600px) * 720 / 1091); }
   @media (max-width: 760px) {
     :global(html.is-engine) .gallery { padding-block: 0; }
-    :global(html.is-engine) .gallery__strip img { block-size: clamp(240px, 100svh - 280px, 520px); }
+    :global(html.is-engine) .gallery__strip img { block-size: clamp(240px, 100svh - 316px, 520px); }
+    :global(html.is-engine) .gallery__cap { max-inline-size: calc(clamp(240px, 100svh - 316px, 520px) * 720 / 1091); }
   }
 </style>
 

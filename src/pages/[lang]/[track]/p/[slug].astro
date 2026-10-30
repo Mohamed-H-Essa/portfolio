@@ -135,7 +135,7 @@ const frames = [
     {
       shots > 0 && (
         <div class="frame frame--gallery" data-frame id="f-gallery">
-          <DossierGallery slug={slug} title={title} locale={lang} />
+          <DossierGallery slug={slug} title={title} locale={lang} captions={d.captions} variantCaptions={d.variantCaptions} />
         </div>
       )
     }

@@ -45,5 +45,12 @@ result:
 stack: [React Native, TypeScript, React Navigation, TanStack Query, i18next, EAS]
 links: {}
 connects: []
+# under each screenshot, in gallery order (assets-src/leem/shots.yaml variants)
+variantCaptions:
+  - { en: "Today: reading goal and new arrivals", de: "Heute: Leseziel und Neuzugänge", ar: "اليوم: هدف القراءة والإضافات الجديدة" }
+  - { en: "Search results: licensed or open access", de: "Suchergebnisse: lizenziert oder frei", ar: "نتائج البحث: مرخّص أو متاح للجميع" }
+  - { en: "An article, with access explained", de: "Ein Artikel, der Zugang erklärt", ar: "مقال مع شرح طريقة الوصول" }
+  - { en: "Search: what the library offers", de: "Suche: was die Bibliothek bietet", ar: "البحث: ما تقدّمه المكتبة" }
+  - { en: "Sign in through the institution", de: "Anmeldung über die Einrichtung", ar: "الدخول عبر المؤسسة" }
 assets: auto
 review: { de: true, ar: true }

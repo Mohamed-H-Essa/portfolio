@@ -33,5 +33,13 @@ links:
   playStore: "https://play.google.com/store/apps/details?id=com.qanony.qanony"
   appStore: "https://apps.apple.com/us/app/qanoni-services/id6761679733"
 connects: [release-pipeline]
+# under each screenshot, in gallery order (assets-src/qanony/shots.yaml variants)
+variantCaptions:
+  - { en: "Welcome", de: "Willkommen", ar: "الترحيب" }
+  - { en: "Home: book a consultation", de: "Start: eine Beratung buchen", ar: "الرئيسية: احجز استشارة" }
+  - { en: "Tell us about your request", de: "Erzähl uns von deinem Anliegen", ar: "أخبرنا عن طلبك" }
+  - { en: "Review the request and its price", de: "Anfrage und Preis prüfen", ar: "راجع الطلب وسعره" }
+  - { en: "Pay", de: "Bezahlen", ar: "الدفع" }
+  - { en: "Track the request, step by step", de: "Die Anfrage Schritt für Schritt verfolgen", ar: "تابع الطلب خطوة بخطوة" }
 assets: auto
 review: { de: true, ar: true }
