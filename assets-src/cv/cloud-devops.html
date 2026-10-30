@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<!-- Source of public/cv/Mohamed-Essa-Cloud-DevOps.pdf (render: npm run cv).
+     Rebuilt 2026-10-30 from the served PDF's text and layout (the original was a Word/LibreOffice
+     document that is not on this machine): US Letter, Liberation Sans metrics (Arial), 16/11/10 pt.
+     Only change in content: the k8s-platform-bootstrap entry became Slipway (same repo), with facts
+     from the repo's docs; see docs/pr/slipway.md. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Mohamed H. Essa — Cloud / DevOps Engineer Resume</title>
+<meta name="author" content="Mohamed H. Essa">
+<style>
+  @page { size: Letter; margin: 0; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: "Liberation Sans", Arial, Helvetica, sans-serif; font-size: 10pt; line-height: 11.5pt; color: #000; width: 612pt; padding: 22pt 54pt 0; }
+  a { color: #0563c1; text-decoration: underline; }
+  h1 { font-size: 16pt; line-height: 19pt; font-weight: 700; text-align: center; }
+  .contact { text-align: center; line-height: 11.5pt; margin-top: 1pt; }
+  .contact .sep { margin: 0 6pt; }
+  h2 { font-size: 11pt; line-height: 13pt; font-weight: 700; text-transform: uppercase; border-bottom: 1pt solid #000; padding-bottom: 1pt; margin: 4pt 0 2.5pt; }
+  p { margin: 0; }
+  .skills p { margin-bottom: 1pt; }
+  .role { display: flex; justify-content: space-between; font-weight: 700; margin-top: 1.5pt; padding-right: 36pt; }
+  .role span:last-child { font-weight: 400; }
+  .org { font-style: italic; }
+  ul { list-style: none; margin: 1pt 0 0; }
+  li { position: relative; padding-left: 18pt; }
+  li::before { content: "•"; position: absolute; left: 7pt; }
+  .proj { margin-top: 1.5pt; }
+  .proj b:first-child { font-weight: 700; }
+  .proj i { font-style: italic; }
+  .certs { font-weight: 700; }
+  .certs span { font-weight: 400; }
+  .edu { display: flex; justify-content: space-between; padding-right: 36pt; margin-top: 1.5pt; }
+  .edu i { font-style: italic; }
+  code { font-family: inherit; font-style: italic; }
+</style>
+</head>
+<body>
+<h1>Mohamed H. Essa</h1>
+<p class="contact">Cairo, Egypt<span class="sep">|</span>+20 102 153 7037<span class="sep">|</span><a href="mailto:mhosnytech@gmail.com">mhosnytech@gmail.com</a><span class="sep">|</span><a href="https://linkedin.com/in/mohamed-h-essa">linkedin.com/in/mohamed-h-essa</a><br><a href="https://github.com/Mohamed-H-Essa">github.com/Mohamed-H-Essa</a><span class="sep">|</span><a href="https://mohamed-h-essa.github.io/portfolio/">mohamed-h-essa.github.io/portfolio</a></p>
+
+<h2>Summary</h2>
+<p>Cloud / DevOps Engineer with 2+ years of production experience building CI/CD pipelines, container platforms, and Terraform-managed AWS infrastructure. AWS Solutions Architect Associate (SAA-C03) certified; CKA and AWS DevOps Pro in progress. Proven track record cutting release cycles, eliminating manual toil, and standing up first-of-kind IaC and observability practices on engineering teams.</p>
+
+<h2>Technical Skills</h2>
+<div class="skills">
+<p><b>Cloud (AWS):</b> EC2, EKS, ECS Fargate, Lambda, RDS Aurora, S3, CloudFront, Route 53, IAM, VPC, CloudWatch, GuardDuty, Security Hub</p>
+<p><b>IaC:</b> Terraform, Terraform Cloud, AWS CDK, CloudFormation</p>
+<p><b>Containers &amp; Orchestration:</b> Docker, Kubernetes (EKS, k3s, kind, self-managed), Helm, ArgoCD, Kustomize</p>
+<p><b>CI/CD:</b> GitHub Actions, GitLab CI, Jenkins, ArgoCD, Trivy, Syft, cosign, Kyverno, SonarQube</p>
+<p><b>Observability:</b> Prometheus, Grafana, ELK, Datadog APM, PagerDuty, CloudWatch Logs Insights</p>
+<p><b>Languages &amp; Scripting:</b> Python (Boto3, FastAPI), Go, Bash, Node.js; REST, GraphQL, OpenAPI</p>
+<p><b>Databases:</b> PostgreSQL, MySQL, Redis, MongoDB, DynamoDB</p>
+<p><b>Networking &amp; Linux:</b> VPC design, ALB/NLB, Transit Gateway, VPN; Ubuntu, Amazon Linux, RHEL, systemd</p>
+</div>
+
+<h2>Experience</h2>
+<p class="role"><span>DevOps &amp; Platform Engineer</span><span>Aug 2022 – Jul 2024</span></p>
+<p class="org">Intrazero — Digital Product Studio · Cairo, Egypt</p>
+<ul>
+<li>Built and owned end-to-end <b>GitHub Actions CI/CD pipelines</b> for 4 production applications — automated builds, test gating, code signing, and store delivery; <b>cut release cycle from 3 days to same-day</b> with zero manual steps.</li>
+<li>Provisioned AWS environments (EC2, RDS, S3, CloudFront) with <b>Terraform</b>; introduced remote state via S3 + DynamoDB locking and separated staging/production workspaces — first IaC practice on the team, replacing click-ops across 30+ resources.</li>
+<li>Containerised backend services (Node.js, FastAPI) with Docker and authored <b>Helm charts</b> for an EKS cluster, including namespace-level RBAC, resource quotas, and rolling-update policies; reduced production deploy time from ~45 minutes to under 4.</li>
+<li>Stood up <b>Prometheus + Grafana</b> monitoring with p50/p95/p99 SLO dashboards and PagerDuty routing — gave the team its first structured on-call process and <b>cut mean time to detect by ~60%</b>.</li>
+<li>Drove adoption of an OpenAPI-first contract workflow across mobile and backend teams; integration defects <b>dropped 35%</b> in the first quarter and new-engineer onboarding fell from 4 days to 1.</li>
+</ul>
+
+<h2>Projects</h2>
+<p class="proj"><b><a href="https://github.com/Mohamed-H-Essa/k8s_platform_bootstrap" style="color:inherit;text-decoration:none">Slipway</a></b> <i>&nbsp;·&nbsp; Kubernetes (kind), Terraform, Argo CD, Kyverno, cosign, Prometheus, Go</i></p>
+<ul>
+<li><b>GitOps platform on a laptop</b>: <code>make up</code> builds a 3-node kind cluster (<b>Terraform</b>); <b>Argo CD</b> installs Envoy Gateway, Prometheus/Grafana/Loki/Tempo and CloudNativePG from Git; EKS version validated offline.</li>
+<li><b>Signed supply chain</b>: Trivy scan, Syft SBOM, cosign signature; <b>Kyverno admits only signed images</b>.</li>
+<li><b>SLOs with burn-rate alerts</b>; <b>chaos day under k6 load</b>: <b>0 failed requests</b> in releases; a node loss exposed single points of failure (48% errors for 6 min), fixed the same day.</li>
+</ul>
+<p class="proj"><b>Serverless URL Shortener</b> <i>&nbsp;·&nbsp; AWS Lambda, API Gateway, DynamoDB, Python, CDK, WAF</i></p>
+<ul>
+<li><b>Sub-20ms p99 latency at 10,000+ requests/day</b> with zero ops overhead. Fully serverless, deployed via AWS CDK with a custom domain, WAF rate-limiting, and CloudWatch alarms; DynamoDB single-table design <b>keeps monthly cost under $1</b>.</li>
+</ul>
+<p class="proj"><b>Containerised API Platform</b> <i>&nbsp;·&nbsp; Docker, Kubernetes (k3s), Helm, FastAPI, PostgreSQL, GitHub Actions</i></p>
+<ul>
+<li>Self-hosted platform serving 3 internal APIs on a k3s VPS cluster — Helm charts per service, GitHub Actions builds and pushes images to GHCR on merge, automatic rolling deploys. <b>Total infra cost: $18/month</b>; primary hands-on environment for CKA preparation.</li>
+</ul>
+<p class="proj"><b>Dev-Container CLI</b> <i>&nbsp;·&nbsp; Go, Docker SDK, Bash</i></p>
+<ul>
+<li>CLI tool that provisions isolated dev containers for Python, Node.js, and Go projects in under 5 seconds, with specs version-controlled alongside each repo. <b>Eliminated environment drift across a 15-person team</b> — zero “works on my machine” incidents since rollout.</li>
+</ul>
+
+<h2>Certifications</h2>
+<p class="certs">AWS Certified Solutions Architect – Associate (SAA-C03) &nbsp;·&nbsp; AWS Certified DevOps Engineer – Professional (DOP-C02) <span>— In Progress</span> &nbsp;·&nbsp; Certified Kubernetes Administrator (CKA) <span>— In Progress</span></p>
+
+<h2>Education</h2>
+<p class="edu"><span><b>B.Sc. Computer Engineering</b><i>, Benha University — Cairo</i></span><span>Sep 2019 – Jun 2024</span></p>
+</body>
+</html>

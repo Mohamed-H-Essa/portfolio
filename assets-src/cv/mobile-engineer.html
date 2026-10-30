@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<!-- Source of public/cv/Mohamed-Essa-Mobile-Engineer.pdf (render: npm run cv). Originally made 2026-07-05 in a
+     Claude desktop session (outputs/career-audit/resume.html, rendered with WeasyPrint); contact line updated
+     2026-10-13 (mhosnytech@gmail.com, portfolio link); Slipway line added 2026-10-30. A4, two pages. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Mohamed H. Essa — Flutter Developer</title>
+<style>
+  @page { size: A4; margin: 14mm 15mm; }
+  * { box-sizing: border-box; }
+  body { font-family: "Liberation Sans", Arial, Helvetica, sans-serif; color: #1a1a1a; font-size: 10.2pt; line-height: 1.42; max-width: 800px; margin: 0 auto; padding: 24px; }
+  h1 { font-size: 20pt; margin: 0 0 2px; letter-spacing: .5px; }
+  .tagline { font-size: 11.5pt; font-weight: 600; color: #0b5394; margin: 0 0 6px; }
+  .contact { font-size: 9pt; color: #444; margin-bottom: 14px; }
+  .contact a { color: #0b5394; text-decoration: none; }
+  h2 { font-size: 11pt; text-transform: uppercase; letter-spacing: 1.2px; color: #0b5394; border-bottom: 1.5px solid #0b5394; padding-bottom: 2px; margin: 14px 0 6px; }
+  h3 { font-size: 10.5pt; margin: 10px 0 1px; }
+  .meta { font-size: 9pt; color: #555; font-style: italic; margin: 0 0 4px; }
+  ul { margin: 4px 0 8px; padding-left: 18px; }
+  li { margin-bottom: 3px; }
+  .skills p { margin: 3px 0; }
+  .skills b { color: #0b5394; }
+  strong { font-weight: 600; }
+  @media print { body { padding: 0; max-width: none; } }
+</style>
+</head>
+<body>
+
+<h1>Mohamed H. Essa</h1>
+<p class="tagline">Flutter Developer — Enterprise Mobile Applications</p>
+<p class="contact">
+  Cairo, Egypt (open to relocation — Germany / EU-remote) · +20&nbsp;102&nbsp;153&nbsp;7037 ·
+  <a href="mailto:mhosnytech@gmail.com">mhosnytech@gmail.com</a> ·
+  <a href="https://www.linkedin.com/in/mohamed-hosny-essa/">linkedin.com/in/mohamed-hosny-essa</a> ·
+  <a href="https://github.com/Mohamed-H-Essa">github.com/Mohamed-H-Essa</a> ·
+  <a href="https://mohamed-h-essa.github.io/portfolio/">mohamed-h-essa.github.io/portfolio</a>
+</p>
+
+<h2>Summary</h2>
+<p>Flutter developer with 3+ years of experience (2 years freelance, 2 years in-house) building enterprise mobile applications, including systems for Egypt's Ministry of Health (600+ healthcare facilities) and UNICEF, and e-commerce platforms for clients in the UAE and Oman. Strong in Clean Architecture, BLoC/Cubit and Riverpod state management, offline-first data sync, and dynamic form workflows. Backend-capable (NestJS/TypeScript, Laravel and Python maintenance) with verified open-source contributions to the Nilefy low-code platform. AWS Certified Solutions Architect – Associate.</p>
+
+<h2>Skills</h2>
+<div class="skills">
+<p><b>Mobile:</b> Flutter, Dart, BLoC/Cubit, Riverpod, Clean Architecture, offline-first sync, dynamic forms &amp; validation, Dio/Retrofit, Hive &amp; secure storage, Firebase (Auth, FCM, Firestore), push notifications, geolocation, biometrics, widget &amp; unit testing</p>
+<p><b>Backend:</b> NestJS, TypeScript, Node.js, Laravel (maintenance), Python, PostgreSQL, REST API design, Drizzle ORM</p>
+<p><b>Cloud &amp; delivery (supporting):</b> AWS (certified SAA-C03), Docker, CI/CD with GitHub Actions &amp; Codemagic, Git; home lab running Kubernetes, PostgreSQL and Grafana/Prometheus</p>
+<p><b>Languages:</b> Arabic (native), English (fluent), German (learning)</p>
+</div>
+
+<h2>Experience</h2>
+
+<h3>Flutter Developer — Intrazero, Cairo, Egypt</h3>
+<p class="meta">Aug 2024 – Present</p>
+<ul>
+  <li>Built Egypt's National Medical Waste Management System for the Ministry of Health as a Flutter application digitizing waste tracking across <strong>600+ healthcare facilities</strong>, with multi-level approval workflows.</li>
+  <li>Designed a reusable form-orchestration engine (typed generic inputs, cross-field validation, map-driven rendering) powering form-heavy government workflows; a public counterpart of the pattern is open-sourced on my GitHub.</li>
+  <li>Developed core features for a UNICEF child-protection case-management platform, including offline-first delayed sync and dynamic forms for field workers.</li>
+  <li>Delivered and maintained e-commerce applications for clients in the UAE and Oman (Motary, Al-Diplomacy), covering multi-language support, product search, and regional payment integrations.</li>
+  <li>Maintained and fixed backend services in Laravel and Python supporting the mobile products.</li>
+</ul>
+
+<h3>Open-Source Contributor — Nilefy (low-code platform, NestJS/React)</h3>
+<p class="meta">Oct 2023 – Jun 2024 · github.com/nilefy/nilefy</p>
+<ul>
+  <li>Contributed 118 commits (~12,700 lines) to the platform's TypeScript/NestJS backend.</li>
+  <li>Implemented the encryption/decryption module securing data-source credentials, including nested-configuration handling.</li>
+  <li>Built the application export/import pipeline, including component-tree serialization and DTO validation.</li>
+  <li>Developed the REST API data-source connector with custom-header support, and table CRUD operations with transactional Drizzle ORM logic.</li>
+  <li>Extended authentication with forgot-password and email-confirmation flows across backend and React frontend.</li>
+</ul>
+
+<h3>Freelance Mobile &amp; Backend Developer — Remote</h3>
+<p class="meta">Jun 2022 – Jul 2024</p>
+<ul>
+  <li>Delivered cross-platform client solutions using Flutter for mobile and Node.js/NestJS with Firebase and PostgreSQL for backends.</li>
+  <li>Owned projects end-to-end: requirements, architecture, implementation, release, and post-launch maintenance.</li>
+</ul>
+
+<h2>Selected Projects <span style="text-transform:none;letter-spacing:0">(public code — github.com/Mohamed-H-Essa)</span></h2>
+<ul>
+  <li><strong>star_wars_land</strong> — Clean Architecture reference app: BLoC, offline caching, 30 test files, CI via GitHub Actions.</li>
+  <li><strong>flutter_form_engine</strong> — reusable dynamic-form engine with typed generic inputs and sync/async validation (Formz + BLoC).</li>
+  <li><strong>wfm</strong> — production-scale workforce-management app: Riverpod 2, Dio/Retrofit, Hive + secure storage, biometric auth, FCM.</li>
+  <li><strong>Slipway</strong> (k8s_platform_bootstrap) — a production-style Kubernetes platform that runs on a laptop: Terraform, Argo CD GitOps, signed images enforced by Kyverno, SLO alerts, and a chaos day under load.</li>
+</ul>
+
+<h2>Certifications</h2>
+<ul>
+  <li><strong>AWS Certified Solutions Architect – Associate (SAA-C03)</strong> — score 832/1000, issued Jun 2026 (Credly-verified)</li>
+</ul>
+
+<h2>Education &amp; Community</h2>
+<ul>
+  <li><strong>B.Sc. Computer Engineering, Benha University</strong> — Cairo, Egypt, 2019 – 2024</li>
+  <li>Flutter Instructor (volunteer), IEEE Student Branch, Benha University — designed and taught a Flutter curriculum for engineering students</li>
+</ul>
+
+</body>
+</html>
