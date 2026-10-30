@@ -6,10 +6,11 @@ postmortem, interview guide) and the chaos-day evidence in `.local/chaos/`.
 
 **Rules for this file**
 - Every claim here is in the repo or its evidence. If you add one, add it there first.
-- `{{NUMBER: …}}` = a measurement that isn't final yet. Don't post anything that still has one; the list is at the end.
+- Numbers come from the repo's README ("Measured on a laptop") and the chaos-day postmortem (final 2026-10-30, §11).
+  The laptop was loaded the whole time: present them as behaviour, not benchmarks.
 - No hype words ("leveraged", "robust", "seamless", "game-changer", "excited to announce"). Say what it does and what
   was measured.
-- Don't post before: the repo is pushed with the new code, CI is green on GitHub, and the numbers are filled in.
+- Don't post before CI is green on GitHub (check the badge).
 
 Links used below:
 - Repo: https://github.com/Mohamed-H-Essa/k8s_platform_bootstrap
@@ -37,7 +38,19 @@ Links used below:
   failed (an earlier release: 48 s, 0 of 2,910); pod kill: 4/4 ready in 12 s, 0 of 1,111 failed; **node loss: 8,778
   of 18,140 requests failed (48.4 %) for 6 min 3 s**, the app's SLI saw none of it. Causes: the gateway controller's
   single replica and Kyverno's fail-closed webhook on the lost node (5-minute default eviction; the webhook blocked
-  the eviction deletes). Fixed the same day.
+  the eviction deletes). Fixed the same day; **after the fixes the same experiment cost 2 of 5,719 requests** (node
+  NotReady at +50 s, pods ready on other nodes at +84 s).
+- Database failover: **a finding, not a time.** The only attempt came right after a node loss, while the CloudNativePG
+  operator (which promotes replicas) was itself restarting: no new primary for over 5 minutes, 11,795 of 12,044
+  requests failed, 11,665 of them 5 s client timeouts because the app waited on the database without a deadline. It
+  recovered about 15 minutes after the kill. Fixed (2 operator replicas, a 2 s bound on every database call), not
+  re-measured yet.
+- A release was silently blocked once: Argo CD's server-side diff drops mutating-webhook changes by default, and
+  Kyverno rewrites images to `tag@digest`, so the new tag was invisible and the app showed Synced. Fixed with
+  `IncludeMutationWebhook=true` on the workload's Application.
+- Baseline (`make load`, 2 min at 50 req/s): 6,031 requests, 0 failed, p50 7.4 ms, p95 168.5 ms, p99 411 ms.
+- `make up`: 10 min 22 s cold on a fresh GitHub runner (then `make smoke` and `make unsigned` pass); 11 min 20 s and
+  14 min 0 s warm on the (busy) laptop. A cold start pulls 1.77 GB of images through the caches.
 - CI (GitHub Actions): Go vet + race tests, image build → Trivy → Syft, Terraform fmt/validate + tflint + trivy config,
   kubeconform over every rendered manifest, actionlint; on `main` it pushes to GHCR and signs keyless with cosign
   (GitHub OIDC, no stored keys). A weekly e2e job runs `make up` on a GitHub runner.
@@ -50,8 +63,9 @@ Links used below:
 - "Production-grade" or "production": it's *production-style*, on one laptop. The numbers show behaviour, not capacity.
 - Star counts, users, or "used by teams". (The old CV claimed "120+ stars" and "EKS in under 12 minutes" for this repo;
   neither was true. The CV now describes Slipway.)
-- That CI is green, until it has run on GitHub after the push.
-- The run-2 results before they're in (`{{NUMBER}}`s).
+- That CI is green, until the badge says so.
+- A database failover time (none was measured), or a time-to-page / rollback time (the bad-release experiment
+  hasn't run). The docs' ~10 min expected time-to-page is a calculation; if you mention it, say so.
 
 ---
 
@@ -68,7 +82,7 @@ Every release goes through a gate: a Trivy scan, an SBOM from Syft, a cosign sig
 
 Then the chaos day, with k6 sending traffic the whole time: a pod kill, a node loss, a database failover, and a bad release shipped through Git and rolled back with git revert.
 
-The node loss failed 48 % of requests for six minutes, and the app's own SLO saw none of it. The cause was in the platform, not the app. I wrote it up as a blameless postmortem and fixed it the same day.
+The node loss failed 48 % of requests for six minutes, and the app's own SLO saw none of it. The cause was in the platform, not the app. I wrote it up as a blameless postmortem and fixed it the same day. The re-run lost 2 requests out of 5,719.
 
 There's also an AWS version (EKS on spot nodes, GitHub OIDC for CI, Budgets) written in Terraform and checked offline. I haven't applied it: I don't have an AWS account, and the README says so.
 
@@ -112,8 +126,7 @@ Code and the decision records: https://github.com/Mohamed-H-Essa/k8s_platform_bo
 #SupplyChainSecurity #Kubernetes #GitOps #ArgoCD #Sigstore
 ```
 
-(The `includeMutation` story is from the chaos-day run 2 fix in `platform/apps/templates/applications.yaml`; check the
-run-2 postmortem keeps it before posting.)
+(The `IncludeMutationWebhook` story is in the postmortem, run 2, and in `platform/apps/templates/applications.yaml`.)
 
 ---
 
@@ -134,8 +147,9 @@ Fixed the same day:
 - Kyverno policies match CREATE and UPDATE only, never DELETE.
 - The availability rule returns 0 % instead of "no data" when there are no errors.
 
-Run 2, after the fixes: {{NUMBER: node loss after the fixes, run 2}}.
-The rest of the day: a database failover ({{NUMBER: db failover, time to a new primary}}, {{NUMBER: db failover, failed requests}}) and a bad release shipped through Git (paged after {{NUMBER: bad release, time to page}}, clean {{NUMBER: bad release, revert to clean traffic}} after git revert).
+Then I ran it again on a fresh cluster: 2 of 5,719 requests failed. The node went NotReady at +50 s and the app's pods were ready on the other nodes at +84 s.
+
+Killing the database primary right after that found the same pattern one layer down: the operator that promotes the replica had been moved by the node loss and was still restarting, so there was no new primary for over 5 minutes, and the app waited on the database instead of failing fast (most failures were 5 s client timeouts). Fixed with two operator replicas and a 2 s bound on every database call; that one still needs a re-run on a machine with headroom.
 
 What I took from it:
 1. A fail-closed admission webhook is part of the availability path for everything it matches, deletes included.
@@ -168,7 +182,7 @@ Image: carousel slide 6 (the run-1 strip) or a Grafana screenshot from the recor
 
 7/ Why: the gateway's only controller and Kyverno's only webhook were on the dead node. The webhook (fail-closed) even blocked the pod evictions. Fixed the same day: retries + outlier detection, 2 replicas, 30 s tolerations, no webhook on DELETE.
 
-8/ After the fixes: {{NUMBER: node loss after the fixes, run 2}}. DB failover: {{NUMBER: db failover, time to a new primary}}. A bad release paged after {{NUMBER: bad release, time to page}}.
+8/ After the fixes, the same node loss cost 2 of 5,719 requests. Killing the DB primary right after found the same pattern in the Postgres operator (no promotion for 5+ min while it restarted). Fixed: 2 operator replicas, 2 s DB timeouts. Not re-measured yet.
 
 9/ The AWS version (EKS, spot, OIDC, Budgets) is written in Terraform and passes validate, tflint and trivy config. Never applied: no account, and the README says so.
 
@@ -198,9 +212,10 @@ Feedback from people who run platforms is very welcome.
    pass 7.2 % for availability), the page/ticket table, and why the long + short window pair. Exemplar → trace → logs.
 5. **Chaos day** (500). The method: hypothesis first, k6 at 50 req/s, scripts measure (`results.tsv`, per-request
    log). The table of five experiments with results. The node-loss story with the strip image and the two root
-   causes; the fixes as code (`BackendTrafficPolicy`, tolerations, Kyverno operations). Run 2 results:
-   {{NUMBER: node loss after the fixes, run 2}}, {{NUMBER: db failover, time to a new primary}},
-   {{NUMBER: bad release, time to page}}.
+   causes; the fixes as code (`BackendTrafficPolicy`, tolerations, Kyverno operations). The re-run: 2 of 5,719
+   failed. The database-failover finding (operator restarting, app without a deadline) and its fix, honestly
+   marked "not re-measured". The bad release: what the script does and the expected ~10 min to page *as a
+   calculation* (`docs/slo.md`), since it hasn't run yet.
 6. **The AWS version, honestly** (200). What's in `envs/aws`, what `make aws-check` checks, what's not done (DNS/TLS,
    S3 for Loki/Tempo, autoscaling), and that it was never applied.
 7. **What I'd change for production** (150). From the interview guide: 3 Postgres instances with synchronous
@@ -225,8 +240,8 @@ filling the numbers: `node docs/pr/slipway-carousel/render.mjs` (it also writes 
 | 2 | One command. Terraform builds the ground, Git builds the rest. | Terraform: 3-node kind cluster, registry, image caches, Git server, Argo CD. Wave 0: Envoy Gateway, Kyverno, Prometheus, CloudNativePG, metrics. Wave 1: Loki, Tempo, OpenTelemetry, routes, policies, SLO rules. Wave 2: the Go shortener and its Postgres. 13 Argo CD Applications in three sync waves. Nothing is installed by hand. |
 | 3 | Every release goes through a gate. | Build → Scan (Trivy) → SBOM (Syft) → Sign (cosign) → Commit → Sync (Argo CD) → **Admit (Kyverno)** → Roll out. **0** failed requests in two releases at 50 requests a second. `make unsigned` → refused by Kyverno, as it should be. |
 | 4 | Alerts that page on what users feel, not on CPU. | 99.5 % of requests without a 5xx; 95 % within 300 ms. Page when the 1 h and 5 m burn rates pass 14.4×; ticket at 6× over 6 h and 30 m; exemplars open the trace in Tempo. |
-| 5 | Then I broke it. k6 at 50 req/s the whole time. | Release: held (live 35 s after publish, 0 of 2,299 failed). Pod kill: held (4/4 ready in 12 s, 0 of 1,111 failed). Node loss: broke (48.4 % failed for 6 min 3 s). DB failover: {{NUMBER: db failover, time to a new primary}} · {{NUMBER: db failover, failed requests}}. Bad release: paged after {{NUMBER: bad release, time to page}}, clean after {{NUMBER: bad release, revert to clean traffic}}. |
-| 6 | The app's own SLO saw zero errors. Clients saw 48 %. | The run-1 strip (10 s bars). The gateway's only controller was on the lost node; Kyverno's fail-closed webhook was there too and blocked the evictions; fixed the same day. After the fixes: {{NUMBER: node loss after the fixes, run 2}}. |
+| 5 | Then I broke it. k6 at 50 req/s the whole time. | Release: held (live 35 s after publish, 0 of 2,299 failed). Pod kill: held (4/4 ready in 12 s, 0 of 1,111 failed). Node loss: broke · fixed (48.4 % failed for 6 min 3 s → after the fixes 2 of 5,719). DB failover: broke · fixed (right after a node loss the operator was still restarting: no new primary for 5+ min; fixed, not re-measured yet). Bad release via Git: not run yet (the laptop's control plane was saturated; the script is ready). |
+| 6 | The app's own SLO saw zero errors. Clients saw 48 %. | The run-1 strip (10 s bars). The gateway's only controller was on the lost node; Kyverno's fail-closed webhook was there too and blocked the evictions; fixed the same day. After the fixes: 2 of 5,719 requests failed, pods ready on other nodes at +84 s. |
 | 7 | The AWS version is written. I haven't applied it, and the README says so. | EKS 1.35 with spot workers and night scale-down; 3-AZ VPC, one NAT; Pod Identity, GitHub OIDC; Budgets, S3 state. `terraform validate` valid · tflint 0 issues · trivy config 0 HIGH/CRITICAL. |
 | 8 | Run it yourself: Docker with 8 GB and one command. | Repo, postmortem, portfolio. "I'm a mobile engineer moving into platform and DevOps work. Questions and reviews welcome." |
 
@@ -252,7 +267,7 @@ notifications off. Never show the Argo CD admin password (`make urls` prints it)
 | C. `make unsigned` | 15 s | terminal only: the refusal and "refused by Kyverno (verify-platform-images), as it should be" | X thread, carousel GIF |
 | D. Exemplar → trace → logs | 30 s | Grafana latency panel → click an exemplar → Tempo trace → "logs for this span" in Loki | article |
 | E. Chaos day: node loss | 2–3 min (cut) | split: `scripts/chaos/run-all.sh node-loss` timeline; `kubectl get pods -A -o wide -w`; Grafana request rate + k6 errors; the node going NotReady and pods moving after 30 s | chaos post |
-| F. Chaos day: bad release | 2 min (cut, keep real clock) | Grafana burn-rate panel crossing the 14.4× line; Alertmanager showing `ShortenerErrorBudgetFastBurn` firing; `git revert` + publish; the alert resolving | chaos post, article |
+| F. Chaos day: bad release (once it has run on a machine with headroom) | 2 min (cut, keep real clock) | Grafana burn-rate panel crossing the 14.4× line; Alertmanager showing `ShortenerErrorBudgetFastBurn` firing; `git revert` + publish; the alert resolving | chaos post, article |
 
 Also export, as still images: the Grafana SLO dashboard during the bad release, the Argo CD app tree (all green), and
 the postmortem's timeline table.
@@ -303,7 +318,7 @@ deployed. Post Tue–Thu mornings when possible (08:30–10:00 CET reaches Germa
       `cloudnative-pg` `chaos-engineering` `golang`
 - [ ] **Social preview** (Settings → General): upload `docs/pr/slipway-carousel/social-preview.png` (1280×640)
 - [ ] **Pin** it first on the profile; mention it in the profile README
-- [ ] **README**: the `NUMBERS` table filled (§11); the CI badge only once it's green; a GIF of clip A or C under the
+- [ ] **README**: the "Measured on a laptop" table is filled (bb90e31); keep the CI badge only once it's green; a GIF of clip A or C under the
       first paragraph; keep the "never applied" line for AWS
 - [ ] **Release** `v1.0.0`: notes = what it is, the commands, the measured numbers, link to the postmortem
 - [ ] **Packages**: after the first `main` run, check `ghcr.io/mohamed-h-essa/shortener` is public and signed
@@ -316,27 +331,22 @@ deployed. Post Tue–Thu mornings when possible (08:30–10:00 CET reaches Germa
 
 ---
 
-## 11. Open numbers
+## 11. Numbers (final, 2026-10-30)
 
-Measurements that are not final yet. They appear exactly as written below; replace them everywhere (`grep -rn
-'{{NUMBER' src docs`), re-render the carousel, rebuild the site.
+From the repo at `bb90e31` (README "Measured on a laptop", `docs/postmortems/2026-10-30-chaos-day.md`). No
+`{{NUMBER}}` placeholders are left in the site, the carousel or this file.
 
-| Placeholder | What it is | Where it's used | Source |
-|---|---|---|---|
-| `{{NUMBER: node loss after the fixes, run 2}}` | node loss re-run after the fixes: failed requests / how long / time until pods Ready elsewhere | `src/content/projects/slipway.yaml` (result en/de/ar), `src/components/demo/slipway-data.ts` (`N.nodeLossRun2`), carousel slide 6, §3, §4 | run 2 `results.tsv` / postmortem `RUN2_TIMELINE` |
-| `{{NUMBER: db failover, time to a new primary}}` | CloudNativePG promotes the replica after … | `slipway-data.ts` (`N.dbNewPrimary`), slide 5, §3, §4, §5 | run 2 |
-| `{{NUMBER: db failover, failed requests}}` | client-side failed requests during the failover | `slipway-data.ts` (`N.dbFailed`), slide 5, §3 | run 2 |
-| `{{NUMBER: bad release, time to page}}` | from publishing `FAULT_ERROR_RATE=0.5` to `ShortenerErrorBudgetFastBurn` firing | `slipway-data.ts` (`N.pageAfter`), slide 5, §3, §4, §5; interview guide `{{PAGE_TIME}}` | run 2 |
-| `{{NUMBER: bad release, revert to clean traffic}}` | from `git revert` + publish to clean traffic | `slipway-data.ts` (`N.recoverAfter`), slide 5, §3 | run 2 |
-| `{{NUMBER: make up, cold cache}}` | `make up` from nothing, empty image caches | README `NUMBERS`, interview guide `{{UP_COLD}}` (not used in posts yet) | to measure |
-| `{{NUMBER: make up, warm cache}}` | `make up` with warm caches | README `NUMBERS`, `{{UP_WARM}}` | to measure |
-| `{{NUMBER: k6 baseline, p95 latency}}` | `make load`, 2 min at 50 req/s (measured earlier: 168.5 ms, host load ~20) | README `NUMBERS` | to confirm |
-| `{{NUMBER: k6 baseline, p99 latency}}` | same run (measured earlier: 411 ms) | README `NUMBERS` | to confirm |
+| What | Value | Used in |
+|---|---|---|
+| Release under load (2 runs) | ~45 s build → scan → sign → publish; rolled out 35–48 s later; **0 failed requests** | site metric + visual, CV, slides 3 and 5, §1–§4 |
+| Pod kill | 4/4 ready again in 12 s, 0 of 1,111 failed | visual, slide 5, §0, §4 |
+| Node loss, before the fixes (run 1) | 8,778 of 18,140 failed (48.4 %) for 6 min 3 s; the app's own metrics saw none | everywhere |
+| Node loss, after the fixes (run 3) | NotReady at +50 s, pods ready elsewhere at +84 s, **2 of 5,719 failed** | site result + visual, slides 5 and 6, §0, §3, §4, §5 |
+| Database failover | not cleanly measured: no promotion for > 5 min (operator restarting after the node loss); 11,795 of 12,044 failed, 11,665 of them 5 s timeouts; recovered ~15 min after the kill; fixed, not re-measured | visual (finding + fix), slide 5, §0, §3, §4 |
+| Bad release / time to page | not run (control plane saturated); ~10 min to page is a calculation only | visual ("not run yet"), slide 5, §0, §5 |
+| `make load` baseline | 6,031 requests, 0 failed, p50 7.4 ms, p95 168.5 ms, p99 411 ms | §0 |
+| `make up` | cold 10 min 22 s (fresh GitHub runner); warm 11 min 20 s and 14 min 0 s (laptop); 1.77 GB of images on a cold start | §0 |
+| Image | 34.2 MB, distroless, 43 packages in the SBOM | visual, §0, §2 |
 
-When run 2 is in, also set `VERDICT` in `slipway-data.ts` (`db-failover`, `bad-release`: `held` or `broke`), and if
-run 2 is the better evidence, add its strip next to run 1's (same binning: 10 s, share failed).
-
-**Facts to re-check with run 2** (final today, but run 2 could change them)
-- "0 failed requests in two releases under load" (site metric, CV, slide 3, posts). Run 2 also ships a release.
-- "live 35–48 s after publish" (the two run-1-era releases).
-- The `includeMutation` story in §2 (from run 2's fix; keep only if the postmortem keeps it).
+Still open in the platform repo (not ours to claim yet): the bad-release experiment and a clean database-failover
+re-run on a machine with headroom (postmortem action item 11).

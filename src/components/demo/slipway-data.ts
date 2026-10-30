@@ -1,7 +1,7 @@
 // Slipway's chaos-day evidence for its project page (SlipwayChaos.astro). Real data only:
 // k6's per-request log of chaos-day run 1 (k8s_platform_bootstrap, .local/chaos/20261030-115711/
 // requests.log: 56,206 requests at 50 req/s), binned to 10 s; event times from its timeline.log.
-// Values written {{NUMBER: …}} are not measured/final yet: docs/pr/slipway.md lists them.
+// Later runs (after-fixes node loss, database failover) are text on the cards: SlipwayChaos.astro.
 
 export interface ChaosRun {
   id: string;
@@ -30,20 +30,12 @@ export const RUN1: ChaosRun = {
   },
 };
 
-/** Outcome of each experiment: held (as designed), broke (and was fixed), or pending (run 2). */
+/** Outcome of each experiment (postmortem 2026-10-30): held (as designed), broke (and was
+ *  fixed), or pending (not run yet: the bad release needs a machine with headroom). */
 export const VERDICT: Record<ChaosEvent, 'held' | 'broke' | 'pending'> = {
   release: 'held',
   'pod-kill': 'held',
   'node-loss': 'broke',
-  'db-failover': 'pending',
+  'db-failover': 'broke',
   'bad-release': 'pending',
-};
-
-/** Measured values still to come from chaos-day run 2 (same text in every language). */
-export const N = {
-  nodeLossRun2: '{{NUMBER: node loss after the fixes, run 2}}',
-  dbNewPrimary: '{{NUMBER: db failover, time to a new primary}}',
-  dbFailed: '{{NUMBER: db failover, failed requests}}',
-  pageAfter: '{{NUMBER: bad release, time to page}}',
-  recoverAfter: '{{NUMBER: bad release, revert to clean traffic}}',
 };

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
-<!-- Slipway carousel (LinkedIn document post, 1080×1350 per slide). Copy: docs/pr/slipway.md §7.
-     Render: node docs/pr/slipway-carousel/render.mjs → slide-NN.png + slipway-carousel.pdf.
-     {{NUMBER: …}} = not measured yet; fill in, then render again. -->
+<!-- Slipway carousel (LinkedIn document post, 1080×1350 per slide). Copy: docs/pr/slipway.md §6.
+     Render: node docs/pr/slipway-carousel/render.mjs → slide-NN.png + slipway-carousel.pdf + social-preview.png.
+     Numbers: the repo's README "Measured on a laptop" and its chaos-day postmortem. -->
 <html lang="en">
 <head>
 <meta charset="utf-8">
@@ -158,9 +158,9 @@
     <div class="rows">
       <div class="row"><span class="h">Release</span><span class="pill ok">held</span><span class="d">live 35 s after publish · 0 of 2,299 requests failed</span></div>
       <div class="row"><span class="h">Pod kill</span><span class="pill ok">held</span><span class="d">4/4 ready again in 12 s · 0 of 1,111 failed</span></div>
-      <div class="row broke"><span class="h">Node loss</span><span class="pill no">broke</span><span class="d">48.4% of requests failed for 6 min 3 s</span></div>
-      <div class="row"><span class="h">Database failover</span><span class="pill">run 2</span><span class="d">{{NUMBER: db failover, time to a new primary}} · {{NUMBER: db failover, failed requests}}</span></div>
-      <div class="row"><span class="h">Bad release via Git</span><span class="pill">run 2</span><span class="d">paged after {{NUMBER: bad release, time to page}} · git revert → clean after {{NUMBER: bad release, revert to clean traffic}}</span></div>
+      <div class="row broke"><span class="h">Node loss</span><span class="pill no">broke · fixed</span><span class="d">48.4% of requests failed for 6 min 3 s → after the fixes: 2 of 5,719</span></div>
+      <div class="row broke"><span class="h">Database failover</span><span class="pill no">broke · fixed</span><span class="d">right after a node loss the operator was still restarting: no new primary for 5+ min · fixed, not re-measured yet</span></div>
+      <div class="row"><span class="h">Bad release via Git</span><span class="pill">not run yet</span><span class="d">the laptop's control plane was saturated by then; the script is ready</span></div>
     </div>
   </div>
   <div class="foot"><span>measured by scripts, not by eye</span><span class="swipe">→</span></div>
@@ -180,7 +180,7 @@
       <li>Kyverno's fail-closed webhook was there too, and <b>blocked the evictions</b></li>
       <li>Fixed the same day: retries + outlier detection, 2 replicas, 30 s tolerations, webhooks on CREATE/UPDATE only</li>
     </ul>
-    <p class="lead">After the fixes: <b>{{NUMBER: node loss after the fixes, run 2}}</b></p>
+    <p class="lead">After the fixes: <b>2 of 5,719 requests failed</b>, pods ready on other nodes at +84 s.</p>
   </div>
   <div class="foot"><span>blameless, with timestamps</span><span class="swipe">→</span></div>
 </section>

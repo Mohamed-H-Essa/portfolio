@@ -1,6 +1,6 @@
 # Slipway: the owner's flagship platform/DevOps project (repo k8s_platform_bootstrap).
 # Facts only from that repo's README, docs/ and the chaos-day evidence (.local/chaos/).
-# {{NUMBER: …}} = measured value not final yet (see docs/pr/slipway.md, "Open numbers").
+# Numbers: the repo's README "Measured on a laptop" and docs/postmortems/2026-10-30-chaos-day.md.
 slug: slipway
 kind: project
 worlds: [cloud, origin]
@@ -40,9 +40,9 @@ built:
   de: "Terraform erstellt einen kind-Cluster mit drei Knoten, eine Registry, Image-Caches, einen Git-Server und Argo CD; Argo CD installiert den Rest aus Git in Sync-Wellen: Envoy Gateway, Kyverno, Prometheus, Grafana, Loki, Tempo mit OpenTelemetry, CloudNativePG. Releases werden gescannt (Trivy), bekommen eine SBOM (Syft) und werden signiert (cosign); Kyverno lässt nur signierte Images zu. Ein Go-Dienst trägt zwei SLOs."
   ar: "ينشئ Terraform عنقود kind من ثلاث عقد وسجلًّا للصور وذاكرات تخزين مؤقت للصور وخادم Git وArgo CD؛ ثم يثبّت Argo CD الباقي من Git على موجات متتالية: Envoy Gateway وKyverno وPrometheus وGrafana وLoki وTempo مع OpenTelemetry وCloudNativePG. كل إصدار يُفحص (Trivy) ويحصل على قائمة مكوّنات SBOM (Syft) ويُوقَّع (cosign)، ولا يسمح Kyverno إلا بالصور الموقّعة. وتعمل عليها خدمة بلغة Go لها هدفا مستوى خدمة."
 result:
-  en: "Two releases under load: 0 failed requests; a crashed pod was replaced in 12 s with none. The chaos day found a real gap: losing a node failed 48 % of requests for 6 minutes. Fixed the same day; after the fixes: {{NUMBER: node loss after the fixes, run 2}}. The AWS (EKS) version is written in Terraform and validated offline, never applied."
-  de: "Zwei Releases unter Last: 0 fehlgeschlagene Anfragen; ein abgestürzter Pod war nach 12 s ersetzt, ohne Fehler. Der Chaos-Tag fand eine echte Lücke: Der Verlust eines Knotens ließ 6 Minuten lang 48 % der Anfragen scheitern. Noch am selben Tag behoben; danach: {{NUMBER: node loss after the fixes, run 2}}. Die AWS-Version (EKS) ist in Terraform geschrieben und offline geprüft, nie angewendet."
-  ar: "إصداران تحت الحمل دون أي طلب فاشل، وحاوية (Pod) انهارت فاستُبدلت خلال 12 ثانية دون أخطاء. وكشف يوم الفوضى ثغرة حقيقية: فقدان عقدة أفشل 48 % من الطلبات مدة 6 دقائق. أُصلحت في اليوم نفسه، وبعد الإصلاح: {{NUMBER: node loss after the fixes, run 2}}. ونسخة AWS (EKS) مكتوبة بـTerraform ومُتحقَّق منها دون اتصال، ولم تُطبَّق قط."
+  en: "Two releases under load: 0 failed requests; a crashed pod was replaced in 12 s with none. The chaos day found a real gap: losing a node failed 48 % of requests for 6 minutes. Fixed the same day: the re-run cost 2 of 5,719 requests. The AWS (EKS) version is written in Terraform and validated offline, never applied."
+  de: "Zwei Releases unter Last: 0 fehlgeschlagene Anfragen; ein abgestürzter Pod war nach 12 s ersetzt, ohne Fehler. Der Chaos-Tag fand eine echte Lücke: Der Verlust eines Knotens ließ 6 Minuten lang 48 % der Anfragen scheitern. Noch am selben Tag behoben: Der zweite Versuch kostete 2 von 5.719 Anfragen. Die AWS-Version (EKS) ist in Terraform geschrieben und offline geprüft, nie angewendet."
+  ar: "إصداران تحت الحمل دون أي طلب فاشل، وحاوية (Pod) انهارت فاستُبدلت خلال 12 ثانية دون أخطاء. وكشف يوم الفوضى ثغرة حقيقية: فقدان عقدة أفشل 48 % من الطلبات مدة 6 دقائق. أُصلحت في اليوم نفسه، وفي الإعادة فشل طلبان فقط من 5,719. ونسخة AWS (EKS) مكتوبة بـTerraform ومُتحقَّق منها دون اتصال، ولم تُطبَّق قط."
 stack: [Kubernetes, Terraform, Argo CD, Helm, Envoy Gateway, Kyverno, cosign, Trivy, Prometheus, Grafana, OpenTelemetry, CloudNativePG, Go, k6, GitHub Actions, AWS EKS]
 links:
   github: "https://github.com/Mohamed-H-Essa/k8s_platform_bootstrap"

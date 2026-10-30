@@ -4,7 +4,7 @@
 // that failed (slipway-data.ts). Hover / tap an experiment to light its window. The strip
 // runs with time (mirrored in RTL). Without JS: the strip and the five cards, static.
 import { type Locale } from '../../i18n';
-import { RUN1, EVENTS, VERDICT, N, type ChaosEvent } from './slipway-data';
+import { RUN1, EVENTS, VERDICT, type ChaosEvent } from './slipway-data';
 
 interface Props { locale: Locale }
 const { locale } = Astro.props;
@@ -14,42 +14,42 @@ const T = {
     h: 'Chaos day, under load',
     lead: 'k6 sent 50 requests a second through the gateway the whole time. Each bar is 10 seconds of run 1; red is the share that failed.',
     alt: `Run 1, ${RUN1.start} to ${RUN1.end}: no failures except during the node loss, when about half of the requests failed for six minutes.`,
-    verdict: { held: 'held', broke: 'broke · fixed', pending: 'run 2' },
+    verdict: { held: 'held', broke: 'broke · fixed', pending: 'not run yet' },
     note: 'Prometheus and Alertmanager ran on the control-plane node on purpose, so the evidence survived the node loss.',
     cards: {
       release: ['Release', 'make release under load', 'live 35 s after publish · 0 of 2,299 requests failed'],
       'pod-kill': ['Pod kill', 'a pod deleted with no grace period', '4/4 ready again in 12 s · 0 of 1,111 failed'],
-      'node-loss': ['Node loss', 'docker stop a worker node', `run 1: 48.4 % failed for 6 min 3 s; the gateway's controller and Kyverno's webhook were on that node · fixed the same day · run 2: ${N.nodeLossRun2}`],
-      'db-failover': ['Database failover', 'kill the Postgres primary', `new primary after ${N.dbNewPrimary} · ${N.dbFailed}`],
-      'bad-release': ['Bad release', 'half the redirects answer 500, shipped through Git', `paged after ${N.pageAfter} · git revert, clean after ${N.recoverAfter}`],
+      'node-loss': ['Node loss', 'docker stop a worker node', "run 1: 48.4 % failed for 6 min 3 s; the gateway's controller and Kyverno's webhook were on that node · fixed the same day · after the fixes: 2 of 5,719 failed, pods ready elsewhere at +84 s"],
+      'db-failover': ['Database failover', 'kill the Postgres primary', 'right after a node loss, while the operator that promotes replicas was still restarting: no new primary for over 5 min, requests hung · fixed (2 operator replicas, a 2 s bound on every database call), not re-measured yet'],
+      'bad-release': ['Bad release', 'half the redirects answer 500, shipped through Git', "not run yet: by then the laptop's own control plane was overloaded · the script is ready for a machine with headroom"],
     } as Record<ChaosEvent, Card>,
   },
   de: {
     h: 'Chaos-Tag, unter Last',
     lead: 'k6 schickte die ganze Zeit 50 Anfragen pro Sekunde durch das Gateway. Jeder Balken sind 10 Sekunden von Lauf 1; rot ist der Anteil, der fehlschlug.',
     alt: `Lauf 1, ${RUN1.start} bis ${RUN1.end}: keine Fehler außer beim Knotenausfall, als sechs Minuten lang etwa die Hälfte der Anfragen fehlschlug.`,
-    verdict: { held: 'gehalten', broke: 'gebrochen · behoben', pending: 'Lauf 2' },
+    verdict: { held: 'gehalten', broke: 'gebrochen · behoben', pending: 'noch nicht gelaufen' },
     note: 'Prometheus und Alertmanager liefen absichtlich auf dem Control-Plane-Knoten, damit die Belege den Knotenausfall überstehen.',
     cards: {
       release: ['Release', 'make release unter Last', '35 s nach dem Publish live · 0 von 2.299 Anfragen fehlgeschlagen'],
       'pod-kill': ['Pod-Kill', 'ein Pod ohne Gnadenfrist gelöscht', 'nach 12 s wieder 4/4 bereit · 0 von 1.111 fehlgeschlagen'],
-      'node-loss': ['Knotenausfall', 'docker stop auf einen Worker', `Lauf 1: 48,4 % fehlgeschlagen, 6 min 3 s lang; Controller des Gateways und Webhook von Kyverno lagen auf diesem Knoten · am selben Tag behoben · Lauf 2: ${N.nodeLossRun2}`],
-      'db-failover': ['Datenbank-Failover', 'den Postgres-Primary beenden', `neuer Primary nach ${N.dbNewPrimary} · ${N.dbFailed}`],
-      'bad-release': ['Fehlerhaftes Release', 'die Hälfte der Redirects antwortet 500, ausgeliefert über Git', `Alarm nach ${N.pageAfter} · git revert, sauber nach ${N.recoverAfter}`],
+      'node-loss': ['Knotenausfall', 'docker stop auf einen Worker', 'Lauf 1: 48,4 % fehlgeschlagen, 6 min 3 s lang; Controller des Gateways und Webhook von Kyverno lagen auf diesem Knoten · am selben Tag behoben · danach: 2 von 5.719 fehlgeschlagen, Pods nach +84 s auf anderen Knoten bereit'],
+      'db-failover': ['Datenbank-Failover', 'den Postgres-Primary beenden', 'direkt nach einem Knotenausfall, während der Operator, der Replikas befördert, noch neu startete: über 5 min kein neuer Primary, Anfragen hingen · behoben (2 Operator-Replikas, 2 s Limit für jeden Datenbankaufruf), noch nicht neu gemessen'],
+      'bad-release': ['Fehlerhaftes Release', 'die Hälfte der Redirects antwortet 500, ausgeliefert über Git', 'noch nicht gelaufen: Die Control Plane des Laptops war da schon überlastet · das Skript ist bereit für eine Maschine mit Reserven'],
     } as Record<ChaosEvent, Card>,
   },
   ar: {
     h: 'يوم الفوضى، تحت الحمل',
     lead: 'أرسل k6 خمسين طلبًا في الثانية عبر البوابة طوال الوقت. كل عمود يمثّل 10 ثوانٍ من الجولة الأولى، والأحمر نسبة الطلبات التي فشلت.',
     alt: `الجولة الأولى، من ${RUN1.start} إلى ${RUN1.end}: لا أخطاء إلا أثناء فقدان العقدة، حين فشل نحو نصف الطلبات مدة ست دقائق.`,
-    verdict: { held: 'صمد', broke: 'انكسر · أُصلح', pending: 'الجولة 2' },
+    verdict: { held: 'صمد', broke: 'انكسر · أُصلح', pending: 'لم تُنفَّذ بعد' },
     note: 'عمل Prometheus وAlertmanager عمدًا على عقدة التحكم، فبقيت الأدلة محفوظة بعد فقدان العقدة.',
     cards: {
       release: ['إصدار', 'make release تحت الحمل', 'يعمل بعد 35 ثانية من النشر · 0 من 2,299 طلبًا فشل'],
       'pod-kill': ['قتل Pod', 'حذف Pod دون مهلة إنهاء', 'عادت 4/4 جاهزة خلال 12 ثانية · 0 من 1,111 فشل'],
-      'node-loss': ['فقدان عقدة', 'docker stop لعقدة عاملة', `الجولة 1: فشل 48.4 % من الطلبات مدة 6 دقائق و3 ثوانٍ؛ كان متحكّم البوابة وwebhook الخاص بـKyverno على تلك العقدة · أُصلح في اليوم نفسه · الجولة 2: ${N.nodeLossRun2}`],
-      'db-failover': ['تبديل قاعدة البيانات', 'إنهاء النسخة الرئيسية من Postgres', `نسخة رئيسية جديدة بعد ${N.dbNewPrimary} · ${N.dbFailed}`],
-      'bad-release': ['إصدار معيب', 'نصف عمليات التحويل تُرجع 500، عبر Git', `انطلق التنبيه بعد ${N.pageAfter} · git revert، ونظيف بعد ${N.recoverAfter}`],
+      'node-loss': ['فقدان عقدة', 'docker stop لعقدة عاملة', 'الجولة 1: فشل 48.4 % من الطلبات مدة 6 دقائق و3 ثوانٍ؛ كان متحكّم البوابة وwebhook الخاص بـKyverno على تلك العقدة · أُصلح في اليوم نفسه · بعد الإصلاح: فشل طلبان من 5,719، وجهزت الحاويات على عقد أخرى بعد 84 ثانية'],
+      'db-failover': ['تبديل قاعدة البيانات', 'إنهاء النسخة الرئيسية من Postgres', 'مباشرة بعد فقدان عقدة، بينما كان المشغّل الذي يرقّي النسخ الاحتياطية ما زال يُعاد تشغيله: لا نسخة رئيسية جديدة لأكثر من 5 دقائق، وتعلّقت الطلبات · أُصلح (نسختان من المشغّل وحدّ ثانيتين لكل استدعاء لقاعدة البيانات)، ولم يُعَد القياس بعد'],
+      'bad-release': ['إصدار معيب', 'نصف عمليات التحويل تُرجع 500، عبر Git', 'لم تُنفَّذ بعد: كانت طبقة التحكم في الحاسوب نفسه مُثقلة حينها · السكربت جاهز لجهاز فيه سعة كافية'],
     } as Record<ChaosEvent, Card>,
   },
 }[locale];
