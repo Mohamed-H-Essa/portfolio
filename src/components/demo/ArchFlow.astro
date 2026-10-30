@@ -1,0 +1,135 @@
+---
+// HOPE: the system end to end, running. A reading leaves the glove, crosses API
+// Gateway, is batched and scored by Lambda, lands in DynamoDB (sessions) and S3
+// (video), and the app shows the result. Each stop explains itself on hover / tap.
+// Pure CSS motion (one shared cycle, like PipelineFlow); static with reduced motion.
+import '../../styles/demo.css';
+import { type Locale } from '../../i18n';
+
+interface Props { locale: Locale }
+const { locale } = Astro.props;
+const T = {
+  en: {
+    kicker: 'How it runs', title: 'From a finger bend to a score on the screen',
+    lead: 'One reading through the whole system. Hover or tap a stop to see what happens there.',
+    region: 'Single region (eu-west-3), one scripted deploy and a clean teardown',
+    nodes: [
+      ['Glove', 'ESP32 · flex sensors + MPU6050', 'Flex sensors read each finger’s bend and the MPU6050 the hand’s motion; the ESP32 sends the readings over HTTPS.'],
+      ['API Gateway', 'HTTPS entry point', 'The one public door: the glove and the app both call the API here.'],
+      ['Lambda', 'Python: batch + score', 'Python functions batch the sensor stream and score each assessment or exercise.'],
+      ['DynamoDB · S3', 'sessions · recorded video', 'Sessions and scores go to DynamoDB; recorded exercise videos go to S3.'],
+      ['Flutter app', 'patient · practitioner', 'Patients follow their exercises and progress; practitioners review sessions and recordings.'],
+    ],
+  },
+  de: {
+    kicker: 'So läuft es', title: 'Von der Fingerbeugung zur Bewertung auf dem Bildschirm',
+    lead: 'Ein Messwert durch das ganze System. Fahre über eine Station oder tippe sie an.',
+    region: 'Eine Region (eu-west-3), ein Skript zum Aufbauen und ein sauberer Abbau',
+    nodes: [
+      ['Handschuh', 'ESP32 · Biegesensoren + MPU6050', 'Biegesensoren messen die Beugung jedes Fingers, der MPU6050 die Handbewegung; der ESP32 sendet per HTTPS.'],
+      ['API Gateway', 'HTTPS-Eingang', 'Die eine öffentliche Tür: Handschuh und App rufen hier die API auf.'],
+      ['Lambda', 'Python: bündeln + bewerten', 'Python-Funktionen bündeln den Sensordatenstrom und bewerten jede Messung und Übung.'],
+      ['DynamoDB · S3', 'Sitzungen · Videos', 'Sitzungen und Bewertungen in DynamoDB, aufgenommene Übungsvideos in S3.'],
+      ['Flutter-App', 'Patient · Therapeut', 'Patienten folgen Übungen und Fortschritt; Therapeuten prüfen Sitzungen und Aufnahmen.'],
+    ],
+  },
+  ar: {
+    kicker: 'كيف يعمل', title: 'من انثناء الإصبع إلى التقييم على الشاشة',
+    lead: 'قراءة واحدة عبر النظام كله. مرّر المؤشر أو المس أي محطة لترى ما يحدث فيها.',
+    region: 'منطقة واحدة (eu-west-3)، ونشر بسكربت واحد، وإزالة نظيفة',
+    nodes: [
+      ['القفاز', 'ESP32 · حساسات انثناء + MPU6050', 'تقيس حساسات الانثناء انحناء كل إصبع ويقيس MPU6050 حركة اليد، ويرسل ESP32 القراءات عبر HTTPS.'],
+      ['API Gateway', 'نقطة الدخول HTTPS', 'الباب العام الوحيد: القفاز والتطبيق كلاهما يستدعيان الواجهة هنا.'],
+      ['Lambda', 'Python: تجميع وتقييم', 'دوال Python تجمّع تدفق الحساسات وتقيّم كل اختبار أو تمرين.'],
+      ['DynamoDB · S3', 'الجلسات · الفيديو', 'الجلسات والتقييمات في DynamoDB، وفيديوهات التمارين المسجلة في S3.'],
+      ['تطبيق Flutter', 'المريض · المعالج', 'يتابع المرضى تمارينهم وتقدّمهم، ويراجع المعالجون الجلسات والتسجيلات.'],
+    ],
+  },
+}[locale];
+---
+
+<section class="demo af shell" aria-labelledby="af-h" data-af>
+  <div class="demo__head">
+    <div>
+      <p class="label">{T.kicker}</p>
+      <h2 class="demo__title" id="af-h">{T.title}</h2>
+      <p class="demo__lead">{T.lead}</p>
+    </div>
+  </div>
+  <ol class="af__track" style={`--n:${T.nodes.length}`}>
+    {T.nodes.map(([name, sub, what], i) => (
+      <li class="af__stop" style={`--i:${i}`}>
+        <button type="button" class="af__node" aria-describedby={`af-d${i}`} data-i={i}>
+          {i === 0 && (
+            <span class="af__fingers" aria-hidden="true">{[0, 1, 2, 3, 4].map((f) => <span style={`--f:${f}`} />)}</span>
+          )}
+          <span class="af__name">{name}</span>
+          <span class="af__sub">{sub}</span>
+        </button>
+        <p class="af__what" id={`af-d${i}`}>{what}</p>
+        {i < T.nodes.length - 1 && <span class="af__wire" aria-hidden="true"><span class="af__packet" /></span>}
+      </li>
+    ))}
+  </ol>
+  <p class="af__note">{T.region}</p>
+</section>
+
+<style>
+  .af { --step: 1s; --cycle: calc(var(--step) * var(--n)); }
+  .af__track { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(var(--n), 1fr); gap: 0 1.6rem; }
+  .af__stop { position: relative; display: grid; align-content: start; gap: 0.7rem; }
+  .af__node {
+    display: grid;
+    gap: 0.3rem;
+    padding: 1rem;
+    min-block-size: 8.5rem;
+    border-radius: 16px;
+    border: 1px solid color-mix(in srgb, var(--cloud) 25%, transparent);
+    background: linear-gradient(180deg, #101317, #0b0d10);
+    text-align: start;
+    color: var(--ink);
+    animation: af-arrive var(--cycle) var(--ease) infinite;
+    animation-delay: calc(var(--step) * var(--i));
+    transition: border-color var(--dur) var(--ease);
+  }
+  .af__node:hover, .af__node:focus-visible, .af__node.is-on { border-color: var(--cloud); outline: none; }
+  .af__name { font-weight: 600; font-size: 1.05rem; }
+  .af__sub { font-family: var(--font-mono); font-size: 0.72rem; color: var(--ink-3); }
+  .af__what { font-size: 0.88rem; line-height: 1.5; color: var(--ink-2); opacity: 0.55; transition: opacity var(--dur) var(--ease), color var(--dur) var(--ease); }
+  .af__stop:has(.af__node:hover) .af__what, .af__stop:has(.af__node:focus-visible) .af__what, .af__stop:has(.is-on) .af__what { opacity: 1; color: var(--ink); }
+  .af__wire { position: absolute; inset-block-start: 4.2rem; inset-inline-start: 100%; inline-size: 1.6rem; block-size: 2px; background: color-mix(in srgb, var(--cloud) 25%, transparent); overflow: visible; }
+  .af__packet { position: absolute; inset-block-start: -3px; inline-size: 8px; block-size: 8px; border-radius: 50%; background: var(--cloud); box-shadow: 0 0 12px var(--cloud); opacity: 0; animation: af-hop var(--cycle) linear infinite; animation-delay: calc(var(--step) * var(--i) + var(--step) * 0.55); }
+  :root[dir='rtl'] .af__packet { animation-name: af-hop-rtl; }
+  .af__fingers { display: flex; gap: 4px; align-items: end; block-size: 26px; margin-block-end: 0.3rem; }
+  .af__fingers span { inline-size: 6px; border-radius: 3px; background: var(--cloud); block-size: 40%; animation: af-flex 2.2s var(--ease) infinite alternate; animation-delay: calc(var(--f) * -0.37s); opacity: 0.85; }
+  .af__note { margin-block-start: 1.6rem; font-family: var(--font-mono); font-size: 0.75rem; color: var(--ink-3); }
+  @keyframes af-arrive {
+    0%, 14% { border-color: var(--cloud); box-shadow: 0 0 0 4px color-mix(in srgb, var(--cloud) 12%, transparent), 0 0 30px color-mix(in srgb, var(--cloud) 22%, transparent); }
+    30%, 100% { box-shadow: none; }
+  }
+  @keyframes af-hop { 0% { inset-inline-start: 0; opacity: 1; } 18% { inset-inline-start: calc(100% - 8px); opacity: 1; } 19%, 100% { opacity: 0; } }
+  @keyframes af-hop-rtl { 0% { inset-inline-start: 0; opacity: 1; } 18% { inset-inline-start: calc(100% - 8px); opacity: 1; } 19%, 100% { opacity: 0; } }
+  @keyframes af-flex { from { block-size: 25%; } to { block-size: 100%; } }
+  @media (max-width: 860px) {
+    .af__track { grid-template-columns: 1fr; gap: 1.4rem; }
+    .af__stop { grid-template-columns: minmax(0, 11rem) 1fr; align-items: start; column-gap: 1rem; }
+    .af__node { min-block-size: 0; }
+    .af__what { opacity: 1; }
+    .af__wire { inset-block-start: 100%; inset-inline-start: 1.4rem; inline-size: 2px; block-size: 1.4rem; }
+    .af__packet { animation-name: af-hop-y; inset-block-start: 0; inset-inline-start: -3px; }
+    @keyframes af-hop-y { 0% { inset-block-start: 0; opacity: 1; } 18% { inset-block-start: calc(100% - 8px); opacity: 1; } 19%, 100% { opacity: 0; } }
+  }
+  @media (max-width: 480px) { .af__stop { grid-template-columns: 1fr; } }
+  @media (prefers-reduced-motion: reduce) {
+    .af__node, .af__packet, .af__fingers span { animation: none; }
+    .af__fingers span:nth-child(odd) { block-size: 80%; }
+  }
+</style>
+
+<script>
+  // touch: a tap pins a stop's explanation (hover does it on desktop)
+  document.querySelectorAll<HTMLElement>('[data-af]').forEach((root) => {
+    const nodes = Array.from(root.querySelectorAll<HTMLButtonElement>('.af__node'));
+    nodes.forEach((n) => n.addEventListener('click', () => nodes.forEach((o) => o.classList.toggle('is-on', o === n && !o.classList.contains('is-on')))));
+  });
+</script>

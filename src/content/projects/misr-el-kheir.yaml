@@ -43,5 +43,6 @@ result:
 stack: [Flutter, Dart, Bloc, SQLite]
 links: {}
 connects: []
+visual: offline-queue
 assets: auto
 review: { de: true, ar: true }

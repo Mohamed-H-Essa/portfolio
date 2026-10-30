@@ -93,5 +93,10 @@
   "gallery.light": "فاتح",
   "gallery.dark": "داكن",
   "gallery.axis.lang": "لغة الشاشات",
-  "gallery.axis.theme": "مظهر الشاشات"
+  "gallery.axis.theme": "مظهر الشاشات",
+  "visual.offline-queue": "دون اتصال ثم مزامنة",
+  "visual.sync-demo": "كيف تتم المزامنة",
+  "visual.arch-flow": "كيف يعمل",
+  "visual.cert": "الشهادة",
+  "visual.hardening": "التهديدات والحماية"
 }

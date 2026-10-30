@@ -1,0 +1,108 @@
+---
+// German Sync: two devices study offline, then reconnect. The Worker's SQLite Durable
+// Object gives every write a sequence number and merges per key by kind: a finished
+// lesson stays finished (monotonic), a flashcard keeps its highest level (per-card
+// max). The visitor can make the edits, or watch the race play out.
+import '../../styles/demo.css';
+import { type Locale } from '../../i18n';
+
+interface Props { locale: Locale }
+const { locale } = Astro.props;
+const T = {
+  en: {
+    kicker: 'Try it', title: 'Two devices, offline, one result',
+    lead: 'Take either device offline and study on both. When they reconnect, the server numbers every write and merges it: a finished lesson stays finished, a flashcard keeps its highest level. Nothing is overwritten.',
+    play: 'Play the offline race', phone: 'Phone', laptop: 'Laptop', server: 'Cloudflare Worker',
+    serverName: 'Durable Object (SQLite)', lesson: 'Lesson', card: 'Card', level: 'level', done: 'done', open: 'open',
+    finish: 'Finish lesson 6', review: 'Review “der Hund”', online: 'Online', offline: 'Offline',
+    pending: 'waiting', insync: 'in sync', seq: 'seq', kept: 'kept', monotonic: 'stays done', max: 'highest wins',
+  },
+  de: {
+    kicker: 'Ausprobieren', title: 'Zwei Geräte, offline, ein Ergebnis',
+    lead: 'Nimm ein Gerät offline und lerne auf beiden. Beim Wiederverbinden nummeriert der Server jede Änderung und führt sie zusammen: Eine erledigte Lektion bleibt erledigt, eine Karteikarte behält ihr höchstes Level. Nichts wird überschrieben.',
+    play: 'Das Offline-Rennen abspielen', phone: 'Telefon', laptop: 'Laptop', server: 'Cloudflare Worker',
+    serverName: 'Durable Object (SQLite)', lesson: 'Lektion', card: 'Karte', level: 'Level', done: 'erledigt', open: 'offen',
+    finish: 'Lektion 6 abschließen', review: '„der Hund“ wiederholen', online: 'Online', offline: 'Offline',
+    pending: 'wartet', insync: 'synchron', seq: 'seq', kept: 'behalten', monotonic: 'bleibt erledigt', max: 'höchstes gewinnt',
+  },
+  ar: {
+    kicker: 'جرّبها', title: 'جهازان دون اتصال، ونتيجة واحدة',
+    lead: 'افصل أيًا من الجهازين وذاكر على كليهما. عند عودة الاتصال يرقّم الخادم كل تعديل ويدمجه: الدرس المنتهي يبقى منتهيًا، والبطاقة تحتفظ بأعلى مستوى لها. لا شيء يُكتب فوق شيء.',
+    play: 'شغّل سباق عدم الاتصال', phone: 'الهاتف', laptop: 'الحاسوب', server: 'Cloudflare Worker',
+    serverName: 'Durable Object (SQLite)', lesson: 'الدرس', card: 'بطاقة', level: 'المستوى', done: 'منتهٍ', open: 'مفتوح',
+    finish: 'إنهاء الدرس 6', review: 'مراجعة «der Hund»', online: 'متصل', offline: 'غير متصل',
+    pending: 'في الانتظار', insync: 'متزامن', seq: 'رقم', kept: 'بقي', monotonic: 'يبقى منتهيًا', max: 'الأعلى يفوز',
+  },
+}[locale];
+const device = (id: string, name: string) => ({ id, name });
+---
+
+<section class="demo sy shell" data-sync={JSON.stringify(T)} aria-labelledby="sy-h">
+  <div class="demo__head">
+    <div>
+      <p class="label">{T.kicker}</p>
+      <h2 class="demo__title" id="sy-h">{T.title}</h2>
+      <p class="demo__lead">{T.lead}</p>
+    </div>
+    <div class="demo__actions" data-js hidden>
+      <button type="button" class="demo-btn demo-btn--solid" data-play>{T.play}</button>
+    </div>
+  </div>
+  <div class="sy__grid">
+    {[device('phone', T.phone), null, device('laptop', T.laptop)].map((d) =>
+      d ? (
+        <div class="demo-panel sy__dev" data-dev={d.id}>
+          <div class="sy__top">
+            <p class="demo-panel__name">{d.name}</p>
+            <button type="button" class="demo-net" data-net aria-pressed="true" data-js hidden>{T.online}</button>
+          </div>
+          <ul class="sy__state" data-state>
+            <li>{T.lesson} 5 <span class="demo-pill demo-pill--ok">{T.done}</span></li>
+            <li>{T.lesson} 6 <span class="demo-pill demo-pill--ok">{T.done}</span></li>
+            <li>{T.card} der Hund <span class="demo-pill">{T.level} 4</span></li>
+          </ul>
+          <div class="sy__acts" data-js hidden>
+            <button type="button" class="demo-btn" data-act="finish">{T.finish}</button>
+            <button type="button" class="demo-btn" data-act="review">{T.review}</button>
+          </div>
+          <p class="sy__wait" data-wait></p>
+        </div>
+      ) : (
+        <div class="demo-panel sy__srv">
+          <p class="demo-panel__label">{T.server}</p>
+          <p class="demo-panel__name">{T.serverName} <span class="sy__seq" data-seq>{T.seq} 44</span></p>
+          <ol class="demo-log" data-log>
+            <li><b>{T.seq} 43</b> laptop · der Hund = 4 · {T.max}</li>
+            <li><b>{T.seq} 44</b> phone · {T.lesson} 6 = {T.done} · {T.monotonic}</li>
+          </ol>
+        </div>
+      )
+    )}
+  </div>
+</section>
+
+<style>
+  .sy__grid { display: grid; grid-template-columns: 1fr 1.25fr 1fr; gap: 1rem; align-items: start; }
+  .sy__top { display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; margin-block-end: 0.6rem; }
+  .sy__top .demo-panel__name { margin: 0; }
+  .sy__state { list-style: none; padding: 0; display: grid; gap: 0.4rem; }
+  .sy__state :global(li) { display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; padding: 0.5rem 0.65rem; border-radius: 10px; background: rgba(255, 255, 255, 0.03); font-size: 0.92rem; }
+  .sy__state :global(li.is-changed) { box-shadow: 0 0 0 1px color-mix(in srgb, var(--p) 70%, transparent); transition: box-shadow 600ms var(--ease); }
+  .sy__acts { display: grid; gap: 0.45rem; margin-block-start: 0.8rem; }
+  .sy__acts .demo-btn { justify-content: center; min-block-size: 38px; font-size: 0.84rem; }
+  .sy__wait { min-block-size: 1.4em; margin-block-start: 0.55rem; font-family: var(--font-mono); font-size: 0.72rem; color: #fbbf24; }
+  .sy__seq { margin-inline-start: 0.4rem; font-family: var(--font-mono); font-size: 0.78rem; color: var(--p); }
+  .sy__srv { align-self: stretch; }
+  .sy__srv .demo-log { max-block-size: 15rem; overflow: hidden; }
+  .sy__dev.is-offline { border-style: dashed; }
+  @media (max-width: 860px) {
+    .sy__grid { grid-template-columns: 1fr 1fr; }
+    .sy__srv { grid-column: 1 / -1; grid-row: 2; }
+  }
+  @media (max-width: 520px) { .sy__grid { grid-template-columns: 1fr; } .sy__srv { grid-row: auto; } }
+</style>
+
+<script>
+  import { initSync } from '../../scripts/demo/sync';
+  document.querySelectorAll<HTMLElement>('[data-sync]').forEach(initSync);
+</script>

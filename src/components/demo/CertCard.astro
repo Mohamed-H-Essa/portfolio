@@ -1,0 +1,118 @@
+---
+// AWS SAA: the credential itself. The seal, what was examined (the four SAA-C03
+// domains and their weights, from AWS's public exam guide), how long it is valid,
+// with today marked, and the Credly link that proves it.
+import '../../styles/demo.css';
+import { type Locale } from '../../i18n';
+
+interface Props { locale: Locale; verify?: string }
+const { locale, verify } = Astro.props;
+const ISSUED = '2026-06-20';
+const EXPIRES = '2029-06-20';
+const intl = locale === 'ar' ? 'ar-u-nu-latn' : locale;
+const fmt = (d: string) => new Intl.DateTimeFormat(intl, { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }).format(new Date(d));
+const T = {
+  en: {
+    kicker: 'The credential', title: 'AWS Certified Solutions Architect – Associate', exam: 'Exam SAA-C03',
+    issued: 'Issued', expires: 'Valid until', today: 'today', verify: 'Verify on Credly', domainsH: 'What the exam covers',
+    domains: [['Design secure architectures', 30], ['Design resilient architectures', 26], ['Design high-performing architectures', 24], ['Design cost-optimized architectures', 20]],
+    source: 'Domain weights from AWS’s SAA-C03 exam guide.',
+  },
+  de: {
+    kicker: 'Der Nachweis', title: 'AWS Certified Solutions Architect – Associate', exam: 'Prüfung SAA-C03',
+    issued: 'Ausgestellt', expires: 'Gültig bis', today: 'heute', verify: 'Bei Credly prüfen', domainsH: 'Was die Prüfung abdeckt',
+    domains: [['Sichere Architekturen entwerfen', 30], ['Ausfallsichere Architekturen entwerfen', 26], ['Leistungsstarke Architekturen entwerfen', 24], ['Kostenoptimierte Architekturen entwerfen', 20]],
+    source: 'Gewichtung laut AWS-Prüfungsleitfaden SAA-C03.',
+  },
+  ar: {
+    kicker: 'الشهادة', title: 'AWS Certified Solutions Architect – Associate', exam: 'اختبار SAA-C03',
+    issued: 'تاريخ الإصدار', expires: 'صالحة حتى', today: 'اليوم', verify: 'تحقّق عبر Credly', domainsH: 'ما يغطيه الاختبار',
+    domains: [['تصميم بنى آمنة', 30], ['تصميم بنى مرنة وقادرة على التعافي', 26], ['تصميم بنى عالية الأداء', 24], ['تصميم بنى محسّنة التكلفة', 20]],
+    source: 'أوزان المجالات من دليل اختبار SAA-C03 من AWS.',
+  },
+}[locale];
+// where today sits at build time (the browser refreshes it); no-JS keeps this
+const buildPct = Math.min(100, Math.max(0, ((Date.now() - Date.parse(ISSUED)) / (Date.parse(EXPIRES) - Date.parse(ISSUED))) * 100)).toFixed(1);
+const hex = Array.from({ length: 6 }, (_, i) => {
+  const a = ((60 * i - 90) * Math.PI) / 180;
+  return `${(60 + 46 * Math.cos(a)).toFixed(1)},${(60 + 46 * Math.sin(a)).toFixed(1)}`;
+}).join(' ');
+---
+
+<section class="demo cc shell" aria-labelledby="cc-h" data-cc={JSON.stringify({ from: ISSUED, to: EXPIRES })}>
+  <div class="cc__grid">
+    <div class="demo-panel cc__card">
+      <svg class="cc__seal" viewBox="0 0 120 120" aria-hidden="true">
+        <polygon points={hex} />
+        <polygon points={hex} transform="translate(60 60) scale(0.78) translate(-60 -60)" opacity="0.45" />
+        <text x="60" y="58" text-anchor="middle">AWS</text>
+        <text x="60" y="76" text-anchor="middle" class="cc__code">SAA</text>
+      </svg>
+      <p class="label">{T.kicker}</p>
+      <h2 class="demo__title" id="cc-h">{T.title}</h2>
+      <p class="cc__exam">{T.exam}</p>
+      <dl class="cc__dates">
+        <div><dt>{T.issued}</dt><dd>{fmt(ISSUED)}</dd></div>
+        <div><dt>{T.expires}</dt><dd>{fmt(EXPIRES)}</dd></div>
+      </dl>
+      <div class="cc__bar" aria-hidden="true" style={`--done:${buildPct}%`}>
+        <span class="cc__fill" data-fill></span>
+        <span class="cc__today" data-today><span>{T.today}</span></span>
+      </div>
+      {verify && <a class="demo-btn demo-btn--solid cc__verify" href={verify} target="_blank" rel="noopener">{T.verify} ↗</a>}
+    </div>
+    <div class="cc__domains">
+      <h3 class="label">{T.domainsH}</h3>
+      <ul>
+        {T.domains.map(([name, w], i) => (
+          <li style={`--w:${w};--i:${i}`}>
+            <span class="cc__dname">{name}</span>
+            <span class="cc__pct">{w}%</span>
+            <span class="cc__track"><span /></span>
+          </li>
+        ))}
+      </ul>
+      <p class="cc__source">{T.source}</p>
+    </div>
+  </div>
+</section>
+
+<style>
+  .cc__grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: clamp(1.25rem, 4vw, 3rem); align-items: center; }
+  .cc__card { padding: 1.6rem; border-color: color-mix(in srgb, var(--cloud) 30%, transparent); background: radial-gradient(120% 90% at 85% 0%, color-mix(in srgb, var(--cloud) 10%, transparent), transparent 60%), linear-gradient(180deg, #101317, #0b0d10); }
+  .cc__seal { inline-size: 88px; block-size: 88px; margin-block-end: 0.8rem; fill: none; stroke: var(--cloud); stroke-width: 2; filter: drop-shadow(0 0 14px color-mix(in srgb, var(--cloud) 45%, transparent)); }
+  .cc__seal text { fill: var(--ink); stroke: none; font-family: var(--font-mono); font-size: 15px; font-weight: 600; letter-spacing: 1px; }
+  .cc__seal .cc__code { fill: var(--cloud); font-size: 12px; }
+  .cc__exam { font-family: var(--font-mono); font-size: 0.8rem; color: var(--ink-3); margin-block-start: 0.35rem; }
+  .cc__dates { display: flex; flex-wrap: wrap; gap: 0.5rem 2rem; margin-block: 1.2rem 0.8rem; }
+  .cc__dates dt { font-size: 0.78rem; color: var(--ink-3); }
+  .cc__dates dd { margin: 0; font-weight: 600; }
+  .cc__bar { position: relative; block-size: 6px; border-radius: 3px; background: rgba(255, 255, 255, 0.08); margin-block: 1.6rem 1.4rem; }
+  .cc__fill { position: absolute; inset-block: 0; inset-inline-start: 0; inline-size: var(--done, 0%); border-radius: 3px; background: linear-gradient(90deg, color-mix(in srgb, var(--cloud) 40%, transparent), var(--cloud)); }
+  :root[dir='rtl'] .cc__fill { background: linear-gradient(270deg, color-mix(in srgb, var(--cloud) 40%, transparent), var(--cloud)); }
+  .cc__today { position: absolute; inset-block: -6px; inset-inline-start: var(--done, 0%); inline-size: 2px; background: var(--ink); }
+  .cc__today span { position: absolute; inset-block-end: 100%; translate: -50% -4px; font-family: var(--font-mono); font-size: 0.66rem; color: var(--ink-2); white-space: nowrap; }
+  :root[dir='rtl'] .cc__today span { translate: 50% -4px; }
+  .cc__verify { margin-block-start: 0.4rem; }
+  .cc__domains ul { list-style: none; padding: 0; display: grid; gap: 1rem; margin-block-start: 1rem; }
+  .cc__domains li { display: grid; grid-template-columns: 1fr auto; gap: 0.35rem 1rem; }
+  .cc__dname { font-size: 0.98rem; }
+  .cc__pct { font-family: var(--font-mono); color: var(--cloud); }
+  .cc__track { grid-column: 1 / -1; block-size: 4px; border-radius: 2px; background: rgba(255, 255, 255, 0.07); overflow: hidden; }
+  .cc__track span { display: block; block-size: 100%; inline-size: calc(var(--w) * 1% / 0.3); background: var(--cloud); transform-origin: left; animation: cc-grow 1s var(--ease-strong) both; animation-delay: calc(var(--i) * 120ms + 200ms); }
+  :root[dir='rtl'] .cc__track span { transform-origin: right; }
+  .cc__source { margin-block-start: 1.1rem; font-size: 0.78rem; color: var(--ink-3); }
+  @keyframes cc-grow { from { transform: scaleX(0); } }
+  @media (max-width: 860px) { .cc__grid { grid-template-columns: 1fr; } }
+  @media (prefers-reduced-motion: reduce) { .cc__track span { animation: none; } }
+</style>
+
+<script>
+  // today's place between issue and expiry (computed in the browser, so it stays true)
+  document.querySelectorAll<HTMLElement>('[data-cc]').forEach((root) => {
+    const { from, to } = JSON.parse(root.dataset.cc!) as { from: string; to: string };
+    const a = Date.parse(from), b = Date.parse(to);
+    const p = Math.min(100, Math.max(0, ((Date.now() - a) / (b - a)) * 100));
+    root.querySelector<HTMLElement>('.cc__bar')!.style.setProperty('--done', `${p.toFixed(1)}%`);
+  });
+</script>

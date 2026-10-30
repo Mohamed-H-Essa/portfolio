@@ -1,0 +1,141 @@
+---
+// Mobile security hardening: each threat an app with sensitive data faces, joined to
+// the defence the owner put in (from the project's "built" text). Hover / tap a
+// threat: its line lights and the defence answers. Without JS: the two lists, paired.
+import '../../styles/demo.css';
+import { type Locale } from '../../i18n';
+
+interface Props { locale: Locale }
+const { locale } = Astro.props;
+const T = {
+  en: {
+    kicker: 'Threat → defence', title: 'What each layer stops', lead: 'Pick a threat to see the defence that answers it.',
+    threatsH: 'The threat', defencesH: 'The defence',
+    pairs: [
+      ['Someone intercepts the app’s traffic', 'Certificate pinning: the app only talks to its own server’s certificate'],
+      ['Someone decompiles the app', 'Obfuscated code with split debug info'],
+      ['The app runs on a rooted or jailbroken phone', 'Root and jailbreak detection'],
+      ['A debugger attaches to the running app', 'Debug-mode detection'],
+      ['Logs leak data on the device', 'Debug logging removed from release builds'],
+      ['A dependency has a known weakness', 'MobSF scans across the dependency tree'],
+    ],
+  },
+  de: {
+    kicker: 'Angriff → Abwehr', title: 'Was jede Schicht abwehrt', lead: 'Wähle einen Angriff, um die Abwehr dazu zu sehen.',
+    threatsH: 'Der Angriff', defencesH: 'Die Abwehr',
+    pairs: [
+      ['Jemand fängt den Datenverkehr der App ab', 'Certificate Pinning: Die App vertraut nur dem Zertifikat ihres eigenen Servers'],
+      ['Jemand dekompiliert die App', 'Obfuskierter Code mit getrennten Debug-Infos'],
+      ['Die App läuft auf einem gerooteten oder gejailbreakten Gerät', 'Root- und Jailbreak-Erkennung'],
+      ['Ein Debugger hängt sich an die laufende App', 'Erkennung des Debug-Modus'],
+      ['Logs geben Daten auf dem Gerät preis', 'Debug-Logging aus Release-Builds entfernt'],
+      ['Eine Abhängigkeit hat eine bekannte Schwachstelle', 'MobSF-Scans über den ganzen Abhängigkeitsbaum'],
+    ],
+  },
+  ar: {
+    kicker: 'التهديد ← الحماية', title: 'ما توقفه كل طبقة', lead: 'اختر تهديدًا لترى الحماية التي تتصدّى له.',
+    threatsH: 'التهديد', defencesH: 'الحماية',
+    pairs: [
+      ['شخص يعترض اتصالات التطبيق', 'تثبيت الشهادة: لا يثق التطبيق إلا بشهادة خادمه'],
+      ['شخص يفكّك شيفرة التطبيق', 'تعمية الشيفرة مع فصل معلومات التصحيح'],
+      ['التطبيق يعمل على هاتف مكسور الحماية (root / jailbreak)', 'كشف كسر الحماية'],
+      ['مصحّح أخطاء يتصل بالتطبيق أثناء تشغيله', 'كشف وضع التصحيح'],
+      ['السجلات تكشف بيانات على الجهاز', 'إزالة سجلات التصحيح من نسخ الإصدار'],
+      ['مكتبة تابعة فيها ثغرة معروفة', 'فحص MobSF لشجرة المكتبات كاملة'],
+    ],
+  },
+}[locale];
+---
+
+<section class="demo hd shell" aria-labelledby="hd-h" data-hd>
+  <div class="demo__head">
+    <div>
+      <p class="label">{T.kicker}</p>
+      <h2 class="demo__title" id="hd-h">{T.title}</h2>
+      <p class="demo__lead">{T.lead}</p>
+    </div>
+  </div>
+  <div class="hd__cols">
+    <p class="label hd__h">{T.threatsH}</p>
+    <p class="label hd__h hd__h--d">{T.defencesH}</p>
+    {T.pairs.map(([threat, defence], i) => (
+      <div class="hd__row" style={`--i:${i}`}>
+        <button type="button" class="hd__threat" aria-describedby={`hd-d${i}`} data-i={i}>
+          <span class="hd__icon" aria-hidden="true">!</span>{threat}
+        </button>
+        <span class="hd__link" aria-hidden="true"><span /></span>
+        <p class="hd__def" id={`hd-d${i}`}><span class="hd__shield" aria-hidden="true" />{defence}</p>
+      </div>
+    ))}
+  </div>
+</section>
+
+<style>
+  .hd__cols { display: grid; grid-template-columns: minmax(0, 1fr) 72px minmax(0, 1fr); row-gap: 0.6rem; }
+  .hd__h { grid-column: 1; }
+  .hd__h--d { grid-column: 3; }
+  .hd__row { display: contents; }
+  .hd__threat {
+    grid-column: 1;
+    display: flex;
+    gap: 0.7rem;
+    align-items: center;
+    padding: 0.8rem 1rem;
+    border-radius: 12px;
+    border: 1px solid var(--line-2);
+    background: rgba(255, 255, 255, 0.02);
+    color: var(--ink-2);
+    text-align: start;
+    font-size: 0.95rem;
+    transition: border-color var(--dur) var(--ease), color var(--dur) var(--ease);
+  }
+  .hd__icon { flex: none; display: grid; place-items: center; inline-size: 22px; block-size: 22px; border-radius: 50%; border: 1px solid #f87171; color: #f87171; font-family: var(--font-mono); font-size: 0.75rem; }
+  .hd__link { grid-column: 2; align-self: center; block-size: 2px; margin-inline: 6px; background: var(--line-2); position: relative; overflow: hidden; }
+  .hd__link span { position: absolute; inset: 0; background: var(--p); transform: scaleX(0); transform-origin: left; transition: transform 420ms var(--ease-strong); }
+  :root[dir='rtl'] .hd__link span { transform-origin: right; }
+  .hd__def {
+    grid-column: 3;
+    display: flex;
+    gap: 0.7rem;
+    align-items: center;
+    padding: 0.8rem 1rem;
+    border-radius: 12px;
+    border: 1px solid var(--line-2);
+    color: var(--ink-3);
+    font-size: 0.95rem;
+    transition: border-color var(--dur) var(--ease), color var(--dur) var(--ease), background var(--dur) var(--ease);
+  }
+  .hd__shield { flex: none; inline-size: 18px; block-size: 20px; background: currentColor; clip-path: polygon(50% 0, 100% 18%, 92% 62%, 50% 100%, 8% 62%, 0 18%); opacity: 0.5; }
+  .hd__row:has(.hd__threat:hover) .hd__threat, .hd__row:has(.hd__threat:focus-visible) .hd__threat, .hd__row.is-on .hd__threat { border-color: #f87171; color: var(--ink); outline: none; }
+  .hd__row:has(.hd__threat:hover) .hd__link span, .hd__row:has(.hd__threat:focus-visible) .hd__link span, .hd__row.is-on .hd__link span { transform: scaleX(1); }
+  .hd__row:has(.hd__threat:hover) .hd__def, .hd__row:has(.hd__threat:focus-visible) .hd__def, .hd__row.is-on .hd__def { border-color: var(--p); color: var(--ink); background: color-mix(in srgb, var(--p) 8%, transparent); }
+  .hd__row:has(.hd__threat:hover) .hd__shield, .hd__row.is-on .hd__shield { color: var(--p); opacity: 1; }
+  @media (max-width: 760px) {
+    .hd__cols { grid-template-columns: 1fr; }
+    .hd__h--d, .hd__link { display: none; }
+    .hd__row { display: grid; gap: 0.35rem; margin-block-end: 0.5rem; }
+    .hd__threat, .hd__def { grid-column: 1; }
+    .hd__def { margin-inline-start: 1.5rem; }
+  }
+  @media (prefers-reduced-motion: reduce) { .hd__link span { transition: none; } }
+</style>
+
+<script>
+  // a slow tour through the pairs until the visitor picks one; tap pins a pair
+  document.querySelectorAll<HTMLElement>('[data-hd]').forEach((root) => {
+    const rows = Array.from(root.querySelectorAll<HTMLElement>('.hd__row'));
+    let i = 0, timer = 0;
+    const show = (k: number) => rows.forEach((r, j) => r.classList.toggle('is-on', j === k));
+    const tour = () => { show(i); i = (i + 1) % rows.length; };
+    const io = new IntersectionObserver((es) => {
+      if (es.some((e) => e.isIntersecting) && !timer && !matchMedia('(prefers-reduced-motion: reduce)').matches) { tour(); timer = window.setInterval(tour, 1800); }
+    }, { threshold: 0.4 });
+    io.observe(root);
+    const stop = () => { window.clearInterval(timer); timer = -1; };
+    rows.forEach((r, k) => {
+      const b = r.querySelector<HTMLButtonElement>('.hd__threat')!;
+      b.addEventListener('pointerenter', () => { stop(); show(-1); });
+      b.addEventListener('click', () => { stop(); show(r.classList.contains('is-on') ? -1 : k); });
+    });
+  });
+</script>

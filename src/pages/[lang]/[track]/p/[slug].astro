@@ -6,6 +6,11 @@ import Base from '../../../../layouts/Base.astro';
 import DossierHero from '../../../../components/DossierHero.astro';
 import DossierGallery from '../../../../components/DossierGallery.astro';
 import PipelineFlow from '../../../../components/PipelineFlow.astro';
+import OfflineQueue from '../../../../components/demo/OfflineQueue.astro';
+import SyncDemo from '../../../../components/demo/SyncDemo.astro';
+import ArchFlow from '../../../../components/demo/ArchFlow.astro';
+import CertCard from '../../../../components/demo/CertCard.astro';
+import Hardening from '../../../../components/demo/Hardening.astro';
 import NodeLink from '../../../../components/NodeLink.astro';
 import { LOCALES, TRACKS, loc, t, type Locale, type Track } from '../../../../i18n';
 import { loadProjects, type Project } from '../../../../lib/content';
@@ -63,7 +68,7 @@ const accent = projectAccent(slug) ?? `var(--${d.worlds[0]})`;
 const frames = [
   { id: 'overview', label: t(lang, 'dossier.overview') },
   blocks.length > 0 && { id: 'story', label: t(lang, 'dossier.story') },
-  d.visual === 'release-flow' && { id: 'flow', label: t(lang, 'dossier.flow') },
+  d.visual && { id: 'visual', label: t(lang, d.visual === 'release-flow' ? 'dossier.flow' : `visual.${d.visual}`) },
   shots > 0 && { id: 'gallery', label: t(lang, 'dossier.gallery') },
   { id: 'details', label: t(lang, 'dossier.details') },
 ].filter(Boolean) as { id: string; label: string }[];
@@ -113,10 +118,16 @@ const frames = [
       )
     }
 
+    {/* the project's own idea: a live demo, a diagram or the credential (components/demo) */}
     {
-      d.visual === 'release-flow' && (
-        <div class="frame" data-frame id="f-flow">
-          <PipelineFlow locale={lang} />
+      d.visual && (
+        <div class="frame" data-frame id="f-visual">
+          {d.visual === 'release-flow' && <PipelineFlow locale={lang} />}
+          {d.visual === 'offline-queue' && <OfflineQueue locale={lang} />}
+          {d.visual === 'sync-demo' && <SyncDemo locale={lang} />}
+          {d.visual === 'arch-flow' && <ArchFlow locale={lang} />}
+          {d.visual === 'cert' && <CertCard locale={lang} verify={d.links?.live} />}
+          {d.visual === 'hardening' && <Hardening locale={lang} />}
         </div>
       )
     }

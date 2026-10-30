@@ -37,5 +37,6 @@ result:
 stack: [Cloudflare Workers, Durable Objects, SQLite, GitHub Pages, "AWS (migrated from)", Terraform]
 links: {}
 connects: [aws-saa]
+visual: sync-demo
 assets: auto
 review: { de: true, ar: true }

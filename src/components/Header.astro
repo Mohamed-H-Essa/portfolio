@@ -132,6 +132,10 @@ const homeHref = url();
       <a href="mailto:mhosnytech@gmail.com">mhosnytech@gmail.com</a>
       <a href="https://www.linkedin.com/in/mohamed-hosny-essa" target="_blank" rel="noopener">LinkedIn</a>
     </div>
+    <div class="mobile-menu__group">
+      <p class="label">{t(locale, 'nav.sound')}</p>
+      <button type="button" class="mobile-menu__sound" data-sound-toggle aria-pressed="true">{t(locale, 'nav.sound')}</button>
+    </div>
     {FEATURES.cv && (
       <div class="mobile-menu__group">
         <p class="label">{t(locale, 'nav.cv')}</p>
@@ -193,6 +197,7 @@ const homeHref = url();
      button shrinks to its download icon (the menu still lists both CVs by name) */
   @media (max-width: 760px) {
     .has-map .cv-btn { inline-size: 40px; block-size: 40px; padding: 0; justify-content: center; }
+    .has-map .sound-toggle { display: none; } /* it's in the menu */
     .has-map .cv-btn span { position: absolute; inline-size: 1px; block-size: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
   }
   :root[dir='rtl'] .to-map { font-family: var(--font-ar); letter-spacing: 0; text-transform: none; font-size: 0.9rem; }
@@ -311,6 +316,9 @@ const homeHref = url();
     font-size: 1.25rem;
     color: var(--ink);
   }
+  .mobile-menu__sound { display: flex; align-items: center; gap: 0.6rem; min-block-size: 48px; font-size: 1.25rem; color: var(--ink); }
+  .mobile-menu__sound::after { content: ''; inline-size: 34px; block-size: 20px; border-radius: 999px; background: radial-gradient(circle at 10px 50%, #fff 0 6px, transparent 6.5px), #3a3b40; }
+  .mobile-menu__sound[aria-pressed='true']::after { background: radial-gradient(circle at 24px 50%, #0b0b0c 0 6px, transparent 6.5px), var(--accent); }
   .mobile-menu__group a.is-active {
     color: var(--accent);
     font-weight: 600;

@@ -37,5 +37,6 @@ result:
 stack: [AWS Lambda, API Gateway, DynamoDB, S3, Python, ESP32, Flutter]
 links: {}
 connects: [aws-saa, release-pipeline]
+visual: arch-flow
 assets: auto
 review: { de: true, ar: true }

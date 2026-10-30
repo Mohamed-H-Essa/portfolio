@@ -93,5 +93,10 @@
   "gallery.light": "Light",
   "gallery.dark": "Dark",
   "gallery.axis.lang": "Language of the screens",
-  "gallery.axis.theme": "Theme of the screens"
+  "gallery.axis.theme": "Theme of the screens",
+  "visual.offline-queue": "Offline, then synced",
+  "visual.sync-demo": "How it syncs",
+  "visual.arch-flow": "How it runs",
+  "visual.cert": "The credential",
+  "visual.hardening": "Threats & defences"
 }

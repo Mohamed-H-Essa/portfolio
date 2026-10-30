@@ -93,5 +93,10 @@
   "gallery.light": "Hell",
   "gallery.dark": "Dunkel",
   "gallery.axis.lang": "Sprache der Screens",
-  "gallery.axis.theme": "Design der Screens"
+  "gallery.axis.theme": "Design der Screens",
+  "visual.offline-queue": "Offline, dann synchron",
+  "visual.sync-demo": "So synchronisiert es",
+  "visual.arch-flow": "So läuft es",
+  "visual.cert": "Der Nachweis",
+  "visual.hardening": "Angriffe & Abwehr"
 }

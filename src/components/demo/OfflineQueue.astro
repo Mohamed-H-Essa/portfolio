@@ -1,0 +1,118 @@
+---
+// Misr El Kheir: the owner's part was the offline queue for family-member records
+// (SQLite queue, connectivity listener, sync service, sync cubit). This lets the
+// visitor do it: switch the connection off, add people, switch it back on, and
+// watch the queue drain to the server. Without JS: a still of the same idea.
+import '../../styles/demo.css';
+import { type Locale } from '../../i18n';
+
+interface Props { locale: Locale }
+const { locale } = Astro.props;
+const T = {
+  en: {
+    kicker: 'Try it', title: 'No entry lost when the signal is', titleEnd: 'gone',
+    lead: 'Switch the connection off, add family members, then switch it back on. Requests wait in a SQLite queue on the phone and go to the server when the network returns.',
+    play: 'Play it for me', add: 'Add a family member', online: 'Online', offline: 'Offline',
+    phone: 'The phone', phoneName: 'Family members', queue: 'On the phone', queueName: 'Offline queue (SQLite)',
+    server: 'Server', serverName: 'Received', queued: 'queued', synced: 'synced', empty: 'Nothing waiting',
+    back: 'Connection is back: sending the queue', lost: 'No connection: saving to the queue',
+    people: ['Mona, wife', 'Youssef, son', 'Salma, daughter', 'Omar, son', 'Hoda, mother'],
+  },
+  de: {
+    kicker: 'Ausprobieren', title: 'Kein Eintrag geht verloren, wenn das Netz', titleEnd: 'weg ist',
+    lead: 'Verbindung aus, Familienmitglieder hinzufügen, Verbindung wieder an. Die Anfragen warten in einer SQLite-Warteschlange auf dem Telefon und gehen an den Server, sobald das Netz zurück ist.',
+    play: 'Vorführen', add: 'Familienmitglied hinzufügen', online: 'Online', offline: 'Offline',
+    phone: 'Das Telefon', phoneName: 'Familienmitglieder', queue: 'Auf dem Telefon', queueName: 'Offline-Warteschlange (SQLite)',
+    server: 'Server', serverName: 'Angekommen', queued: 'wartet', synced: 'synchronisiert', empty: 'Nichts wartet',
+    back: 'Verbindung zurück: Warteschlange wird gesendet', lost: 'Keine Verbindung: wird zwischengespeichert',
+    people: ['Mona, Ehefrau', 'Youssef, Sohn', 'Salma, Tochter', 'Omar, Sohn', 'Hoda, Mutter'],
+  },
+  ar: {
+    kicker: 'جرّبها', title: 'لا يضيع أي إدخال حين', titleEnd: 'ينقطع الاتصال',
+    lead: 'افصل الاتصال، وأضف أفرادًا من الأسرة، ثم أعد الاتصال. تنتظر الطلبات في قائمة SQLite على الهاتف وتُرسل إلى الخادم عند عودة الشبكة.',
+    play: 'شغّلها لي', add: 'إضافة فرد من الأسرة', online: 'متصل', offline: 'غير متصل',
+    phone: 'الهاتف', phoneName: 'أفراد الأسرة', queue: 'على الهاتف', queueName: 'قائمة الانتظار (SQLite)',
+    server: 'الخادم', serverName: 'ما وصل', queued: 'في الانتظار', synced: 'تمت المزامنة', empty: 'لا شيء في الانتظار',
+    back: 'عاد الاتصال: جارٍ إرسال القائمة', lost: 'لا يوجد اتصال: الحفظ في القائمة',
+    people: ['منى، الزوجة', 'يوسف، الابن', 'سلمى، الابنة', 'عمر، الابن', 'هدى، الأم'],
+  },
+}[locale];
+---
+
+<section class="demo oq shell" data-oq={JSON.stringify(T)} aria-labelledby="oq-h">
+  <div class="demo__head">
+    <div>
+      <p class="label">{T.kicker}</p>
+      <h2 class="demo__title" id="oq-h">{T.title} {T.titleEnd}</h2>
+      <p class="demo__lead">{T.lead}</p>
+    </div>
+    <div class="demo__actions" data-js hidden>
+      <button type="button" class="demo-net" data-net aria-pressed="true">{T.online}</button>
+      <button type="button" class="demo-btn" data-add>+ {T.add}</button>
+      <button type="button" class="demo-btn demo-btn--solid" data-play>{T.play}</button>
+    </div>
+  </div>
+  <p class="oq__toast" data-toast aria-live="polite"></p>
+  <div class="oq__grid">
+    <div class="demo-panel">
+      <p class="demo-panel__label">{T.phone}</p>
+      <p class="demo-panel__name">{T.phoneName}</p>
+      <ul class="oq__list" data-phone>
+        <li><span>{T.people[0]}</span><span class="demo-pill demo-pill--ok">{T.synced}</span></li>
+        <li><span>{T.people[1]}</span><span class="demo-pill demo-pill--warn">{T.queued}</span></li>
+        <li><span>{T.people[2]}</span><span class="demo-pill demo-pill--warn">{T.queued}</span></li>
+      </ul>
+    </div>
+    <div class="oq__arrow" aria-hidden="true" data-wire><span class="oq__pulse"></span></div>
+    <div class="demo-panel oq__queue">
+      <p class="demo-panel__label">{T.queue}</p>
+      <p class="demo-panel__name">{T.queueName}</p>
+      <ol class="oq__stack" data-queue>
+        <li>POST /family-members · {T.people[1]}</li>
+        <li>POST /family-members · {T.people[2]}</li>
+      </ol>
+      <p class="oq__empty" data-empty hidden>{T.empty}</p>
+    </div>
+    <div class="oq__arrow" aria-hidden="true" data-wire2><span class="oq__pulse"></span></div>
+    <div class="demo-panel">
+      <p class="demo-panel__label">{T.server}</p>
+      <p class="demo-panel__name">{T.serverName} <span class="oq__count" data-count>1</span></p>
+      <ul class="oq__list" data-server>
+        <li><span>{T.people[0]}</span><span class="demo-pill demo-pill--ok">201</span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<style>
+  .oq__grid { display: grid; grid-template-columns: 1fr 56px 1fr 56px 1fr; align-items: stretch; }
+  .oq__list, .oq__stack { list-style: none; padding: 0; display: grid; gap: 0.45rem; }
+  .oq__list :global(li) { display: flex; justify-content: space-between; gap: 0.75rem; align-items: center; padding: 0.55rem 0.7rem; border-radius: 10px; background: rgba(255, 255, 255, 0.03); font-size: 0.92rem; animation: oq-in 380ms var(--ease) both; }
+  .oq__stack :global(li) { padding: 0.5rem 0.7rem; border-radius: 8px; border: 1px dashed color-mix(in srgb, #fbbf24 45%, transparent); font-family: var(--font-mono); font-size: 0.72rem; color: #fbbf24; animation: oq-in 380ms var(--ease) both; }
+  .oq__stack :global(li.is-out) { animation: oq-out 420ms var(--ease) both; }
+  .oq__empty { font-size: 0.85rem; color: var(--ink-3); }
+  .oq__count { margin-inline-start: 0.35rem; font-family: var(--font-mono); color: var(--p); }
+  .oq__toast { min-block-size: 1.6em; margin-block-end: 0.6rem; font-family: var(--font-mono); font-size: 0.78rem; color: var(--ink-2); }
+  .oq__arrow { position: relative; align-self: center; block-size: 2px; margin-inline: 8px; background: var(--line); overflow: hidden; }
+  .oq__pulse { position: absolute; inset-block: 0; inline-size: 40%; background: linear-gradient(90deg, transparent, var(--p), transparent); opacity: 0; }
+  .oq__arrow.is-flow .oq__pulse { opacity: 1; animation: oq-flow 700ms linear infinite; }
+  .oq__arrow.is-cut { background: repeating-linear-gradient(90deg, var(--line) 0 4px, transparent 4px 9px); }
+  :root[dir='rtl'] .oq__pulse { animation-direction: reverse; }
+  @keyframes oq-flow { from { transform: translateX(-120%); } to { transform: translateX(260%); } }
+  @keyframes oq-in { from { opacity: 0; transform: translateY(6px); } }
+  @keyframes oq-out { to { opacity: 0; transform: translateX(18px); } }
+  @media (max-width: 860px) {
+    .oq__grid { grid-template-columns: 1fr; gap: 0; }
+    .oq__arrow { block-size: 28px; inline-size: 2px; margin: 4px auto; }
+    .oq__pulse { inline-size: auto; inset-inline: 0; block-size: 40%; }
+    .oq__arrow.is-flow .oq__pulse { animation-name: oq-flow-y; }
+    .oq__arrow.is-cut { background: repeating-linear-gradient(180deg, var(--line) 0 4px, transparent 4px 9px); }
+    @keyframes oq-flow-y { from { transform: translateY(-120%); } to { transform: translateY(260%); } }
+  }
+  @media (prefers-reduced-motion: reduce) { .oq__list :global(li), .oq__stack :global(li) { animation: none; } .oq__arrow.is-flow .oq__pulse { animation: none; opacity: 0.6; inline-size: 100%; } }
+</style>
+
+<script>
+  import { initOfflineQueue } from '../../scripts/demo/offline-queue';
+  document.querySelectorAll<HTMLElement>('[data-oq]').forEach(initOfflineQueue);
+</script>

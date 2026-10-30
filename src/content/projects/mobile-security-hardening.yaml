@@ -34,5 +34,6 @@ result:
 stack: [MobSF, Certificate pinning, Obfuscation, Root detection]
 links: {}
 connects: []
+visual: hardening
 assets: auto
 review: { de: true, ar: true }

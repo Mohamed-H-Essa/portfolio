@@ -35,5 +35,6 @@ links:
   # Verified Credly badge (issued 2026-06-20, expires 2029-06-20)
   live: "https://www.credly.com/badges/45f25e39-0963-4c17-823b-53c8c5076c58/public_url"
 connects: []
+visual: cert
 assets: auto
 review: { de: true, ar: true }
