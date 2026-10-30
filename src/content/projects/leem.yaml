@@ -1,0 +1,49 @@
+# Sources: ~/work/idev — README ("multi-tenant, white-label Digital Library Portal …
+# Leem owns it and resells it to institutions — universities, ministries and research
+# bodies, primarily in Saudi Arabia"; "Arabic and English are peers"), mobile/README,
+# mobile/package.json (bare React Native 0.76, React Navigation 7, TanStack Query 5,
+# i18next; the owner added react-native-keychain + react-native-pdf), bundle id
+# com.intrazero.leem, v0.1.1 (3). The owner's commits (author mhosny): 59, 2026-10-28 →
+# 2026-10-29, all in mobile/ (+ i18n strings), on branch feature/mobile-fixes (not yet
+# merged): UI revamp, Keychain session per institution, server-side sign-out, MFA
+# step, native PDF viewer, search paging, notification settings, EAS/TestFlight build.
+# The app itself was started by a teammate (2026-08). No store link in the repo.
+# Screens: simulator, demo tenant (owner-todo: the demo abstracts are lorem ipsum).
+slug: leem
+kind: project
+worlds: [mobile]
+era: s4
+start: 2026-10
+end: present
+weight: { mobile: 2, cloud: 0, all: 2 }
+featured: false
+confidential: false
+code: M10
+role: { en: "React Native developer", de: "React-Native-Entwickler", ar: "مطوّر React Native" }
+short: { en: "Leem", de: "Leem", ar: "Leem" }   # ≤14 chars (brand name, kept in Latin)
+title:
+  en: "Leem — digital library app"
+  de: "Leem — App für digitale Bibliotheken"
+  ar: "Leem — تطبيق المكتبة الرقمية"
+impact:
+  line:
+    en: "A white-label digital library app for universities, in Arabic and English"
+    de: "Eine White-Label-App für digitale Bibliotheken von Hochschulen, auf Arabisch und Englisch"
+    ar: "تطبيق مكتبة رقمية بعلامة المؤسسة نفسها للجامعات، بالعربية والإنجليزية"
+problem:
+  en: "Universities and research bodies, mainly in Saudi Arabia, want their own branded library app: sign-in through the institution, search across what the library offers, and Arabic and English as equals, not a translation."
+  de: "Hochschulen und Forschungseinrichtungen, vor allem in Saudi-Arabien, wollen eine eigene Bibliotheks-App: Anmeldung über die Einrichtung, Suche in ihrem Angebot, und Arabisch und Englisch gleichwertig statt übersetzt."
+  ar: "تريد الجامعات والجهات البحثية، في السعودية أساسًا، تطبيق مكتبة يحمل هويتها: دخول عبر المؤسسة، وبحث في ما تقدّمه المكتبة، والعربية والإنجليزية متكافئتان لا ترجمة."
+built:
+  en: "I revamped the React Native app (four tabs, designed covers, a reading timer with a daily goal) and made sign-in solid: a Keychain session per institution, a two-factor step, and sign-out that revokes the token on the server. Also a native PDF viewer, paged search, notification settings and an EAS build for TestFlight."
+  de: "Ich habe die React-Native-App überarbeitet (vier Tabs, gestaltete Cover, ein Lese-Timer mit Tagesziel) und die Anmeldung solide gemacht: eine Keychain-Sitzung pro Einrichtung, ein Zwei-Faktor-Schritt und eine Abmeldung, die das Token auf dem Server widerruft. Dazu ein nativer PDF-Viewer, seitenweise Suche, Benachrichtigungseinstellungen und ein EAS-Build für TestFlight."
+  ar: "أعدتُ تصميم تطبيق React Native (أربع علامات تبويب، وأغلفة مصمّمة، ومؤقّت قراءة بهدف يومي)، وأحكمتُ تسجيل الدخول: جلسة في Keychain لكل مؤسسة، وخطوة تحقق ثنائي، وتسجيل خروج يُلغي الرمز على الخادم. إضافةً إلى عارض PDF أصلي، وبحث على صفحات، وإعدادات للإشعارات، وبناء EAS لـTestFlight."
+result:
+  en: "Version 0.1.1 built for TestFlight and as an Android APK in October 2026."
+  de: "Version 0.1.1 im Oktober 2026 für TestFlight und als Android-APK gebaut."
+  ar: "بُني الإصدار 0.1.1 لـTestFlight وكملف APK لأندرويد في أكتوبر 2026."
+stack: [React Native, TypeScript, React Navigation, TanStack Query, i18next, EAS]
+links: {}
+connects: []
+assets: auto
+review: { de: true, ar: true }

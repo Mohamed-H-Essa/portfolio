@@ -120,6 +120,7 @@ Ticked when the content node exists. ❓ = needs a fact or permission from the o
 - [x] Qanony · ARATC · Release pipeline · App security · HOPE glove · German Sync · AWS SAA
 - [x] From the Drive pack (2026-10-30): **Motary**, **Misr El Kheir** (GitLab `gharemeen`), **iTutor**; raw screens for
       **Heaven Flowers** and **Yafleet** (store links / role questions in `owner-todo.md`)
+- [x] **Leem** (2026-10, screens from the simulator in en/ar × light/dark)
 - [ ] **Medical Waste Management System** (Ministry of Health, 600+ facilities, multi-level approvals), screenshots ❓
 - [ ] **UNICEF child-protection case management** (offline-first delayed sync, dynamic forms), screenshots ❓
 - [ ] **Form-orchestration engine** / `flutter_form_engine` (public repo): a natural Platform node

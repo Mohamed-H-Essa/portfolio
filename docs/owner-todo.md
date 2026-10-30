@@ -214,3 +214,10 @@ Processed `drive-download-20261024…zip` (flowers, itutor, masr_alkher, motary,
       shipment-detail screen (one big placeholder) is left out. Recapture with real package photos to show it.
 - [ ] **Qanony:** only the service-details screen was added. The pack's other screens show test entries ("cc", "dd"),
       uploaded personal files, and a real profile (name, email, phone). Recapture with demo data if you want them.
+
+## Leem (added 2026-10-30)
+- [ ] **Leem (M10):** facts from `~/work/idev`. Your 59 commits (28–29 Oct) are on `feature/mobile-fixes`, not yet in
+      `main`; the page describes your part (revamp, sign-in hardening, PDF viewer, TestFlight build), not the whole app.
+      Store / TestFlight link once it's public? Screens are from the simulator (demo tenant "Aurora University"); the demo
+      catalogue's abstracts are lorem ipsum, visible on the search and article screens. Real-looking abstracts would help.
+      All 24 captures (en/ar × light/dark × 6 screens) are in `assets-src/leem/raw/`.

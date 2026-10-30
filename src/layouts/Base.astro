@@ -104,6 +104,25 @@ const buildDate = new Date().toISOString().slice(0, 10);
     {jsonLd.map((o) => <script type="application/ld+json" set:html={JSON.stringify(o)} />)}
 
     <meta name="generator" content={Astro.generator} />
+    {
+      /* A shared deep link starts someone new at the intro (∞ + language), which then
+         carries on to what was shared. "New" = has never picked a world (the intro
+         stores `track`) and didn't arrive from this site. Crawlers, link previews and
+         no-JS visitors get the page itself; if storage is blocked nobody is redirected. */
+      !bare && (
+        <script is:inline define:vars={{ intro: url() }}>
+          try {
+            var ref = document.referrer, same = false;
+            try { same = !!ref && new URL(ref).origin === location.origin; } catch (e) {}
+            var bot = /bot|crawl|spider|slurp|preview|facebookexternalhit|whatsapp|telegram|embed|lighthouse|headless/i.test(navigator.userAgent);
+            if (!localStorage.getItem('track') && !same && !bot) {
+              document.documentElement.style.visibility = 'hidden';
+              location.replace(intro + '?next=' + encodeURIComponent(location.pathname + location.search));
+            }
+          } catch (e) {}
+        </script>
+      )
+    }
     <slot name="head" />
   </head>
   <body data-track={track} class:list={{ immersive }}>

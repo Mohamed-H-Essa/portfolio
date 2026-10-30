@@ -1,0 +1,24 @@
+# Leem — white-label digital library app (React Native). iPhone 16 Pro 1206x2622,
+# captured from the simulator on 2026-10-30 (status bar set to 9:41), demo tenant
+# "Aurora University", in en/ar × light/dark (all 24 in raw/). The demo catalogue's
+# abstracts are lorem ipsum (backend seed data). Left out: the account sheet (shows
+# the demo account's email), empty Shelf/Notifications.
+device: iphone
+accent: auto
+world: mobile
+title: Leem
+code: M10
+impact: A white-label digital library app for universities, in Arabic and English
+shots:
+  - file: "en-01-today-light.png"     # Today: reading timer + daily goal, designed covers
+    role: hero
+  - file: "ar-01-today-dark.png"      # the same, Arabic + dark
+    role: gallery
+  - file: "en-03-results-dark.png"    # search: how results open (licensed / open access)
+    role: gallery
+  - file: "ar-04-article-light.png"   # article: access explained, save, share
+    role: gallery
+  - file: "en-05-signin-light.png"    # sign-in: the institution's own SSO or a library account
+    role: gallery
+  - file: "ar-05-signin-dark.png"
+    role: gallery

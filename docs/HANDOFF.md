@@ -7,7 +7,10 @@
   `main` still has the horizontal map. Merge `main` into the branch after content changes.
 - Drive screenshot pack (2026-10-30): new nodes Motary (M07), Misr El Kheir (M08, GitLab `gharemeen`), iTutor (M09);
   raw screens for Heaven Flowers (replaces the store frames) and Yafleet; Qanony +1 gallery screen. Masks can set a
-  `fill`, shots can `keepStatusBar`. Open questions in `owner-todo.md`.
+  `fill`, shots can `keepStatusBar`. Open questions in `owner-todo.md`. Leem (M10) from the simulator.
+- Shared links: someone new who opens any deep link is sent to the intro first (inline guard in `Base.astro`,
+  `?next=` read by `scripts/intro.ts`; a shared project opens the map on it via `?p=`). New = no `track` in
+  localStorage and no same-origin referrer; bots/headless UAs are exempt (so Playwright checks still see the page).
 
 ## Session 3, later additions
 - Swipe back (`scripts/swipe-back.ts`): project page → map, intro world → language step. Never on the map.

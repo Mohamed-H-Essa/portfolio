@@ -37,6 +37,19 @@ export function initIntro(root: HTMLElement) {
   const str = (l: Lang, key: string) => json.strings[l]?.[key] ?? json.strings.en[key] ?? key;
   const href = (...p: string[]) => `${json.base}${p.join('/')}/`;
 
+  // ?next=<path>: a shared link sent a new visitor here first (Base.astro). Its
+  // language is the suggested one, and a shared project is where the map opens.
+  const next = (() => {
+    const n = new URLSearchParams(location.search).get('next') ?? '';
+    if (!n.startsWith(json.base) || n.includes('//')) return null;
+    const [l, , p, slug] = n.slice(json.base.length).split(/[/?#]/);
+    return {
+      lang: LANGS.includes(l as Lang) ? (l as Lang) : null,
+      slug: p === 'p' && /^[a-z0-9-]+$/.test(slug ?? '') ? slug : null,
+    };
+  })();
+  const lobeHref = (l: Lang, tr: string) => href(l, tr) + (next?.slug ? `?p=${next.slug}` : '');
+
   let hintTimer = 0;
   const setHint = (key: string, l: Lang) => {
     hint.classList.add('is-out');
@@ -65,7 +78,7 @@ export function initIntro(root: HTMLElement) {
     });
     const skip = document.querySelector<HTMLElement>('.skip-link');
     if (skip) skip.textContent = str(l, 'skip');
-    lobes.forEach((a) => (a.href = href(l, a.dataset.track!)));
+    lobes.forEach((a) => (a.href = lobeHref(l, a.dataset.track!)));
     // The CV is a static PDF (language-independent); only its label is relabelled
     // via [data-t]. No href rewrite needed.
     root.querySelector('[data-langname]')!.textContent = json.labels[l];
@@ -94,7 +107,7 @@ export function initIntro(root: HTMLElement) {
     // a returning visitor's own choice beats the browser's guess
     const saved = store.get('lang') as Lang | null;
     const guess = root.dataset.step === 'lang' && location.pathname === json.base
-      ? (saved && LANGS.includes(saved) ? saved : detect())
+      ? (next?.lang ?? (saved && LANGS.includes(saved) ? saved : detect()))
       : locale;
     langLinks.forEach((a) => {
       a.classList.remove('is-dissolving', 'is-suggested');
