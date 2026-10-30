@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<!-- Slipway carousel (LinkedIn document post, 1080×1350 per slide). Copy: docs/pr/slipway.md §7.
+     Render: node docs/pr/slipway-carousel/render.mjs → slide-NN.png + slipway-carousel.pdf.
+     {{NUMBER: …}} = not measured yet; fill in, then render again. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Slipway — carousel</title>
+<style>
+  @font-face { font-family: 'Space Grotesk'; font-weight: 400; src: url('../../../node_modules/@fontsource/space-grotesk/files/space-grotesk-latin-400-normal.woff2') format('woff2'); }
+  @font-face { font-family: 'Space Grotesk'; font-weight: 500; src: url('../../../node_modules/@fontsource/space-grotesk/files/space-grotesk-latin-500-normal.woff2') format('woff2'); }
+  @font-face { font-family: 'Space Grotesk'; font-weight: 600; src: url('../../../node_modules/@fontsource/space-grotesk/files/space-grotesk-latin-600-normal.woff2') format('woff2'); }
+  @font-face { font-family: 'JetBrains Mono'; font-weight: 400; src: url('../../../node_modules/@fontsource/jetbrains-mono/files/jetbrains-mono-latin-400-normal.woff2') format('woff2'); }
+  @font-face { font-family: 'JetBrains Mono'; font-weight: 500; src: url('../../../node_modules/@fontsource/jetbrains-mono/files/jetbrains-mono-latin-500-normal.woff2') format('woff2'); }
+  @page { size: 1080px 1350px; margin: 0; }
+  :root { --bg: #080808; --ink: #ededed; --ink-2: #a3a3a3; --ink-3: #6b6b6b; --line: rgba(255,255,255,.12); --line-2: rgba(255,255,255,.07); --c: #5db8d6; --amber: #e8b23a; --red: #f87171; --green: #4ade80; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: #000; }
+  body { font-family: 'Space Grotesk', system-ui, sans-serif; color: var(--ink); -webkit-font-smoothing: antialiased; }
+  .slide { position: relative; width: 1080px; height: 1350px; overflow: hidden; padding: 96px 88px 88px; display: flex; flex-direction: column; break-after: page;
+    background: radial-gradient(900px 700px at 85% 8%, rgba(93,184,214,.16), transparent 60%), radial-gradient(800px 600px at 0% 100%, rgba(93,184,214,.07), transparent 60%), var(--bg); }
+  .slide::after { content: ''; position: absolute; inset: 0; background-image: linear-gradient(var(--line-2) 1px, transparent 1px), linear-gradient(90deg, var(--line-2) 1px, transparent 1px); background-size: 54px 54px; mask-image: linear-gradient(to bottom, transparent, #000 30%, #000 70%, transparent); opacity: .5; pointer-events: none; }
+  .top { display: flex; justify-content: space-between; font-family: 'JetBrains Mono', monospace; font-size: 22px; letter-spacing: .18em; text-transform: uppercase; color: var(--ink-3); position: relative; z-index: 1; }
+  .top b { color: var(--c); font-weight: 500; }
+  .body { position: relative; z-index: 1; flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 36px; }
+  .kicker { font-family: 'JetBrains Mono', monospace; font-size: 24px; letter-spacing: .14em; text-transform: uppercase; color: var(--c); }
+  h1 { font-size: 92px; line-height: 1.02; font-weight: 600; letter-spacing: -.02em; }
+  h2 { font-size: 68px; line-height: 1.06; font-weight: 600; letter-spacing: -.015em; }
+  .lead { font-size: 34px; line-height: 1.4; color: var(--ink-2); max-width: 880px; }
+  .lead b { color: var(--ink); font-weight: 500; }
+  .mono { font-family: 'JetBrains Mono', monospace; }
+  .term { font-family: 'JetBrains Mono', monospace; font-size: 25px; line-height: 1.6; color: #cfd2d6; background: #0d0e10; border: 1px solid var(--line); border-radius: 18px; padding: 26px 30px; box-shadow: 0 30px 80px rgba(0,0,0,.6); }
+  .term .p { color: var(--c); }
+  .term .ok { color: var(--green); }
+  .term .no { color: var(--red); }
+  .foot { position: relative; z-index: 1; display: flex; justify-content: space-between; align-items: end; font-family: 'JetBrains Mono', monospace; font-size: 22px; color: var(--ink-3); }
+  .foot .swipe { color: var(--ink-2); }
+  .layers { display: grid; gap: 14px; }
+  .layer { display: grid; grid-template-columns: 210px 1fr; gap: 24px; align-items: center; padding: 22px 26px; border: 1px solid var(--line); border-radius: 16px; background: rgba(255,255,255,.02); }
+  .layer .w { font-family: 'JetBrains Mono', monospace; font-size: 21px; color: var(--c); letter-spacing: .06em; }
+  .layer .t { font-size: 29px; line-height: 1.35; }
+  .layer .t span { color: var(--ink-2); }
+  .steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+  .step { border: 1px solid var(--line); border-radius: 16px; padding: 20px 20px 22px; background: linear-gradient(180deg, #101317, #0b0d10); min-height: 150px; }
+  .step .n { font-family: 'JetBrains Mono', monospace; font-size: 19px; color: var(--c); }
+  .step .h { font-size: 31px; font-weight: 600; margin-top: 6px; }
+  .step .s { font-family: 'JetBrains Mono', monospace; font-size: 18px; color: var(--ink-3); margin-top: 4px; }
+  .step.gate { border-color: var(--c); box-shadow: 0 0 0 5px rgba(93,184,214,.12), 0 0 40px rgba(93,184,214,.18); }
+  .big { display: flex; align-items: baseline; gap: 26px; }
+  .big .v { font-size: 160px; font-weight: 600; line-height: .9; color: var(--c); letter-spacing: -.03em; }
+  .big .l { font-size: 32px; line-height: 1.3; color: var(--ink-2); max-width: 560px; }
+  .slo { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  .card { border: 1px solid var(--line); border-radius: 18px; padding: 28px 30px; background: rgba(255,255,255,.02); }
+  .card .v { font-size: 72px; font-weight: 600; color: var(--c); line-height: 1; }
+  .card .l { font-size: 27px; color: var(--ink-2); margin-top: 12px; line-height: 1.35; }
+  .rows { display: grid; gap: 12px; }
+  .row { display: grid; grid-template-columns: 1fr auto; gap: 8px 24px; padding: 22px 26px; border: 1px solid var(--line); border-radius: 16px; background: rgba(255,255,255,.02); }
+  .row .h { font-size: 32px; font-weight: 600; }
+  .row .d { grid-column: 1 / -1; font-size: 25px; line-height: 1.4; color: var(--ink-2); }
+  .pill { font-family: 'JetBrains Mono', monospace; font-size: 19px; padding: 6px 14px; border-radius: 999px; border: 1px solid var(--line); color: var(--ink-2); align-self: center; }
+  .pill.ok { color: var(--green); border-color: rgba(74,222,128,.45); }
+  .pill.no { color: var(--red); border-color: rgba(248,113,113,.5); }
+  .row.broke { border-color: rgba(248,113,113,.5); }
+  .list { display: grid; gap: 22px; font-size: 32px; line-height: 1.38; }
+  .list li { list-style: none; padding-left: 44px; position: relative; }
+  .list li::before { content: ''; position: absolute; left: 0; top: 16px; width: 22px; height: 2px; background: var(--c); }
+  .list li span { color: var(--ink-2); }
+  .strip { display: flex; align-items: flex-end; gap: 2px; height: 120px; border-bottom: 1px solid var(--line); }
+  .strip i { flex: 1; height: 100%; background: linear-gradient(to top, var(--red) var(--f), rgba(93,184,214,.32) var(--f)); border-radius: 1px; }
+  .axis { position: relative; display: flex; justify-content: space-between; font-family: 'JetBrains Mono', monospace; font-size: 20px; color: var(--ink-3); margin-top: 10px; }
+  .cta { display: grid; gap: 18px; }
+  .cta a { font-family: 'JetBrains Mono', monospace; font-size: 24px; gap: 20px; color: var(--ink); text-decoration: none; padding: 22px 26px; border: 1px solid var(--line); border-radius: 16px; display: flex; justify-content: space-between; }
+  .cta a span { color: var(--c); }
+  /* GitHub social preview (Settings → Social preview), 1280×640; not part of the PDF */
+  .preview { width: 1280px; height: 640px; position: relative; overflow: hidden; padding: 70px 80px; display: grid; grid-template-columns: 1fr 470px; gap: 50px; align-items: center;
+    background: radial-gradient(800px 500px at 90% 0%, rgba(93,184,214,.18), transparent 60%), var(--bg); }
+  .preview h1 { font-size: 66px; }
+  .preview .lead { font-size: 27px; margin-top: 22px; }
+  .preview .kicker { margin-bottom: 18px; }
+  .preview .term { font-size: 21px; }
+  @media print { .preview { display: none; } }
+</style>
+</head>
+<body>
+
+<!-- 1 · cover -->
+<section class="slide">
+  <div class="top"><span><b>Slipway</b></span><span>01 / 08</span></div>
+  <div class="body">
+    <p class="kicker">Open source · platform engineering</p>
+    <h1>I built a production-style Kubernetes platform that runs on a laptop.</h1>
+    <p class="lead">Then I broke it on purpose, under load, and <b>measured how it recovered</b>.</p>
+    <div class="term"><span class="p">$</span> make up<br><span class="p">$</span> make release<br><span class="p">$</span> make chaos</div>
+  </div>
+  <div class="foot"><span>Mohamed H. Essa</span><span class="swipe">swipe →</span></div>
+</section>
+
+<!-- 2 · what make up builds -->
+<section class="slide">
+  <div class="top"><span><b>Slipway</b> · make up</span><span>02 / 08</span></div>
+  <div class="body">
+    <h2>One command. Terraform builds the ground, Git builds the rest.</h2>
+    <div class="layers">
+      <div class="layer"><span class="w">TERRAFORM</span><span class="t">3-node kind cluster, private registry, image caches, a Git server, Argo CD</span></div>
+      <div class="layer"><span class="w">WAVE 0</span><span class="t">Envoy Gateway <span>(Gateway API)</span>, Kyverno, Prometheus, CloudNativePG, metrics</span></div>
+      <div class="layer"><span class="w">WAVE 1</span><span class="t">Loki, Tempo, OpenTelemetry, routes, policies, SLO rules</span></div>
+      <div class="layer"><span class="w">WAVE 2</span><span class="t">A Go URL shortener and its Postgres <span>(primary + replica)</span></span></div>
+    </div>
+    <p class="lead">13 Argo CD Applications in three sync waves. <b>Nothing is installed by hand.</b></p>
+  </div>
+  <div class="foot"><span>no cloud account needed</span><span class="swipe">→</span></div>
+</section>
+
+<!-- 3 · release gate -->
+<section class="slide">
+  <div class="top"><span><b>Slipway</b> · make release</span><span>03 / 08</span></div>
+  <div class="body">
+    <h2>Every release goes through a gate.</h2>
+    <div class="steps">
+      <div class="step"><div class="n">01</div><div class="h">Build</div><div class="s">distroless</div></div>
+      <div class="step"><div class="n">02</div><div class="h">Scan</div><div class="s">Trivy</div></div>
+      <div class="step"><div class="n">03</div><div class="h">SBOM</div><div class="s">Syft</div></div>
+      <div class="step"><div class="n">04</div><div class="h">Sign</div><div class="s">cosign</div></div>
+      <div class="step"><div class="n">05</div><div class="h">Commit</div><div class="s">Git</div></div>
+      <div class="step"><div class="n">06</div><div class="h">Sync</div><div class="s">Argo CD</div></div>
+      <div class="step gate"><div class="n">07</div><div class="h">Admit</div><div class="s">Kyverno</div></div>
+      <div class="step"><div class="n">08</div><div class="h">Roll out</div><div class="s">under load</div></div>
+    </div>
+    <div class="big"><span class="v">0</span><span class="l">failed requests in two releases at 50 requests a second</span></div>
+    <div class="term"><span class="p">$</span> make unsigned<br>refused by Kyverno (verify-platform-images), <span class="ok">as it should be</span></div>
+  </div>
+  <div class="foot"><span>unsigned image → no pod</span><span class="swipe">→</span></div>
+</section>
+
+<!-- 4 · SLOs -->
+<section class="slide">
+  <div class="top"><span><b>Slipway</b> · SLOs</span><span>04 / 08</span></div>
+  <div class="body">
+    <h2>Alerts that page on what users feel, not on CPU.</h2>
+    <div class="slo">
+      <div class="card"><div class="v">99.5%</div><div class="l">of requests answer without a 5xx</div></div>
+      <div class="card"><div class="v">95%</div><div class="l">of requests answer within 300 ms</div></div>
+    </div>
+    <ul class="list">
+      <li>Page when the 1 h <b>and</b> 5 m burn rates pass <b>14.4×</b> <span>(2% of the month's budget in an hour)</span></li>
+      <li>Ticket at <b>6×</b> over 6 h and 30 m</li>
+      <li>Grafana exemplars open the trace in Tempo; error logs carry the trace ID</li>
+    </ul>
+  </div>
+  <div class="foot"><span>Google SRE Workbook, ch. 5</span><span class="swipe">→</span></div>
+</section>
+
+<!-- 5 · chaos day -->
+<section class="slide">
+  <div class="top"><span><b>Slipway</b> · chaos day</span><span>05 / 08</span></div>
+  <div class="body">
+    <h2>Then I broke it. k6 at 50 req/s the whole time.</h2>
+    <div class="rows">
+      <div class="row"><span class="h">Release</span><span class="pill ok">held</span><span class="d">live 35 s after publish · 0 of 2,299 requests failed</span></div>
+      <div class="row"><span class="h">Pod kill</span><span class="pill ok">held</span><span class="d">4/4 ready again in 12 s · 0 of 1,111 failed</span></div>
+      <div class="row broke"><span class="h">Node loss</span><span class="pill no">broke</span><span class="d">48.4% of requests failed for 6 min 3 s</span></div>
+      <div class="row"><span class="h">Database failover</span><span class="pill">run 2</span><span class="d">{{NUMBER: db failover, time to a new primary}} · {{NUMBER: db failover, failed requests}}</span></div>
+      <div class="row"><span class="h">Bad release via Git</span><span class="pill">run 2</span><span class="d">paged after {{NUMBER: bad release, time to page}} · git revert → clean after {{NUMBER: bad release, revert to clean traffic}}</span></div>
+    </div>
+  </div>
+  <div class="foot"><span>measured by scripts, not by eye</span><span class="swipe">→</span></div>
+</section>
+
+<!-- 6 · the node loss -->
+<section class="slide">
+  <div class="top"><span><b>Slipway</b> · postmortem</span><span>06 / 08</span></div>
+  <div class="body">
+    <h2>The app's own SLO saw zero errors. Clients saw 48%.</h2>
+    <div>
+      <div class="strip" id="strip"></div>
+      <div class="axis"><span>11:57</span><span style="position:absolute;left:42.3%">↑ node stopped 12:05</span><span>12:16</span></div>
+    </div>
+    <ul class="list">
+      <li>The gateway's only controller was on the lost node <span>(default 5-minute eviction)</span></li>
+      <li>Kyverno's fail-closed webhook was there too, and <b>blocked the evictions</b></li>
+      <li>Fixed the same day: retries + outlier detection, 2 replicas, 30 s tolerations, webhooks on CREATE/UPDATE only</li>
+    </ul>
+    <p class="lead">After the fixes: <b>{{NUMBER: node loss after the fixes, run 2}}</b></p>
+  </div>
+  <div class="foot"><span>blameless, with timestamps</span><span class="swipe">→</span></div>
+</section>
+
+<!-- 7 · AWS, honestly -->
+<section class="slide">
+  <div class="top"><span><b>Slipway</b> · AWS</span><span>07 / 08</span></div>
+  <div class="body">
+    <h2>The AWS version is written. I haven't applied it, and the README says so.</h2>
+    <ul class="list">
+      <li>EKS 1.35: spot workers, a small on-demand system group, night scale-down</li>
+      <li>3-AZ VPC, private nodes, one NAT <span>(cost)</span></li>
+      <li>Pod Identity for the EBS driver, a GitHub OIDC role for CI <span>(no stored keys)</span></li>
+      <li>AWS Budgets alert, S3 state with a DynamoDB lock</li>
+    </ul>
+    <div class="term">terraform validate <span class="ok">valid</span><br>tflint <span class="ok">0 issues</span><br>trivy config <span class="ok">0 HIGH/CRITICAL</span></div>
+  </div>
+  <div class="foot"><span>same platform/ tree, env: aws</span><span class="swipe">→</span></div>
+</section>
+
+<!-- 8 · CTA -->
+<section class="slide">
+  <div class="top"><span><b>Slipway</b></span><span>08 / 08</span></div>
+  <div class="body">
+    <h2>Run it yourself: Docker with 8 GB and one command.</h2>
+    <div class="cta">
+      <a>github.com/Mohamed-H-Essa/k8s_platform_bootstrap <span>repo</span></a>
+      <a>docs/postmortems/2026-10-30-chaos-day.md <span>postmortem</span></a>
+      <a>mohamed-h-essa.github.io/portfolio <span>portfolio</span></a>
+    </div>
+    <p class="lead">I'm a mobile engineer moving into platform and DevOps work. <b>Questions and reviews welcome.</b></p>
+  </div>
+  <div class="foot"><span>Mohamed H. Essa</span><span>AWS Certified Solutions Architect – Associate</span></div>
+</section>
+
+<!-- GitHub social preview -->
+<section class="preview" id="preview">
+  <div>
+    <p class="kicker">Slipway · open source</p>
+    <h1>A production-style GitOps platform on a laptop</h1>
+    <p class="lead">Terraform + kind · Argo CD · Envoy Gateway · Kyverno + cosign · Prometheus, Loki, Tempo · CloudNativePG · SLOs · a chaos day under load</p>
+  </div>
+  <div class="term"><span class="p">$</span> make up<br><span class="p">$</span> make release<br><span class="p">$</span> make unsigned<br>refused by Kyverno <span class="ok">✓</span><br><span class="p">$</span> make chaos</div>
+</section>
+
+<script>
+  // slide 6: the real k6 view of chaos-day run 1 (10 s bars, red = share failed; src/components/demo/slipway-data.ts)
+  const f = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,26,54,42,57,48,43,52,50,50,52,47,52,51,47,48,49,47,53,49,51,53,50,52,45,51,54,44,46,54,45,53,49,48,51,51,42,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+  document.getElementById('strip').innerHTML = f.map((p) => `<i style="--f:${p}%"></i>`).join('');
+</script>
+</body>
+</html>
