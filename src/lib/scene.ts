@@ -23,6 +23,9 @@ export interface SceneInput {
 export interface Vec3 { x: number; y: number; z: number }
 
 export interface SceneCard extends Vec3 {
+  /** x of the project's true start month (its dot on the floor); the card itself
+   *  may stand a little to the side so it never overlaps its neighbours */
+  x0: number;
   slug: string;
   code: string;
   layer: Layer;
@@ -56,7 +59,9 @@ export interface SceneSkill extends Vec3 {
   layer: Layer;
   slugs: string[]; // projects that use it (for hover lighting)
 }
-export interface SceneYear { year: number; x: number }
+/** A year line. `label` is false for a year with no project in it (the closing
+ *  line after the last year), so no empty year is announced. */
+export interface SceneYear { year: number; x: number; label: boolean }
 
 export interface SceneLayout {
   planes: ScenePlane[];
@@ -82,21 +87,38 @@ export const PLANE_FRONT = 300;
 export const LANE_BAND = 70;
 export const PLANE_DEPTH = PLANE_BACK + PLANE_FRONT;
 export const CARD_LIFT = 46; // how high a card floats above its plane
-const MONTH_W = 34; // px per month on the time axis (one notch roomier than 30)
+const MONTH_W = 70; // px per month on the time axis: room for 10+ projects in two years
 const PAD_START = 520; // room before the first card for the engraved title
 const PAD_END = 360;
-const ROWS = [0, -130, 130]; // card rows across a plane's depth, in preference order
-const MIN_DX = 250; // cards in the same row closer than this get a different row
-/** Same-layer cards are nudged forward in time to at least this far apart on x,
- *  so billboards in different rows never stack fully on screen. Cards still
- *  print their real year; the nudge is at most a few months per crowded node. */
-export const MIN_SEP = 150;
+const ROWS = [0, -120]; // neighbouring cards alternate between these depths (rhythm, not packing)
+/** Same-layer cards stand at least this far apart on x: a billboard is ~128px on
+ *  screen, which is ~170 world px at the default zoom, plus breathing room. */
+export const MIN_SEP = 196;
 export const SKILL_BANDS = [-198, 196]; // back / front strips where skills are engraved
 const SKILL_CHAR_W = 12.5; // approx. advance per char of the engraved skill font
 const SKILL_GAP = 34;
 const YEAR_W = 12 * MONTH_W;
 const TITLE_HALF = 115; // approx. half-width of a lane name in the band
-const NAME_AT = 210; // a name's centre, after its year line (the year label sits right after the line)
+const NAME_AT = YEAR_W / 2; // a lane name sits mid-year, clear of the year label after the line
+
+/** Spread sorted positions so neighbours are at least `gap` apart, moving each
+ *  crowded group as little as possible: the group is centred on the mean of its
+ *  members' true positions (so nothing drifts only one way, piling into the future). */
+export function spread(xs: number[], gap: number): number[] {
+  const groups: { start: number; n: number; sum: number }[] = [];
+  for (const x of xs) {
+    groups.push({ start: x, n: 1, sum: x });
+    while (groups.length > 1) {
+      const b = groups[groups.length - 1];
+      const a = groups[groups.length - 2];
+      if (a.start + a.n * gap <= b.start) break;
+      const n = a.n + b.n;
+      const sum = a.sum + b.sum;
+      groups.splice(-2, 2, { start: sum / n - ((n - 1) * gap) / 2, n, sum });
+    }
+  }
+  return groups.flatMap((g) => Array.from({ length: g.n }, (_, i) => g.start + i * gap));
+}
 
 function monthIndex(ym: string): number {
   const [y, m] = ym.split('-').map(Number);
@@ -134,39 +156,32 @@ export function layoutScene(
   let xEnd = xOfMonth(m1) + PAD_END; // plane spans [0, xEnd]; grows if nudges pass it
   const mirror = (x: number) => (dir === 'rtl' ? xEnd - x : x);
 
-  // ---- cards: true time on x, rows on y to avoid overlaps -----------------
+  // ---- cards: a dot at the true month, the card spread clear of its neighbours --
   const cards: SceneCard[] = [];
   for (const layer of LAYERS) {
     const inLayer = input
       .filter((n) => (n.worlds[0] ?? 'origin') === layer)
-      .sort((a, b) => monthIndex(a.start) - monthIndex(b.start));
-    const rowLast: Record<number, number> = {};
-    let prevX = -Infinity;
-    for (const n of inLayer) {
-      const x = Math.max(xOfMonth(monthIndex(n.start)), prevX + MIN_SEP);
-      prevX = x;
-      let row = ROWS.find((r) => rowLast[r] === undefined || x - rowLast[r] >= MIN_DX);
-      if (row === undefined) {
-        // every row is crowded: take the one whose last card is furthest away
-        row = ROWS.reduce((best, r) => (x - rowLast[r] > x - rowLast[best] ? r : best), ROWS[0]);
-      }
-      rowLast[row] = x;
+      .sort((a, b) => monthIndex(a.start) - monthIndex(b.start) || a.slug.localeCompare(b.slug));
+    const trueXs = inLayer.map((n) => xOfMonth(monthIndex(n.start)));
+    const xs = spread(trueXs, MIN_SEP);
+    inLayer.forEach((n, i) => {
       cards.push({
         slug: n.slug,
         code: n.code,
         layer,
         year: Math.floor(monthIndex(n.start) / 12),
-        x,
-        y: row,
+        x0: trueXs[i],
+        x: xs[i],
+        y: ROWS[i % ROWS.length],
         z: LAYER_Z[layer],
         dimmed: n.weight[track] === 0,
         featured: n.slug === opts.featured,
       });
-    }
+    });
   }
   xEnd = Math.max(xEnd, ...cards.map((c) => c.x + PAD_END));
   const totalW = xEnd;
-  for (const c of cards) c.x = mirror(c.x);
+  for (const c of cards) { c.x = mirror(c.x); c.x0 = mirror(c.x0); }
   const bySlug = new Map(cards.map((c) => [c.slug, c]));
 
   // ---- beams between connected projects (deduped) -------------------------
@@ -181,8 +196,9 @@ export function layoutScene(
       const key = [n.slug, to].sort().join('|');
       if (seen.has(key)) continue;
       seen.add(key);
-      const pa = { x: a.x, y: a.y, z: a.z };
-      const pb = { x: b.x, y: b.y, z: b.z };
+      // threads run between the true-date dots
+      const pa = { x: a.x0, y: a.y, z: a.z };
+      const pb = { x: b.x0, y: b.y, z: b.z };
       beams.push({ from: n.slug, to, a: pa, b: pb, ...beamGeometry(pa, pb) });
     }
   }
@@ -233,9 +249,10 @@ export function layoutScene(
   }));
   const years: SceneYear[] = [];
   const yearXs: number[] = []; // unmirrored
+  const startYears = new Set(input.map((n) => Math.floor(monthIndex(n.start) / 12)));
   for (let y = Math.floor(m0 / 12); y <= Math.floor(m1 / 12) + 1; y++) {
     const x = xOfMonth(y * 12);
-    if (x <= xEnd) { years.push({ year: y, x: mirror(x) }); yearXs.push(x); }
+    if (x <= xEnd) { years.push({ year: y, x: mirror(x), label: startYears.has(y) }); yearXs.push(x); }
   }
   // lane names sit centred between year lines (so they never meet a year
   // label): in the lead-in before the first year, then every other year

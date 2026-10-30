@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { layoutScene, beamGeometry, LAYER_Z, MIN_SEP, SKILL_BANDS, type SceneInput } from './scene';
+import { layoutScene, beamGeometry, spread, LAYER_Z, MIN_SEP, SKILL_BANDS, type SceneInput } from './scene';
 
 const W = { mobile: 3, cloud: 0, all: 2 };
 const input: SceneInput[] = [
@@ -121,5 +121,43 @@ describe('layoutScene', () => {
 
   it('handles empty input', () => {
     expect(layoutScene([], 'all').cards).toHaveLength(0);
+  });
+});
+
+describe('spread', () => {
+  it('leaves well-spaced positions alone', () => {
+    expect(spread([0, 300, 900], 200)).toEqual([0, 300, 900]);
+  });
+  it('centres a crowded group on its true positions instead of pushing it one way', () => {
+    const out = spread([1000, 1000, 1100], 200);
+    expect(out[1] - out[0]).toBeCloseTo(200);
+    expect(out[2] - out[1]).toBeCloseTo(200);
+    expect((out[0] + out[1] + out[2]) / 3).toBeCloseTo((1000 + 1000 + 1100) / 3);
+  });
+  it('merges groups that grow into each other', () => {
+    const out = spread([0, 150, 330, 360], 200);
+    for (let i = 1; i < out.length; i++) expect(out[i] - out[i - 1]).toBeGreaterThanOrEqual(200 - 1e-9);
+  });
+});
+
+describe('layoutScene: true dates and clear spacing', () => {
+  const crowd: SceneInput[] = ['2025-07', '2025-08', '2025-08', '2025-10', '2026-07'].map((start, i) => ({
+    slug: `m${i}`, code: `M0${i}`, start, worlds: ['mobile'], weight: W, connects: [], stack: [],
+  }));
+  const l = layoutScene(crowd, 'mobile');
+
+  it('puts each dot on its true month (the same month, the same x)', () => {
+    const x0 = Object.fromEntries(l.cards.map((c) => [c.slug, c.x0]));
+    expect(x0.m1).toBe(x0.m2);
+    expect(x0.m3).toBeGreaterThan(x0.m2);
+  });
+  it('keeps cards a full MIN_SEP apart and close to their dots', () => {
+    const xs = l.cards.map((c) => c.x).sort((a, b) => a - b);
+    for (let i = 1; i < xs.length; i++) expect(xs[i] - xs[i - 1]).toBeGreaterThanOrEqual(MIN_SEP - 1e-6);
+    for (const c of l.cards) expect(Math.abs(c.x - c.x0)).toBeLessThan(2 * MIN_SEP);
+  });
+  it('labels only years that have a project (no empty closing year)', () => {
+    expect(l.years.filter((y) => y.label).map((y) => y.year)).toEqual([2025, 2026]);
+    expect(l.years.every((y) => y.label || y.year > 2026)).toBe(true);
   });
 });

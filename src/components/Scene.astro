@@ -64,6 +64,12 @@ const panelData = Object.fromEntries(
     ];
   })
 );
+// shade every other year (from the first), each band running to the next year line
+const yearBands = L.years.slice(0, -1).flatMap((y, i) => {
+  if (i % 2 === 1) return [];
+  const nx = L.years[i + 1].x;
+  return [{ left: Math.min(y.x, nx), width: Math.abs(nx - y.x) }];
+});
 const phaseOf = (y: number) => (y <= 2021 ? 's1' : y <= 2023 ? 's2' : y <= 2025 ? 's3' : 's4');
 const strings = {
   open: t(locale, 'map.open'),
@@ -101,10 +107,14 @@ const ssrFocus = startCard ? { y: startCard.y, z: startCard.z + CARD_LIFT + 110 
             {pl.titleXs.map((tx) => (
               <span class="plane__title" style={`left:${tx - pl.x0}px`}>{layerName(pl.layer)}</span>
             ))}
+            {/* every other year is faintly shaded, so years read as regions */}
+            {yearBands.map((b) => (
+              <span class="plane__yearband" style={`left:${b.left - pl.x0}px;width:${b.width}px`} />
+            ))}
             {L.years.map((y) => (
               <>
                 <span class="plane__year" style={`left:${y.x - pl.x0}px`} />
-                <span class="plane__yearlabel" style={`left:${y.x - pl.x0}px`}>{y.year}</span>
+                {y.label && <span class="plane__yearlabel" style={`left:${y.x - pl.x0}px`}>{y.year}</span>}
               </>
             ))}
             {L.skills
@@ -137,11 +147,19 @@ const ssrFocus = startCard ? { y: startCard.y, z: startCard.z + CARD_LIFT + 110 
       {
         L.cards.map((c) => (
           <>
+            {/* the dot sits on the project's true month; a floor line leads to its card */}
             <span
               class:list={['dot', `dot--${c.layer}`, { 'is-dimmed': c.dimmed }]}
               data-for={c.slug}
-              style={`transform:translate3d(${c.x}px,${c.y}px,${c.z}px) translate(-50%,-50%)`}
+              style={`transform:translate3d(${c.x0}px,${c.y}px,${c.z}px) translate(-50%,-50%)`}
             />
+            {Math.abs(c.x - c.x0) > 2 && (
+              <span
+                class:list={['lead', `lead--${c.layer}`, { 'is-dimmed': c.dimmed }]}
+                data-for={c.slug}
+                style={`width:${Math.abs(c.x - c.x0)}px;transform:translate3d(${Math.min(c.x, c.x0)}px,${c.y}px,${c.z}px) translateY(-50%)`}
+              />
+            )}
             <span
               class:list={['pin', { 'is-dimmed': c.dimmed }]}
               style={`height:${CARD_LIFT}px;transform:translate3d(${c.x}px,${c.y}px,${c.z}px) rotateX(90deg)`}
@@ -186,7 +204,7 @@ const ssrFocus = startCard ? { y: startCard.y, z: startCard.z + CARD_LIFT + 110 
 
   <nav class="rail" aria-label="Years">
     {
-      L.years.map((y) => (
+      L.years.filter((y) => y.label).map((y) => (
         <button class="rail__year" data-x={y.x} data-year={y.year}>
           <span class="rail__n">{y.year}</span>
           <span class="rail__phase">{strings.phases[y.year]}</span>
@@ -363,13 +381,20 @@ const ssrFocus = startCard ? { y: startCard.y, z: startCard.z + CARD_LIFT + 110 
   }
   .plane__yearlabel {
     position: absolute;
-    inset-block-end: 20px;
-    transform: translateX(12px);
+    inset-block-end: 18px;
+    transform: translateX(14px);
     font-family: var(--font-mono);
-    font-size: 24px;
+    font-size: 34px;
+    font-weight: 500;
     line-height: 1;
-    letter-spacing: 0.12em;
-    color: rgba(255,255,255,.62);
+    letter-spacing: 0.1em;
+    color: rgba(255,255,255,.78);
+  }
+  .plane__yearband {
+    position: absolute;
+    inset-block: 0;
+    background: linear-gradient(180deg, color-mix(in srgb, var(--c) 3%, transparent), color-mix(in srgb, var(--c) 11%, transparent));
+    pointer-events: none;
   }
   /* RTL time runs right→left: the year label sits after its line, i.e. to its left */
   :root[dir='rtl'] .plane__yearlabel { transform: translateX(calc(-100% - 12px)); }
@@ -416,7 +441,14 @@ const ssrFocus = startCard ? { y: startCard.y, z: startCard.z + CARD_LIFT + 110 
   }
   .dot--mobile { background: var(--mobile); box-shadow: 0 0 0 6px color-mix(in srgb, var(--mobile) 14%, transparent), 0 0 24px var(--mobile); }
   .dot--cloud { background: var(--cloud); box-shadow: 0 0 0 6px color-mix(in srgb, var(--cloud) 14%, transparent), 0 0 24px var(--cloud); }
-  .pin.is-dimmed, .dot.is-dimmed { opacity: 0.25; }
+  .lead {
+    block-size: 1.5px;
+    transform-origin: 0 50%;
+    background: color-mix(in srgb, var(--origin) 40%, transparent);
+  }
+  .lead--mobile { background: color-mix(in srgb, var(--mobile) 45%, transparent); }
+  .lead--cloud { background: color-mix(in srgb, var(--cloud) 45%, transparent); }
+  .pin.is-dimmed, .dot.is-dimmed, .lead.is-dimmed { opacity: 0.25; }
 
   /* ======== cards: "portraits" that always face the camera ======== */
   .card {
@@ -497,6 +529,15 @@ const ssrFocus = startCard ? { y: startCard.y, z: startCard.z + CARD_LIFT + 110 
     inset-block-end: 88px;
     max-inline-size: min(34ch, 40vw);
     pointer-events: none;
+    isolation: isolate;
+  }
+  /* a soft shadow behind the title so the floor and cards recede under it */
+  .credit::before {
+    content: '';
+    position: absolute;
+    inset: -70px -120px -60px -90px;
+    z-index: -1;
+    background: radial-gradient(closest-side, rgba(8, 8, 8, 0.9), rgba(8, 8, 8, 0.6) 55%, transparent);
   }
   .credit__world { color: var(--accent); }
   .credit__title { font-size: clamp(1.5rem, 1.1rem + 1.6vw, 2.6rem); margin-block: 0.3rem 0.4rem; }

@@ -13,3 +13,11 @@ Append-only. Date · decision · why · who approved.
 - 2026-10-08 · Map → dossier opens with a JS hand-off (the card art flies to the exact hero rect, the map dissolves, then navigate) instead of a View-Transitions morph · must work in every browser (Firefox has no cross-document VT) and be seamless · owner
 - 2026-10-08 · No custom domain: the owner no longer has mecodes.live (never use it). Site defaults to GitHub Pages `https://mohamed-h-essa.github.io` (`SITE_URL` overrides); contact email is mhosnytech@gmail.com · owner's answer in owner-todo · owner
 - 2026-10-08 · Interface sound added (spec §5 had excluded it): synthesised with Web Audio (no files), silent until the first click/key, very low level, speaker toggle remembered per visitor · owner asked for subtle, tactile sound that follows the animation · owner
+
+## 2026-10-30 — Keep the 3D canvas; give it room (branch `feat/canvas-spacing`)
+The owner rejected the scrolling timeline (`feat/timeline`): the canvas is the experience. Fixes inside the canvas
+instead (`lib/scene.ts`, `Scene.astro`): a month is 70px (was 34); same-layer cards stand ≥196px apart (a billboard
+is ~170 world px on screen) and a crowded group is spread *around* its members' true dates (`spread()`), not pushed
+into the future; each project's dot sits on its true month with a floor line to its card; every other year is
+tinted on the floor and year labels are bigger; a year with no project gets no label or rail entry (no empty 2027);
+the title block has a soft shadow so the floor recedes under it. Overlap probe: none at 1440/1280/390/320, en + ar.
