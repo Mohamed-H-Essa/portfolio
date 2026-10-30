@@ -31,9 +31,9 @@ result:
   en: "Releases that took multiple days became same-day across the app portfolio."
   de: "Releases, die mehrere Tage dauerten, gehen jetzt am selben Tag raus – über das gesamte App-Portfolio."
   ar: "أصبحت الإصدارات التي كانت تستغرق أياماً تتم في اليوم نفسه عبر محفظة التطبيقات."
-stack: [GitHub Actions, Fastlane, Code signing, TestFlight, Google Play]
+stack: [GitHub Actions, Fastlane, Codemagic, Code signing, TestFlight, Google Play]
 links: {}
-connects: [qanony, aratc, mobile-security-hardening]
+connects: [qanony, aratc, mobile-security-hardening, motary, ehc-board, misr-el-kheir, leem]   # CI/CD across the apps (owner, 2026-10-30)
 assets: auto
 visual: release-flow
 review: { de: true, ar: true }

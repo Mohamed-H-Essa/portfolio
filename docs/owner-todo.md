@@ -227,3 +227,5 @@ Processed `drive-download-20261024…zip` (flowers, itutor, masr_alkher, motary,
       update them. (Evidence: HOPE's oldest files in `~/work/hope_project` are from Aug 2025, first commit Apr 2026;
       German Sync's first commit is 2026-06-01; Slipway's repo `k8s_platform_bootstrap` first commit is 2026-03-03.
       AWS SAA stays 2026-06, the certificate date.)
+- [ ] CI/CD links (2026-10-30): release-pipeline connects to aratc, motary, qanony, ehc-board, misr-el-kheir, leem; confirm
+      which apps used which tool (Codemagic / Fastlane / GitHub Actions).
