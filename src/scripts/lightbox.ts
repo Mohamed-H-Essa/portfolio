@@ -20,10 +20,13 @@ export function initLightbox(section: HTMLElement) {
   if (!strip) return;
   const originals = Array.from(strip.querySelectorAll<HTMLAnchorElement>('li:not([data-clone]) .gallery__shot'));
   if (!originals.length) return;
-  const shots: Shot[] = originals.map((a) => {
+  const read = (a: HTMLAnchorElement): Shot => {
     const img = a.querySelector('img')!;
-    return { lo: img.currentSrc || img.src, hi: a.href, alt: img.alt };
-  });
+    return { lo: img.src || img.currentSrc, hi: a.href, alt: img.alt };
+  };
+  const shots: Shot[] = originals.map(read);
+  // the gallery's language / theme switch replaced the images (gallery-variants.ts)
+  section.addEventListener('gallery:swap', () => shots.splice(0, shots.length, ...originals.map(read)));
   const html = document.documentElement;
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const L = { close: section.dataset.close || 'Close', prev: section.dataset.prev || 'Previous', next: section.dataset.next || 'Next' };

@@ -89,5 +89,9 @@
   "nav.sound": "الصوت",
   "intro.enter": "ادخل",
   "intro.soundNote": "التجربة أفضل مع الصوت",
-  "intro.silent": "المتابعة دون صوت"
+  "intro.silent": "المتابعة دون صوت",
+  "gallery.light": "فاتح",
+  "gallery.dark": "داكن",
+  "gallery.axis.lang": "لغة الشاشات",
+  "gallery.axis.theme": "مظهر الشاشات"
 }

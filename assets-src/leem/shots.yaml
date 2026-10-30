@@ -22,3 +22,15 @@ shots:
     role: gallery
   - file: "ar-05-signin-dark.png"
     role: gallery
+# The project page lets visitors switch the screens between English / Arabic and
+# light / dark (all four were captured). The account sheet is left out (email).
+variants:
+  lang: [en, ar]
+  theme: [light, dark]
+  default: { theme: dark }
+  screens:
+    - "{lang}-01-today-{theme}.png"
+    - "{lang}-03-results-{theme}.png"
+    - "{lang}-04-article-{theme}.png"
+    - "{lang}-02-search-{theme}.png"
+    - "{lang}-05-signin-{theme}.png"

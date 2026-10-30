@@ -74,3 +74,24 @@ export function projectAccent(slug: string): string | undefined {
     return undefined;
   }
 }
+
+/** Gallery variants (the same screens in another language / theme), written by
+ *  `npm run assets` from shots.yaml `variants`; null when the project has none. */
+export interface GalleryVariants {
+  axes: { id: 'lang' | 'theme'; values: string[] }[];
+  default: Record<string, string>;
+  count: number;
+}
+export function galleryVariants(slug: string): GalleryVariants | null {
+  try {
+    return JSON.parse(readFileSync(join(PUB, slug, 'variants.json'), 'utf8')) as GalleryVariants;
+  } catch {
+    return null;
+  }
+}
+
+/** Base URL of a project's variant galleries: `${base}/<key>/NN.webp`. */
+export function variantBase(slug: string): string {
+  return url('projects', slug, 'gallery', 'v').replace(/\/$/, '');
+}
+

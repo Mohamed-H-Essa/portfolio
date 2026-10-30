@@ -1,0 +1,22 @@
+{
+  "axes": [
+    {
+      "id": "lang",
+      "values": [
+        "en",
+        "ar"
+      ]
+    },
+    {
+      "id": "theme",
+      "values": [
+        "light",
+        "dark"
+      ]
+    }
+  ],
+  "default": {
+    "theme": "dark"
+  },
+  "count": 5
+}

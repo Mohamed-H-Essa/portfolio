@@ -49,7 +49,18 @@ interface ShotsYaml {
    *  the image): gallery only, shown as-is; the site uses a Badge for the art */
   framed?: boolean;
   shots: ShotSpec[];
+  /** The same screens in several versions (language, theme), switchable on the
+   *  project page. Each axis lists its values; `screens` are either a pattern
+   *  ("{lang}-01-today-{theme}.png") or a map from variant key ("en-dark") to file. */
+  variants?: VariantSpec;
 }
+interface VariantSpec {
+  lang?: string[];
+  theme?: string[];
+  default?: Record<string, string>;
+  screens: (string | Record<string, string>)[];
+}
+const AXES = ['lang', 'theme'] as const;
 interface DiagramYaml {
   accent?: string;
   world?: keyof typeof WORLD_ACCENT;
@@ -162,6 +173,7 @@ async function renderScreenshotProject(browser: Browser, slug: string, spec: Sho
 
   writeMeta(outDir, accent);
   console.log(`  ✓ ${slug} (screenshots) accent=${accent} galleries=${i - 1}`);
+  if (spec.variants) await renderVariants(browser, slug, spec.variants, accent);
 }
 
 async function renderCloudProject(browser: Browser, slug: string, spec: DiagramYaml) {
@@ -187,6 +199,34 @@ async function renderCloudProject(browser: Browser, slug: string, spec: DiagramY
   await sharp(buf).extract({ left: 690, top: 100, width: 520, height: 470 }).resize(480, 600, { fit: 'cover' }).webp({ quality: 80 }).toFile(join(outDir, 'thumb.webp'));
   writeMeta(outDir, accent);
   console.log(`  ✓ ${slug} (cloud diagram) accent=${accent}`);
+}
+
+/** Every variant of the gallery: gallery/v/<key>/NN.webp (+ -2x) and variants.json,
+ *  which the project page reads to draw its switches (DossierGallery.astro). */
+async function renderVariants(browser: Browser, slug: string, spec: VariantSpec, accent: string) {
+  const raw = join(SRC, slug, 'raw');
+  const axes = AXES.filter((a) => spec[a]?.length).map((id) => ({ id, values: spec[id]! }));
+  const keys = axes.reduce<string[][]>((acc, a) => acc.flatMap((k) => a.values.map((v) => [...k, v])), [[]]);
+  for (const parts of keys) {
+    const key = parts.join('-');
+    const dir = join(OUT, slug, 'gallery', 'v', key);
+    mkdirSync(dir, { recursive: true });
+    let i = 1;
+    for (const sc of spec.screens) {
+      const file = typeof sc === 'string'
+        ? axes.reduce((f, a, j) => f.replaceAll(`{${a.id}}`, parts[j]), sc)
+        : sc[key];
+      if (!file) throw new Error(`${slug}: no file for variant "${key}" of screen ${i}`);
+      const shot = await toScreen(await cleanScreenshot(readFileSync(join(raw, file))));
+      const gl = galleryTemplate(shot, { accent });
+      const n = String(i++).padStart(2, '0');
+      await writeWebp(await shoot(browser, gl.html, gl.w, gl.h), join(dir, `${n}.webp`), 78);
+      await writeWebp(await shoot(browser, gl.html, gl.w, gl.h, 2), join(dir, `${n}-2x.webp`), 80);
+    }
+  }
+  const manifest = { axes, default: spec.default ?? {}, count: spec.screens.length };
+  writeFileSync(join(OUT, slug, 'variants.json'), JSON.stringify(manifest, null, 2) + '\n');
+  console.log(`    + ${keys.length} gallery variants × ${spec.screens.length} screens`);
 }
 
 /** The project's accent, for the site's per-project colour theme (src/lib/assets.ts). */

@@ -89,5 +89,9 @@
   "nav.sound": "Ton",
   "intro.enter": "Eintreten",
   "intro.soundNote": "Am besten mit Ton",
-  "intro.silent": "Ohne Ton fortfahren"
+  "intro.silent": "Ohne Ton fortfahren",
+  "gallery.light": "Hell",
+  "gallery.dark": "Dunkel",
+  "gallery.axis.lang": "Sprache der Screens",
+  "gallery.axis.theme": "Design der Screens"
 }

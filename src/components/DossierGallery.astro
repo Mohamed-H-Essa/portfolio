@@ -3,12 +3,26 @@
 // trackpad and keyboard (the strip is focusable) without JS; the arrow buttons
 // are a small enhancement for mouse-wheel users.
 import { t, type Locale } from '../i18n';
-import { galleryCount, galleryUrl } from '../lib/assets';
+import { galleryCount, galleryUrl, galleryVariants, variantBase } from '../lib/assets';
 
 interface Props { slug: string; title: string; locale: Locale }
 const { slug, title, locale } = Astro.props;
-const n = galleryCount(slug);
 const rtl = locale === 'ar';
+
+// Variants: the same screens in another language / theme, switchable (gallery-variants.ts).
+// The page opens on its own language when the app has it, and on the declared default theme.
+const V = galleryVariants(slug);
+const pick = V
+  ? Object.fromEntries(V.axes.map((a) => [a.id, a.id === 'lang' && a.values.includes(locale) ? locale : V.default[a.id] ?? a.values[0]]))
+  : {};
+const vbase = V ? variantBase(slug) : '';
+const key = V ? V.axes.map((a) => pick[a.id]).join('-') : '';
+const n = V ? V.count : galleryCount(slug);
+const nn = (i: number) => String(i + 1).padStart(2, '0');
+const lo = (i: number) => (V ? `${vbase}/${key}/${nn(i)}.webp` : galleryUrl(slug, i + 1));
+const hi = (i: number) => (V ? `${vbase}/${key}/${nn(i)}-2x.webp` : galleryUrl(slug, i + 1, true));
+const NATIVE: Record<string, string> = { en: 'English', ar: 'العربية', de: 'Deutsch' };
+const label = (axis: string, v: string) => (axis === 'lang' ? NATIVE[v] ?? v : t(locale, `gallery.${v}`));
 ---
 
 {
@@ -16,6 +30,20 @@ const rtl = locale === 'ar';
     <section class="gallery" aria-labelledby="gallery-h" data-gallery data-close={t(locale, 'dossier.close')} data-prev={t(locale, 'dossier.prev')} data-next={t(locale, 'dossier.next')}>
       <div class="gallery__head shell">
         <h2 id="gallery-h" class="label">{t(locale, 'dossier.gallery')}</h2>
+        {V && (
+          <div class="gallery__switch" hidden data-variants={JSON.stringify({ base: vbase, axes: V.axes.map((a) => a.id), count: n })}>
+            {V.axes.map((a) => (
+              <div class="seg" role="group" aria-label={t(locale, `gallery.axis.${a.id}`)}>
+                {a.values.map((v) => (
+                  <button type="button" data-axis={a.id} data-value={v} aria-pressed={pick[a.id] === v ? 'true' : 'false'} lang={a.id === 'lang' ? v : undefined}>
+                    {a.id === 'theme' && <span class:list={['seg__icon', `seg__icon--${v}`]} aria-hidden="true" />}
+                    {label(a.id, v)}
+                  </button>
+                ))}
+              </div>
+            ))}
+          </div>
+        )}
         <div class="gallery__nav" hidden data-gallery-nav>
           <button type="button" data-dir="-1" aria-label={t(locale, 'dossier.prev')}>{rtl ? '→' : '←'}</button>
           <button type="button" data-dir="1" aria-label={t(locale, 'dossier.next')}>{rtl ? '←' : '→'}</button>
@@ -25,8 +53,8 @@ const rtl = locale === 'ar';
         {Array.from({ length: n }, (_, i) => (
           <li>
             {/* a link to the sharp 2× image: works without JS; lightbox.ts opens the full-screen viewer */}
-            <a class="gallery__shot" href={galleryUrl(slug, i + 1, true)} data-n={i} aria-label={`${t(locale, 'dossier.enlarge')} ${i + 1}/${n}`}>
-              <img src={galleryUrl(slug, i + 1)} alt={`${title} — ${i + 1}/${n}`} width="720" height="1091" loading="lazy" decoding="async" />
+            <a class="gallery__shot" href={hi(i)} data-n={i} aria-label={`${t(locale, 'dossier.enlarge')} ${i + 1}/${n}`}>
+              <img src={lo(i)} alt={`${title} — ${i + 1}/${n}`} width="720" height="1091" loading="lazy" decoding="async" />
             </a>
           </li>
         ))}
@@ -37,7 +65,28 @@ const rtl = locale === 'ar';
 
 <style>
   .gallery { padding-block: 2.5rem; }
-  .gallery__head { display: flex; justify-content: space-between; align-items: center; margin-block-end: 1rem; }
+  .gallery__head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 0.75rem 1.25rem; margin-block-end: 1rem; }
+  /* the switches: segmented pills, the chosen one filled with the project's colour */
+  .gallery__switch { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-inline-end: auto; }
+  .seg { display: inline-flex; padding: 3px; border: 1px solid var(--line); border-radius: 999px; background: rgba(255, 255, 255, 0.02); }
+  .seg button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    min-block-size: 36px;
+    padding-inline: 0.9rem;
+    border-radius: 999px;
+    color: var(--ink-2);
+    font-size: 0.88rem;
+    transition: background var(--dur) var(--ease), color var(--dur) var(--ease);
+  }
+  .seg button:hover { color: var(--ink); }
+  .seg button[aria-pressed='true'] { background: color-mix(in srgb, var(--p, var(--origin)) 85%, #fff); color: #0b0b0c; font-weight: 600; }
+  .seg button:focus-visible { outline: 2px solid var(--p, var(--origin)); outline-offset: 2px; }
+  .seg__icon { inline-size: 0.8rem; block-size: 0.8rem; border-radius: 50%; border: 1.5px solid currentColor; }
+  .seg__icon--dark { background: linear-gradient(90deg, currentColor 50%, transparent 50%); }
+  .gallery__strip.is-swapping img { opacity: 0.35; transition: opacity 180ms var(--ease); }
+  .gallery__strip img { transition: opacity 320ms var(--ease); }
   .gallery__nav { display: flex; gap: 0.5rem; }
   .gallery__nav button {
     inline-size: 44px;
@@ -118,7 +167,8 @@ const rtl = locale === 'ar';
 <script>
   import { initLightbox } from '../scripts/lightbox';
   import { initMarquee } from '../scripts/gallery-marquee';
-  document.querySelectorAll<HTMLElement>('[data-gallery]').forEach((g) => { initMarquee(g); initLightbox(g); });
+  import { initVariants } from '../scripts/gallery-variants';
+  document.querySelectorAll<HTMLElement>('[data-gallery]').forEach((g) => { initMarquee(g); initLightbox(g); initVariants(g); });
   document.querySelectorAll<HTMLElement>('[data-gallery]').forEach((g) => {
     const strip = g.querySelector<HTMLElement>('.gallery__strip')!;
     const nav = g.querySelector<HTMLElement>('[data-gallery-nav]')!;

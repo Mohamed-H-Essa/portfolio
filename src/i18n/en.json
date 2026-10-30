@@ -89,5 +89,9 @@
   "nav.sound": "Sound",
   "intro.enter": "Enter",
   "intro.soundNote": "Best with sound",
-  "intro.silent": "Continue without sound"
+  "intro.silent": "Continue without sound",
+  "gallery.light": "Light",
+  "gallery.dark": "Dark",
+  "gallery.axis.lang": "Language of the screens",
+  "gallery.axis.theme": "Theme of the screens"
 }

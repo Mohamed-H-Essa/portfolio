@@ -98,7 +98,9 @@ const homeHref = url();
       )}
 
       <noscript>
-        <!-- Without JS the hamburger can't open; expose language links inline. -->
+        <!-- Without JS the hamburger can't open; expose language links inline,
+             and let the bar wrap onto a second row rather than overflow a phone. -->
+        <style is:inline>.menu-btn{display:none!important}.site-header__nav{flex-wrap:wrap;justify-content:flex-end;min-inline-size:0}</style>
         <span class="noscript-langs">
           {langLinks.map((l) => <a href={l.href} lang={l.code} class:list={['switch__opt', { 'is-active': l.active }]}>{l.code.toUpperCase()}</a>)}
         </span>
@@ -187,6 +189,12 @@ const homeHref = url();
   }
   /* phones: the centred Map pill and the name don't both fit; the mark stays (it still replays the intro) */
   @media (max-width: 760px) { .has-map .brand__name { display: none; } }
+  /* phones on a project page: the centred Map button needs the room, so the CV
+     button shrinks to its download icon (the menu still lists both CVs by name) */
+  @media (max-width: 760px) {
+    .has-map .cv-btn { inline-size: 40px; block-size: 40px; padding: 0; justify-content: center; }
+    .has-map .cv-btn span { position: absolute; inline-size: 1px; block-size: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  }
   :root[dir='rtl'] .to-map { font-family: var(--font-ar); letter-spacing: 0; text-transform: none; font-size: 0.9rem; }
   .to-map svg { inline-size: 26px; block-size: 14px; overflow: visible; }
   .to-map path { fill: none; stroke: var(--c, var(--origin)); stroke-width: 13; stroke-linecap: round; transition: stroke-dashoffset 700ms var(--ease-strong); stroke-dasharray: 1000; stroke-dashoffset: 0; }
@@ -203,7 +211,12 @@ const homeHref = url();
   }
   .brand__name {
     color: var(--ink);
+    white-space: nowrap;
   }
+  /* small phones: the logo alone (the page itself says the name); Arabic's CV
+     label is longer, so it needs the room sooner */
+  @media (max-width: 360px) { .brand__name { display: none; } }
+  @media (max-width: 430px) { :global([dir='rtl']) .brand__name { display: none; } }
   .site-header__nav {
     display: flex;
     align-items: center;
@@ -235,6 +248,7 @@ const homeHref = url();
     color: var(--ink);
   }
   .cv-btn {
+    white-space: nowrap;
     display: inline-flex;
     align-items: center;
     gap: 0.4rem;

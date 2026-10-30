@@ -23,3 +23,13 @@ shots:
     role: gallery
   - file: "WhatsApp Image 2026-09-01 at 3.23.56 PM.jpeg"   # #24 services catalogue (AR)
     role: gallery
+# The same six screens in English and Arabic: the project page switches between them.
+variants:
+  lang: [en, ar]
+  screens:
+    - { en: "WhatsApp Image 2026-09-01 at 3.18.04 PM.jpeg", ar: "WhatsApp Image 2026-09-01 at 3.18.09 PM.jpeg" }  # welcome
+    - { en: "WhatsApp Image 2026-09-01 at 3.13.24 PM.jpeg", ar: "WhatsApp Image 2026-09-01 at 3.23.47 PM.jpeg" }  # home
+    - { en: "WhatsApp Image 2026-09-01 at 3.11.42 PM.jpeg", ar: "WhatsApp Image 2026-09-01 at 3.20.47 PM.jpeg" }  # tell us about your request
+    - { en: "WhatsApp Image 2026-09-01 at 3.12.35 PM.jpeg", ar: "WhatsApp Image 2026-09-01 at 3.21.10 PM.jpeg" }  # review + price
+    - { en: "WhatsApp Image 2026-09-01 at 3.12.45 PM.jpeg", ar: "WhatsApp Image 2026-09-01 at 3.21.24 PM.jpeg" }  # payment
+    - { en: "WhatsApp Image 2026-09-01 at 3.13.01 PM.jpeg", ar: "WhatsApp Image 2026-09-01 at 3.22.17 PM.jpeg" }  # request progress
