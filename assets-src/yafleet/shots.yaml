@@ -1,0 +1,22 @@
+# Yafleet — travellers carry shipments. iPhone 1200x2609 from the owner's Drive
+# pack (2026-09), demo names. The demo shipments have "600 × 400" placeholder
+# pictures: masked on the home screen (the card then simply has no picture), and
+# the shipment-detail screen (one big placeholder) is left out. Splash left out.
+device: iphone
+accent: auto
+world: mobile
+title: Yafleet
+code: M06
+impact: Turns travellers' spare luggage weight into shipping capacity
+shots:
+  - file: "02_home.webp"           # From/To, shipments near you with route and reward
+    role: hero
+    masks:
+      - { x: 830, y: 1328, w: 270, h: 270 }   # "600 × 400" placeholder, 1st card
+      - { x: 830, y: 2142, w: 270, h: 154 }   # same, 2nd card (cut by the tab bar)
+  - file: "03_new_trip.webp"       # add a trip: travel method, departure, arrival
+    role: gallery
+  - file: "04_new_shipment.webp"   # add a shipment: pickup and delivery
+    role: gallery
+  - file: "06_chat.webp"           # chats between travellers and senders
+    role: gallery

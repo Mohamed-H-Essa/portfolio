@@ -1,4 +1,13 @@
-# HANDOFF — read this first (2026-10-08, end of session 3)
+# HANDOFF — read this first (2026-10-08, end of session 3; session 4 notes below)
+
+## Session 4 (2026-10) — done
+- CVs: `public/cv/*.pdf` served; the CV button downloads per track (`cvFile()` in `lib/features.ts`): the mobile CV
+  everywhere, the DevOps CV only on the Cloud track. Replace the PDFs in place to update them.
+- Vertical map (time runs down, layers become lanes) lives on branch `feat/vertical-map`, **awaiting owner review**;
+  `main` still has the horizontal map. Merge `main` into the branch after content changes.
+- Drive screenshot pack (2026-10-30): new nodes Motary (M07), Misr El Kheir (M08, GitLab `gharemeen`), iTutor (M09);
+  raw screens for Heaven Flowers (replaces the store frames) and Yafleet; Qanony +1 gallery screen. Masks can set a
+  `fill`, shots can `keepStatusBar`. Open questions in `owner-todo.md`.
 
 ## Session 3, later additions
 - Swipe back (`scripts/swipe-back.ts`): project page → map, intro world → language step. Never on the map.

@@ -13,6 +13,10 @@ shots:
     role: hero
   - file: "WhatsApp Image 2026-09-01 at 3.13.24 PM.jpeg"   # #11 EN home "Your legal team, a tap away"
     role: gallery
+  # From the owner's Drive pack (2026-09, 1200x2597). The pack's other screens show
+  # test entries ("cc", "dd"), uploaded personal files or a real profile: left out.
+  - file: "03_service_details.webp"                         # service page: what's needed, what's included, steps
+    role: gallery
   - file: "WhatsApp Image 2026-09-01 at 3.12.22 PM.jpeg"   # #5 wizard — request details
     role: gallery
   - file: "WhatsApp Image 2026-09-01 at 3.12.35 PM.jpeg"   # #7 review + pricing

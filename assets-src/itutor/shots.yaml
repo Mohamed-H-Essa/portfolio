@@ -1,0 +1,18 @@
+# iTutor — AI tutor app (React Native / Expo), iPhone 1200x2597 from the owner's
+# Drive pack (2026-09). Dark UI. Left out: splash, and the subscription screen
+# (demo billing date in 2036).
+device: iphone
+accent: auto
+world: mobile
+title: iTutor
+code: M09
+impact: An AI tutor for your own study material, by chat and voice
+shots:
+  - file: "05_voice_chat.webp"   # voice room over a chat answer ("Listening — your turn")
+    role: hero
+  - file: "02_library.webp"      # generated library: summaries, glossaries, quizzes, mind maps
+    role: gallery
+  - file: "03_tools.webp"        # tools sheet: web search, image, flashcards, podcast script…
+    role: gallery
+  - file: "04_chat.webp"         # chat answer about an uploaded image
+    role: gallery

@@ -1,0 +1,47 @@
+# Sources: GitLab intrazero/mobileapp/gharemeen (2025-08 → 2026-02; Flutter,
+# flutter_bloc, sqflite, internet_connection_checker), built mostly by teammates.
+# The owner's commit (2025-10-20, "Implement offline queue for family member
+# requests"): SQLite queue model + local datasource, offline queue service, sync
+# service, connectivity listener, sync cubit. Screens: the owner's Drive pack
+# (sequential demo names / phones / IDs). Client from the splash: مؤسسة مصر الخير.
+slug: misr-el-kheir
+kind: project
+worlds: [mobile]
+era: s3
+start: 2025-10
+end: 2025-10
+weight: { mobile: 1, cloud: 0, all: 1 }
+featured: false
+confidential: false
+code: M08
+role:
+  en: "Flutter developer (offline sync)"
+  de: "Flutter-Entwickler (Offline-Synchronisierung)"
+  ar: "مطوّر Flutter (المزامنة دون اتصال)"
+short: { en: "Misr El Kheir", de: "Misr El Kheir", ar: "مصر الخير" }   # ≤14 chars
+title:
+  en: "Misr El Kheir — debtors' case research"
+  de: "Misr El Kheir — Fallrecherche für Verschuldete"
+  ar: "مصر الخير — البحث الاجتماعي للغارمين"
+impact:
+  line:
+    en: "Family records survive a dropped connection and sync when it returns"
+    de: "Familiendaten überstehen einen Verbindungsabbruch und synchronisieren danach"
+    ar: "بيانات الأسرة لا تضيع عند انقطاع الاتصال وتُزامَن عند عودته"
+problem:
+  en: "Misr El Kheir's social researchers document each debtor's case (personal data, family members, housing) in long multi-step forms, and the app must not lose an entry when the connection drops."
+  de: "Die Sozialforscher von Misr El Kheir dokumentieren jeden Fall (persönliche Daten, Familienmitglieder, Wohnsituation) in langen mehrstufigen Formularen, und die App darf keinen Eintrag verlieren, wenn die Verbindung abbricht."
+  ar: "يوثّق الباحثون الاجتماعيون في مصر الخير حالة كل غارم (البيانات الشخصية وأفراد الأسرة والسكن) في نماذج طويلة متعددة الخطوات، ويجب ألا يضيع أي إدخال إذا انقطع الاتصال."
+built:
+  en: "My part was the offline queue for family members: a family-member request made without a connection is saved to a local SQLite queue, a connectivity listener notices when the network is back, and a sync service sends the queued requests and updates the screen."
+  de: "Mein Teil war die Offline-Warteschlange für Familienmitglieder: Eine Anfrage ohne Verbindung wird in einer lokalen SQLite-Warteschlange gespeichert, ein Verbindungs-Listener erkennt, wenn das Netz zurück ist, und ein Sync-Dienst sendet die wartenden Anfragen und aktualisiert die Ansicht."
+  ar: "كان دوري قائمة الانتظار دون اتصال لأفراد الأسرة: يُحفظ الطلب الذي يُرسل دون اتصال في قائمة SQLite محلية، ويلاحظ مستمع الاتصال عودة الشبكة، ثم ترسل خدمة المزامنة الطلبات المنتظرة وتحدّث الشاشة."
+result:
+  en: "Family members can be recorded with no connection; the records reach the server once the phone is back online."
+  de: "Familienmitglieder lassen sich ohne Verbindung erfassen; die Daten erreichen den Server, sobald das Telefon wieder online ist."
+  ar: "يمكن تسجيل أفراد الأسرة دون اتصال، وتصل البيانات إلى الخادم فور عودة الهاتف إلى الإنترنت."
+stack: [Flutter, Dart, Bloc, SQLite]
+links: {}
+connects: []
+assets: auto
+review: { de: true, ar: true }

@@ -1,0 +1,44 @@
+# Sources: GitLab intrazero/mobileapp/motary (2024-10 → 2025-03, three developers;
+# the owner's commits 2024-10-03 → 2024-12-01, the most of anyone: seller product
+# listing by category, pagination, show/hide, add/edit product with multiple images,
+# home + nav bar), pubspec (flutter_bloc, get_it, Firebase, Google/Apple/Facebook
+# sign-in, lang/ar+en), the owner's CV ("Motary (Oman) automotive parts platform"),
+# screenshots from the owner's Drive pack. No store link known (owner-todo).
+slug: motary
+kind: project
+worlds: [mobile]
+era: s3
+start: 2024-10
+end: 2024-12
+weight: { mobile: 2, cloud: 0, all: 1 }
+featured: false
+confidential: false
+code: M07
+role: { en: "Flutter developer", de: "Flutter-Entwickler", ar: "مطوّر Flutter" }
+short: { en: "Motary", de: "Motary", ar: "موتري" }   # ≤14 chars
+title:
+  en: "Motary — auto-parts marketplace"
+  de: "Motary — Marktplatz für Autoteile"
+  ar: "موتري — سوق قطع غيار السيارات"
+impact:
+  line:
+    en: "An auto-parts marketplace for Oman, for buyers and sellers"
+    de: "Ein Marktplatz für Autoteile in Oman, für Käufer und Händler"
+    ar: "سوق لقطع غيار السيارات في عُمان، للمشترين والبائعين"
+problem:
+  en: "Car owners need the right part for their car from many parts sellers, and the sellers need one place to list their parts and handle orders."
+  de: "Autobesitzer suchen das passende Teil für ihr Auto bei vielen Händlern, und die Händler brauchen einen Ort, um ihre Teile anzubieten und Bestellungen abzuwickeln."
+  ar: "يبحث أصحاب السيارات عن القطعة المناسبة لسياراتهم لدى بائعين كثيرين، ويحتاج البائعون إلى مكان واحد يعرضون فيه قطعهم ويديرون طلباتهم."
+built:
+  en: "A Flutter app with a buyer side (search, sellers, categories, part details with compatibility, cart) and a seller side. I built the seller's catalogue: product listings by category with pagination and show/hide, and the step-by-step add and edit product flow with multiple images. Arabic and English; Google, Apple and Facebook sign-in."
+  de: "Eine Flutter-App mit Käuferseite (Suche, Händler, Kategorien, Teiledetails mit Kompatibilität, Warenkorb) und Händlerseite. Ich habe den Katalog der Händler gebaut: Produktlisten nach Kategorie mit Paginierung und Ein-/Ausblenden sowie das mehrstufige Anlegen und Bearbeiten von Produkten mit mehreren Bildern. Arabisch und Englisch; Anmeldung mit Google, Apple und Facebook."
+  ar: "تطبيق Flutter بواجهة للمشتري (بحث، بائعون، فئات، تفاصيل القطعة وتوافقها، سلة) وواجهة للبائع. بنيتُ كتالوج البائع: قوائم المنتجات حسب الفئة مع التقسيم إلى صفحات والإظهار والإخفاء، وإضافة المنتج وتعديله خطوة بخطوة مع صور متعددة. بالعربية والإنجليزية، مع تسجيل الدخول عبر Google وApple وFacebook."
+result:
+  en: "I made the most commits on a team of three, from October to December 2024."
+  de: "Ich habe in einem Dreierteam die meisten Commits beigetragen, von Oktober bis Dezember 2024."
+  ar: "كنت صاحب أكبر عدد من المساهمات في فريق من ثلاثة مطوّرين، من أكتوبر إلى ديسمبر 2024."
+stack: [Flutter, Dart, Bloc, Firebase, get_it]
+links: {}
+connects: []
+assets: auto
+review: { de: true, ar: true }

@@ -1,12 +1,20 @@
-# Heaven Flowers — only finished App Store frames exist (device + marketing text in
-# the image), so they're shown as-is in the gallery; the site draws a Badge for the art.
-framed: true
+# Heaven Flowers — raw in-app captures (Arabic UI), iPhone 740x1600 from the owner's
+# Drive pack (2026-09), replacing the store frames (still in raw/, unused). They're
+# below the 1000 px guideline, so the 2x renders are a little soft (owner-todo).
+# The home greeting showed a tester's name: masked, so it reads "أهلاً بك".
+device: iphone
 accent: auto
 world: mobile
 title: Heaven Flowers
 code: M04
+impact: A flower and gift marketplace, live on both stores
 shots:
-  - file: "1320x2868bb (1).png"   # Find Flowers Fast (home)
-  - file: "1320x2868bb (2).png"   # Pre-Order Flowers (delivery scheduling)
-  - file: "1320x2868bb (3).png"   # Flower Close-Ups (product detail)
-  - file: "1320x2868bb.png"       # Flowers Wholesale (onboarding)
+  - file: "product.jpeg"   # product page: calla lilies, price, description
+    role: hero
+  - file: "home.jpeg"      # home: search, categories, picks for you
+    role: gallery
+    keepStatusBar: true   # the greeting row starts inside the repainted strip
+    masks:
+      - { x: 395, y: 86, w: 216, h: 34, fill: "#646464" }   # tester's name in the greeting (header grey)
+  - file: "cart.jpeg"      # cart with quantities and total
+    role: gallery
